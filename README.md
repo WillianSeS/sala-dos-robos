@@ -16,7 +16,7 @@ Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, c
 
 ## Como funciona
 
-- **Página:** um único arquivo, `index.html`, feito com Three.js r160.
+- **Página:** um único arquivo, `index.html`, feito com Three.js r160. Ele é gerado a partir das partes em `src/` pelo `build.sh`.
 - **Tempo real e banco de dados:** Supabase.
   - Presença e broadcast mostram quem está na sala e onde.
   - As tabelas `chat_messages` e `pool_ranking` são protegidas por RLS.
@@ -25,6 +25,10 @@ Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, c
   - Precisa de HTTPS e da permissão do microfone.
   - Use fone de ouvido para não dar eco.
   - Não há servidor TURN, então algumas redes muito fechadas podem não conectar.
+
+## Continuar o projeto
+
+O guia completo está em [CONTINUAR.md](CONTINUAR.md): estrutura, como gerar e testar, banco, voz e as regras de trabalho.
 
 ## Créditos
 

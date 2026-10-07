@@ -1,0 +1,5 @@
+testes/saida/
+__pycache__/
+ferramentas/avatares/node_modules/
+ferramentas/avatares/out/
+ferramentas/avatares/rb/

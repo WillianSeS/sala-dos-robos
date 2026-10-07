@@ -1,0 +1,67 @@
+
+/* ================= interações: sentar, geladeira, conversar, sinuca ================= */
+const promptEl = $('prompt'), btnAct = $('btnAct');
+let curAct = null;
+const SEATS = [];
+STATIONS.forEach((st, i) => SEATS.push({
+  kind: 'desk', label: 'Sentar à mesa', x: st.x, z: st.zf + 0.32, eye: 1.18, yaw: 0, st,
+  free: () => { const r = robots[i]; return !(r.mode === 'seated' || r.mode === 'sitting' || r.mode === 'standing' || (r.mode === 'walking' && r.back)); },
+}));
+[-6.1, -5.1, -4.1].forEach(x => SEATS.push({ kind: 'sofa', label: 'Sentar no sofá', x, z: 5.36, eye: 1.06, yaw: 0, free: () => !(x === -6.1 && SPOTS.sofa.busy) }));
+SEATS.push({ kind: 'arm', label: 'Sentar na poltrona', x: -2.78, z: 4.45, eye: 1.08, yaw: 1.32, free: () => true });
+const seatState = { s: null, from: new THREE.Vector3() };
+
+function findAct() {
+  const px = fp.pos.x, pz = fp.pos.z, fx = -Math.sin(fp.yaw), fz = -Math.cos(fp.yaw);
+  let best = null, bs = Infinity;
+  const consider = (x, z, range, minDot, label, run) => {
+    const dx = x - px, dz = z - pz, d = Math.hypot(dx, dz); if (d > range) return;
+    const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
+    const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
+  };
+  for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
+  const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
+  if (Math.hypot(ex, ez) < 1.1) consider(POOL.cx, POOL.cz, 4, 0.3, 'Jogar sinuca', () => startPool(null));
+  consider(FRIDGE.x - 0.1, FRIDGE.z, 1.8, 0.5, FRIDGE.open ? 'Fechar a geladeira' : 'Abrir a geladeira', () => { FRIDGE.open = !FRIDGE.open; });
+  for (const s of SEATS) if (s.free()) consider(s.x, s.z, 1.35, 0.4, s.label, () => sitDown(s));
+  return best;
+}
+function sitDown(s) {
+  seatState.s = s; seatState.from.copy(fp.pos);
+  if (s.st) s.st.playerSeated = true;
+  if (s.kind === 'sofa' && s.x === -6.1) SPOTS.sofa.busy = 'player';
+  fp.yaw = s.yaw; fp.pitch = -0.08; fp.vel.set(0, 0, 0);
+  startTween(new THREE.Vector3(s.x, s.eye, s.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.7, () => { mode = 'seat'; });
+}
+function standUp(after) {
+  const s = seatState.s; if (!s) return;
+  const fx = -Math.sin(s.yaw), fz = -Math.cos(s.yaw);
+  const pref = s.kind === 'desk' ? [[0, 0.7], [0.55, 0.7], [-0.55, 0.7], [0, 1.0]]
+    : [[fx * 0.75, fz * 0.75], [fx * 1.05, fz * 1.05], [0.75, 0], [-0.75, 0], [fx * 0.75 + 0.5, fz * 0.75], [fx * 0.75 - 0.5, fz * 0.75]];
+  let spot = null;
+  for (const [dx, dz] of pref) if (!blocked(s.x + dx, s.z + dz)) { spot = [s.x + dx, s.z + dz]; break; }
+  if (!spot) spot = [seatState.from.x, seatState.from.z];
+  if (s.st) s.st.playerSeated = false;
+  if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null;
+  seatState.s = null; fp.pos.set(spot[0], 0, spot[1]);
+  startTween(new THREE.Vector3(spot[0], EYE, spot[1]), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.6, () => { mode = 'fp'; if (after) after(); });
+}
+function stepSeat() {
+  const s = seatState.s; if (!s) return;
+  camera.position.set(s.x, s.eye, s.z);
+  camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch));
+}
+const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').replace(' a geladeira', '') : l;
+function updateActUI() {
+  let label = null;
+  if (mode === 'fp') { curAct = findAct(); label = curAct && curAct.label; }
+  else if (mode === 'seat') { curAct = { label: 'Levantar', run: () => standUp() }; label = 'Levantar'; }
+  else curAct = null;
+  if (label && isTouch) {
+    btnAct.hidden = false; promptEl.hidden = true; const t = shortLabel(label); if (btnAct.textContent !== t) btnAct.textContent = t;
+  } else if (label) {
+    promptEl.hidden = false; btnAct.hidden = true; const sp = promptEl.lastElementChild; if (sp.textContent !== label) sp.textContent = label;
+  } else { promptEl.hidden = true; btnAct.hidden = true; }
+}
+function doAct() { if (curAct) curAct.run(); }
+btnAct.addEventListener('click', doAct);
