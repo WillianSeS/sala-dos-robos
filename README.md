@@ -10,6 +10,7 @@ Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, c
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
 - Jogar 21 contra os traders com fichas fictícias: use a mesa de centro perto do sofá ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.
 - Ouvir música pelo botão **Música**: três estilos instrumentais gerados no navegador, volume e arquivo de áudio do aparelho. Cada visitante escolhe seu próprio som.
+- Visitar a **Discoteca dos Robôs**: use o botão 🪩 Discoteca ou a passagem na área de lazer. A pista tem luzes suaves, globo espelhado, DJ, bancos, três danças e emojis. Convide os robôs disponíveis; visitantes veem as danças e reações uns dos outros.
 - Conversar com os traders usando as perguntas prontas.
 - Encontrar outras pessoas que estão na sala e falar com elas:
   - chat de texto;

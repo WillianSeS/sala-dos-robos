@@ -53,6 +53,7 @@ const JK = ['hipsY', 'spineX', 'spineY', 'neckX', 'neckY', 'lShX', 'lShY', 'lShZ
 const HIPS_STAND = 0.964;
 const SIT_LEGS = { lHipX: -1.5, rHipX: -1.5, lHipZ: 0.07, rHipZ: -0.07, lKnX: 1.45, rKnX: 1.45 };
 const POSES = {
+  dance: { hipsY: 'stand', lShZ: 0.6, rShZ: -0.6, lElX: -1.0, rElX: -1.0, lKnX: 0.1, rKnX: 0.1 },
   stand: { hipsY: 'stand', lShZ: 0.07, rShZ: -0.07, lElX: -0.12, rElX: -0.12 },
   sitType: Object.assign({ hipsY: 'sit', spineX: 0.12, neckX: 0.03, lShX: -0.62, rShX: -0.58, lShY: -0.28, rShY: 0.3, lShZ: 0.14, rShZ: -0.2, lElX: -0.98, rElX: -0.98 }, SIT_LEGS),
   sitRelax: Object.assign({ hipsY: 'sit', spineX: -0.16, neckX: 0.06, lShX: -0.32, rShX: -0.32, lShY: -0.35, rShY: 0.35, lShZ: 0.12, rShZ: -0.12, lElX: -0.85, rElX: -0.85 }, SIT_LEGS, { lKnX: 1.3, rKnX: 1.3, lHipX: -1.42, rHipX: -1.42 }),
@@ -136,7 +137,11 @@ function animatePerson(P, dt, t) {
   /* respiração */
   f.spineX += Math.sin(t * 1.7 + sp) * 0.012 * m;
   /* micro-ações por pose */
-  if (P.pose === 'sitType') {
+  if (P.pose === 'dance') {
+    const b = danceWave(t, P.danceStyle || 'groove', sp);
+    f.hipsY -= b.bounce; f.spineY += b.sway; f.lShX -= b.arm; f.rShX -= b.otherArm;
+    f.lShZ += b.sway; f.rShZ += b.sway; f.lKnX += b.knee; f.rKnX += b.otherKnee;
+  } else if (P.pose === 'sitType') {
     f.lElX += Math.sin(t * 13 + sp) * 0.05 * m; f.rElX += Math.sin(t * 11.3 + sp * 2) * 0.05 * m;
     f.lWrX += Math.sin(t * 17 + sp) * 0.08 * m; f.rWrX += Math.sin(t * 15 + sp) * 0.08 * m;
     if (t > P.lookT) { P.look = (Math.random() < 0.5 ? -1 : 1) * rnd(0.18, 0.32); P.lookT = t + rnd(1.5, 5); }

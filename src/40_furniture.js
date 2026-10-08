@@ -252,4 +252,4 @@ function plant(x, z, s = 1, n = 18) {
 B(mat.walnut, 2.6, 1.05, 5.96, 0.9, 0.06, 0.07, { group: 'wallFront' });
 B(mat.walnut, 2.6, 0.22, 5.95, 0.9, 0.05, 0.09, { group: 'wallFront' });
 for (let k = 0; k < 5; k++) S(PG_CUE, cueMat0, 2.24 + k * 0.18, 0.2, 5.9, -Math.PI / 2 + 0.03, 0, 0, 1, 1, 1, { group: 'wallFront' });
-plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(0.15, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
+plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);

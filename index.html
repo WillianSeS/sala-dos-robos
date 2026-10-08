@@ -107,6 +107,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .leisure label{display:grid;gap:6px;font-size:12px}.leisure select,.leisure input{max-width:100%;box-sizing:border-box;font:inherit}
 .leisure select{padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
 .leisure button:disabled{opacity:.4;cursor:default}
+.disco-panel{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);box-sizing:border-box;width:min(440px,calc(100% - 28px));padding:13px;background:rgba(12,8,23,.93);border:1px solid #bd6bff88;border-radius:14px;display:grid;gap:9px;z-index:3;backdrop-filter:blur(10px)}
+.disco-panel b{font:600 21px var(--display)}.disco-panel p{margin:0;font-size:11px;line-height:1.5;color:var(--muted)}
+.disco-panel .pool-row{justify-content:flex-start}.disco-panel button{min-height:38px}.disco-panel button[aria-pressed="true"]{border-color:#f285ff;background:#542168}
+.disco-emoji{appearance:none;border:1px solid var(--line);border-radius:10px;background:#ffffff0a;font-size:24px;padding:4px 11px;cursor:pointer}
+.disco-panel label{font-size:11px;display:flex;align-items:center;gap:8px}.disco-panel select{flex:1;min-width:0;background:#21162e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px var(--mono)}
+.disco-shortcuts{position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
+@media(max-width:600px){.disco-shortcuts{top:calc(155px + env(safe-area-inset-top,0px))}.disco-panel .btn.sm{padding:8px 9px;font-size:11px}.disco-panel{gap:8px}}
+@media(max-height:500px){.disco-panel{max-height:calc(100dvh - 70px);overflow:auto;left:14px;transform:none;width:330px}.disco-shortcuts{top:110px}}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -120,6 +128,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
 <div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
+<div class="disco-shortcuts"><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
+<section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
+  <b>🪩 Discoteca dos Robôs</b><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
+  <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>
+  <div class="pool-row"><button id="discoDance" class="btn sm" aria-pressed="false">Dançar</button><button id="discoInvite" class="btn sm">Chamar os robôs</button><button id="discoMusic" class="btn sm">🎶 Música</button></div>
+  <div class="pool-row" aria-label="Reações"><button class="disco-emoji" data-emoji="🔥" aria-label="Mandar fogo">🔥</button><button class="disco-emoji" data-emoji="❤️" aria-label="Mandar coração">❤️</button><button class="disco-emoji" data-emoji="😂" aria-label="Mandar risada">😂</button><button class="disco-emoji" data-emoji="🎉" aria-label="Mandar festa">🎉</button><button class="disco-emoji" data-emoji="🕺" aria-label="Mandar dança">🕺</button></div>
+  <div class="pool-row"><button id="discoLights" class="btn sm" aria-pressed="true">Luzes suaves</button><button id="discoExit" class="btn sm">Voltar à sala</button></div>
+</section>
 <div class="cross" id="cross" hidden></div>
 <div class="help" id="help" hidden></div>
 <div class="joy" id="joy" hidden><i></i></div>
@@ -631,8 +647,12 @@ skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.ad
 /* parede direita (porta) e parede da frente */
 mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
 B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
-mesh(G.plane, mat.plasterLight, GROUPS.wallFront, 0, RH / 2, RD, 0, Math.PI, 0, 16, RH, 1, false);
-B(mat.base, 0, 0.05, 5.99, 16, 0.1, 0.02, { group: 'wallFront', cast: false });
+/* passagem central para a discoteca */
+for (const x of [-4.55, 4.55]) {
+  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, 6.9, RH, 1, false);
+  B(mat.base, x, 0.05, 5.99, 6.9, 0.1, 0.02, { group: 'wallFront', cast: false });
+}
+B(mat.plasterLight, 0, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
 /* porta de madeira com batente */
 const doorWood = M({ map: TEX.slat, color: '#8a6a4a', roughness: 0.5 });
 B(doorWood, 7.975, 1.08, -4.8, 0.04, 2.16, 0.94, { group: 'wallRight' });
@@ -929,7 +949,84 @@ function plant(x, z, s = 1, n = 18) {
 B(mat.walnut, 2.6, 1.05, 5.96, 0.9, 0.06, 0.07, { group: 'wallFront' });
 B(mat.walnut, 2.6, 0.22, 5.95, 0.9, 0.05, 0.09, { group: 'wallFront' });
 for (let k = 0; k < 5; k++) S(PG_CUE, cueMat0, 2.24 + k * 0.18, 0.2, 5.9, -Math.PI / 2 + 0.03, 0, 0, 1, 1, 1, { group: 'wallFront' });
-plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(0.15, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
+plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
+
+/* ================= sala anexa: discoteca ================= */
+const CLUB = { tiles: [], lights: [], beams: [], ball: null, particles: new THREE.Group() };
+const clubWall = MC('#171123', 0.85), clubFloor = MC('#100d1c', 0.55);
+for (const [key, p, n] of [
+  ['clubLeft', [-4, 1.6, 10], [1, 0, 0]], ['clubRight', [4, 1.6, 10], [-1, 0, 0]], ['clubBack', [0, 1.6, 14], [0, 0, -1]],
+]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
+mesh(G.plane, clubFloor, GROUPS.main, 0, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
+mesh(G.plane, clubWall, GROUPS.main, 0, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
+B(clubWall, -4, 1.6, 10, 0.08, RH, 8, { group: 'clubLeft', cast: false });
+B(clubWall, 4, 1.6, 10, 0.08, RH, 8, { group: 'clubRight', cast: false });
+B(clubWall, 0, 1.6, 14, 8, RH, 0.08, { group: 'clubBack', cast: false });
+const clubNeon = color => M({ color: '#160d22', emissive: color, emissiveIntensity: 2.2, roughness: 0.7 });
+const pinkNeon = clubNeon('#fc59df'), blueNeon = clubNeon('#427aff');
+for (const [x, group] of [[-3.95, 'clubLeft'], [3.95, 'clubRight']]) {
+  B(x < 0 ? pinkNeon : blueNeon, x, 0.08, 10, 0.04, 0.04, 7.9, { group, cast: false });
+  B(x < 0 ? pinkNeon : blueNeon, x, 2.9, 10, 0.04, 0.04, 7.9, { group, cast: false });
+  for (const z of [7.3, 9.5, 11.7, 13.7]) B(x < 0 ? pinkNeon : blueNeon, x, 1.5, z, 0.04, 1.5, 0.05, { group, cast: false });
+}
+for (const x of [-1.12, 1.12]) B(pinkNeon, x, 1.2, 5.94, 0.04, 2.4, 0.04, { group: 'wallFront', cast: false });
+function clubSign(text, subtitle, x, y, z, w, h, group = 'main', ry = Math.PI) {
+  const tex = canvasTex(768, 256, (g, tw, th) => {
+    g.fillStyle = '#130c20'; g.fillRect(0, 0, tw, th);
+    g.strokeStyle = '#cc67f4'; g.lineWidth = 5; g.strokeRect(5, 5, tw - 10, th - 10);
+    g.textAlign = 'center'; g.fillStyle = '#f1cfff'; g.font = '700 72px ' + FONT; g.fillText(text, tw / 2, 112);
+    g.fillStyle = '#8eceff'; g.font = '500 32px ' + FONT; g.fillText(subtitle, tw / 2, 186);
+  });
+  const m = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
+  return mesh(G.plane, m, GROUPS[group], x, y, z, 0, ry, 0, w, h, 1, false);
+}
+clubSign('DISCOTECA', 'ENTRE NA PISTA →', 0, 2.77, 5.93, 1.9, 0.56, 'wallFront');
+clubSign('ROBÔ DISCO', 'DANÇA • MÚSICA • BOAS VIBES', 0, 2.25, 13.92, 4.4, 1.3, 'clubBack');
+clubSign('SALA DOS ROBÔS', '← VOLTAR AO PREGÃO', 0, 2.76, 6.06, 1.9, 0.56, 'wallFront', 0);
+/* pista: cores mudam suavemente, sem estrobo */
+B(mat.black, 0, 0.006, 9.8, 4.7, 0.012, 4.5, { cast: false });
+for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) {
+  const hue = (col * 0.11 + row * 0.07) % 1;
+  const material = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL(hue, 0.85, 0.26), toneMapped: false });
+  const tile = mesh(G.plane, material, GROUPS.main, (col - 2.5) * 0.75, 0.015, 7.92 + row * 0.75, -Math.PI / 2, 0, 0, 0.71, 0.71, 1, false);
+  CLUB.tiles.push({ mesh: tile, hue });
+}
+/* cabine do DJ e caixas de som */
+B(mat.black, 0, 0.48, 12.85, 2.8, 0.96, 0.65, { cast: false });
+B(pinkNeon, 0, 0.75, 12.51, 2.6, 0.025, 0.025, { cast: false });
+for (const x of [-0.65, 0.65]) {
+  S(G.cyl, mat.chrome, x, 0.983, 12.85, 0, 0, 0, 0.24, 0.018, 0.24, { cast: false });
+  S(G.cyl, mat.black, x, 0.997, 12.85, 0, 0, 0, 0.15, 0.006, 0.15, { cast: false });
+}
+B(mat.monitor, 0, 1.13, 12.94, 0.48, 0.24, 0.04, { cast: false });
+B(blueNeon, 0, 1.13, 12.91, 0.42, 0.18, 0.02, { cast: false });
+for (const x of [-3, 3]) {
+  B(mat.black, x, 0.8, 12.9, 0.6, 1.6, 0.55, { cast: false });
+  for (const y of [0.45, 1.15]) mesh(new THREE.CircleGeometry(0.22, 20), mat.aluDark, GROUPS.main, x, y, 12.615, 0, Math.PI, 0, 1, 1, 1, false);
+  C(x - 0.35, x + 0.35, 12.55, 13.25);
+}
+C(-1.45, 1.45, 12.45, 13.25);
+/* bancos laterais para descansar */
+for (const x of [-3.45, 3.45]) {
+  B(mat.sofaDark, x, 0.2, 10.2, 0.55, 0.4, 2.2, { cast: false });
+  B(mat.sofa, x, 0.44, 10.2, 0.6, 0.1, 2.25, { cast: false });
+  C(x - 0.32, x + 0.32, 9.05, 11.35);
+}
+/* globo facetado e dois feixes translúcidos */
+CLUB.ball = mesh(new THREE.SphereGeometry(0.31, 20, 12), M({ color: '#d8e3f8', metalness: 1, roughness: 0.12, flatShading: true }), GROUPS.main, 0, 2.62, 9.8, 0, 0, 0, 1, 1, 1, false);
+S(G.cyl8, mat.chrome, 0, 3.02, 9.8, 0, 0, 0, 0.012, 0.35, 0.012, { cast: false });
+for (const [x, color] of [[-2.7, 0xef48df], [2.7, 0x487dff]]) {
+  const light = new THREE.PointLight(color, 9, 7, 2); light.position.set(x, 2.5, 9.8); scene.add(light); CLUB.lights.push(light);
+  const cone = mesh(new THREE.ConeGeometry(0.85, 2.5, 24, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.05, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.6, 9.8, 0, 0, 0, 1, 1, 1, false);
+  CLUB.beams.push(cone);
+}
+/* pequenos reflexos do globo no chão */
+for (let i = 0; i < 16; i++) {
+  const angle = i * 2.4, r = 2.5 + (i % 3) * 0.22;
+  const reflection = mesh(new THREE.CircleGeometry(0.035, 6), new THREE.MeshBasicMaterial({ color: '#bcd9ff', transparent: true, opacity: 0.35, toneMapped: false }), GROUPS.main, Math.cos(angle) * r, 0.02, 9.8 + Math.sin(angle) * r, -Math.PI / 2, 0, 0, 1, 1, 1, false);
+  CLUB.beams.push(reflection);
+}
+GROUPS.main.add(CLUB.particles);
 
 
 /* ================= itens de parede e sinalização ================= */
@@ -1063,6 +1160,7 @@ const JK = ['hipsY', 'spineX', 'spineY', 'neckX', 'neckY', 'lShX', 'lShY', 'lShZ
 const HIPS_STAND = 0.964;
 const SIT_LEGS = { lHipX: -1.5, rHipX: -1.5, lHipZ: 0.07, rHipZ: -0.07, lKnX: 1.45, rKnX: 1.45 };
 const POSES = {
+  dance: { hipsY: 'stand', lShZ: 0.6, rShZ: -0.6, lElX: -1.0, rElX: -1.0, lKnX: 0.1, rKnX: 0.1 },
   stand: { hipsY: 'stand', lShZ: 0.07, rShZ: -0.07, lElX: -0.12, rElX: -0.12 },
   sitType: Object.assign({ hipsY: 'sit', spineX: 0.12, neckX: 0.03, lShX: -0.62, rShX: -0.58, lShY: -0.28, rShY: 0.3, lShZ: 0.14, rShZ: -0.2, lElX: -0.98, rElX: -0.98 }, SIT_LEGS),
   sitRelax: Object.assign({ hipsY: 'sit', spineX: -0.16, neckX: 0.06, lShX: -0.32, rShX: -0.32, lShY: -0.35, rShY: 0.35, lShZ: 0.12, rShZ: -0.12, lElX: -0.85, rElX: -0.85 }, SIT_LEGS, { lKnX: 1.3, rKnX: 1.3, lHipX: -1.42, rHipX: -1.42 }),
@@ -1146,7 +1244,11 @@ function animatePerson(P, dt, t) {
   /* respiração */
   f.spineX += Math.sin(t * 1.7 + sp) * 0.012 * m;
   /* micro-ações por pose */
-  if (P.pose === 'sitType') {
+  if (P.pose === 'dance') {
+    const b = danceWave(t, P.danceStyle || 'groove', sp);
+    f.hipsY -= b.bounce; f.spineY += b.sway; f.lShX -= b.arm; f.rShX -= b.otherArm;
+    f.lShZ += b.sway; f.rShZ += b.sway; f.lKnX += b.knee; f.rKnX += b.otherKnee;
+  } else if (P.pose === 'sitType') {
     f.lElX += Math.sin(t * 13 + sp) * 0.05 * m; f.rElX += Math.sin(t * 11.3 + sp * 2) * 0.05 * m;
     f.lWrX += Math.sin(t * 17 + sp) * 0.08 * m; f.rWrX += Math.sin(t * 15 + sp) * 0.08 * m;
     if (t > P.lookT) { P.look = (Math.random() < 0.5 ? -1 : 1) * rnd(0.18, 0.32); P.lookT = t + rnd(1.5, 5); }
@@ -1225,6 +1327,7 @@ class Avatar {
     });
     this.mixer = new THREE.AnimationMixer(gltf.scene);
     this.actions = {}; for (const c of clips) this.actions[c.name] = this.mixer.clipAction(c);
+    this.danceBones = ['Spine', 'Spine1', 'L_UpperArm', 'R_UpperArm', 'L_Forearm', 'R_Forearm', 'L_Thigh', 'R_Thigh', 'L_Calf', 'R_Calf'].map(n => gltf.scene.getObjectByName('Bip01_' + n));
     this.J = { head: gltf.scene.getObjectByName('Bip01_Head') };
     this.hand = gltf.scene.getObjectByName('Bip01_R_Hand'); this.finger = gltf.scene.getObjectByName('Bip01_R_Finger21') || this.hand;
     this.cup = new THREE.Mesh(PG.cup, mat.mug); this.cup.castShadow = true; this.cup.visible = false; GROUPS.main.add(this.cup);
@@ -1239,6 +1342,8 @@ class Avatar {
     this.cur = a; this.clip = name;
   }
   update(dt, t) {
+    if (this.danceRest) { this.danceBones.forEach((bone, i) => { if (bone && this.danceRest[i]) bone.quaternion.copy(this.danceRest[i]); }); this.danceRest = null; }
+    this.root.rotation.z = 0;
     let name = POSE_CLIP[this.pose] || 'idle';
     if (this.pose === 'stand' && this.speed > 0.05) name = 'walk';
     if (this.pose === 'sitFrustr') name = this.frKind;
@@ -1248,6 +1353,7 @@ class Avatar {
     this.mixer.update(dt);
     this.root.rotation.y = this.yaw;
     this.root.position.y = this.pose === 'sofa' ? -0.03 : 0;
+    if (this.pose === 'dance') applyAvatarDance(this, t);
     /* xícara na mão durante o café */
     this.cup.visible = name === 'drink';
     if (this.cup.visible) {
@@ -1339,7 +1445,8 @@ const equity = () => BASE + realized + openPnl();
 /* ---------- caminhos (grafo de corredores) ---------- */
 const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], poolW: [0.45, 3.15], poolE: [4.6, 3.15], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-const EDGES = [['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
+const EDGES = [['poolW', 'discoGate'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
@@ -1352,6 +1459,9 @@ function route(from, to) {
   return out;
 }
 const SPOTS = {
+  dance1: { x: -1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
+  dance2: { x: 1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
+  dance3: { x: 0, z: 11.1, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   sofa: { x: -6.1, z: 5.37, yaw: Math.PI, pose: 'sofa', node: 'sofaA', w: 1 },
   poolShoot: { x: 0.82, z: 4.32, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
   poolWait: { x: 4.5, z: 4.95, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
@@ -1408,7 +1518,7 @@ function moveRobots(dt) {
       else { const s = Math.min(d, r.spd * dt); pos.x += dx / d * s; pos.z += dz / d * s; speed = r.spd; P.yaw = angDamp(P.yaw, Math.atan2(dx, dz), 9, dt); }
       if (!r.path.length) {
         if (r.back) { r.mode = 'sitting'; r.t1 = simT + 0.9; SPOTS[r.spot].busy = null; r.spot = null; }
-        else { r.mode = 'lounge'; r.t1 = simT + (r.inPool ? 999 : rnd(18, 40)); }
+        else { r.mode = 'lounge'; r.t1 = Math.max(simT + (r.inPool ? 999 : rnd(18, 40)), r.discoUntil || 0); }
       }
     }
     P.speed = speed;
@@ -1420,7 +1530,7 @@ function moveRobots(dt) {
       P.pose = r.mode === 'sitting' ? 'sitRelax' : (r.react && simT < r.reactT) ? r.react : r.trade ? 'sitType' : r.relax;
     } else if (r.mode === 'standing') { pos.z = damp(pos.z, seatZ + 0.25, 5, dt); P.pose = 'stand'; }
     else if (r.mode === 'walking') P.pose = 'stand';
-    else if (r.mode === 'lounge') { const s = SPOTS[r.spot]; pos.x = damp(pos.x, s.x, 5, dt); pos.z = damp(pos.z, s.z, 5, dt); P.yaw = angDamp(P.yaw, s.yaw, 6, dt); P.pose = s.pose; }
+    else if (r.mode === 'lounge') { const s = SPOTS[r.spot]; pos.x = damp(pos.x, s.x, 5, dt); pos.z = damp(pos.z, s.z, 5, dt); P.yaw = angDamp(P.yaw, s.yaw, 6, dt); P.pose = s.pose; if (s.pose === 'dance') P.danceStyle = r.danceStyle || ['groove', 'disco', 'party'][r.i % 3]; }
     if (standingTalk) { P.yaw = angDamp(P.yaw, Math.atan2(camera.position.x - pos.x, camera.position.z - pos.z), 6, dt); P.pose = 'cross'; }
     /* cadeira acompanha */
     const ch = r.st.chair, sat = (r.mode === 'seated' || r.mode === 'sitting') && !cheering, pl = r.st.playerSeated;
@@ -1556,7 +1666,7 @@ function updateLabels() {
   const W = innerWidth, H = innerHeight;
   for (const r of robots) {
     const tr = r.trade, flash = !tr && r.react && simT < r.reactT, v = tr ? tr.pnl : flash ? r.lastPnl : 0;
-    const txt = tr || flash ? money(v) : '+$0,00', cls = tr || flash ? (v >= 0 ? 'pl g' : 'pl r') : 'pl n';
+    const txt = r.P.pose === 'dance' ? '🕺 na pista' : tr || flash ? money(v) : '+$0,00', cls = tr || flash ? (v >= 0 ? 'pl g' : 'pl r') : 'pl n';
     if (txt !== r.txt) { r.elV.textContent = txt; r.txt = txt; }
     if (r.el.className !== cls) r.el.className = cls;
     r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42;
@@ -1611,6 +1721,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (DISCO.dancing) stopDance();
   if (CASINO.active) exitCasino(); if (mode === 'music') closeMusic(); $('musicOpen').hidden = true;
   if (mode === 'talk') closeTalk(); if (POOL.active) { POOL.active = false; $('poolHud').hidden = true; $('hud').hidden = false; $('mp').classList.remove('off'); if (lampMeshes) for (const m of lampMeshes) m.visible = true; aimLine.visible = objLine.visible = ghost.visible = cueStick.visible = false; if (POOL.opp) { POOL.opp.inPool = false; POOL.opp.t1 = simT + 3; } POOL.opp = null; }
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
@@ -1626,8 +1737,9 @@ btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); })
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
-  if (typing) return;
+  if (e.code === 'Escape') { if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (typing || e.target?.tagName === 'SELECT') return;
+  if (mode === 'dance') { if (e.code === 'KeyE' && !e.repeat) stopDance(); return; }
   if (e.code === 'KeyE' && !e.repeat && (mode === 'fp' || mode === 'seat')) { doAct(); return; }
   if (mode === 'seat' && e.code === 'Space') { e.preventDefault(); standUp(); return; }
   if (mode === 'pool' && e.code === 'Space') { e.preventDefault(); if (!e.repeat) startCharge(); return; }
@@ -1672,7 +1784,9 @@ canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault
 
 /* colisão do visitante com móveis e pessoas */
 function blocked(x, z) {
-  if (x < -RW + PR || x > RW - PR || z < -RD + PR || z > RD - PR) return true;
+  if (z > RD - PR) {
+    if (Math.abs(x) > 4 - PR || z > 14 - PR || (z < RD + PR && Math.abs(x) > 1.1 - PR)) return true;
+  } else if (x < -RW + PR || x > RW - PR || z < -RD + PR) return true;
   for (const c of COLL) if (x > c.minX - PR && x < c.maxX + PR && z > c.minZ - PR && z < c.maxZ + PR) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   return false;
@@ -1718,6 +1832,7 @@ STATIONS.forEach((st, i) => SEATS.push({
 }));
 [-6.1, -5.1, -4.1].forEach(x => SEATS.push({ kind: 'sofa', label: 'Sentar no sofá', x, z: 5.36, eye: 1.06, yaw: 0, free: () => !(x === -6.1 && SPOTS.sofa.busy) }));
 SEATS.push({ kind: 'arm', label: 'Sentar na poltrona', x: -2.78, z: 4.45, eye: 1.08, yaw: 1.32, free: () => true });
+for (const x of [-3.45, 3.45]) SEATS.push({ kind: 'club', label: 'Sentar no banco da discoteca', x, z: 10.2, eye: 1.08, yaw: x < 0 ? -Math.PI / 2 : Math.PI / 2, free: () => true });
 const seatState = { s: null, from: new THREE.Vector3() };
 
 function findAct() {
@@ -1728,6 +1843,7 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
+  if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
   consider(-5.1, 4.55, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
@@ -1763,9 +1879,13 @@ function stepSeat() {
 }
 const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').replace(' a geladeira', '') : l;
 function updateActUI() {
+  const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
+  $('discoPanel').hidden = !club;
+  $('discoGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inDisco(fp.pos.x, fp.pos.z);
   $('musicOpen').hidden = !inRoom || !['fp', 'seat', 'music'].includes(mode);
   let label = null;
   if (mode === 'fp') { curAct = findAct(); label = curAct && curAct.label; }
+  else if (mode === 'dance') { curAct = { label: 'Parar de dançar', run: stopDance }; label = 'Parar de dançar'; }
   else if (mode === 'seat') { curAct = { label: 'Levantar', run: () => standUp() }; label = 'Levantar'; }
   else curAct = null;
   if (label && isTouch) {
@@ -2065,11 +2185,12 @@ function scripted(r, q) {
   if (q === 'strategy') return (STRAT_TXT[r.name] || 'Tenho meu método.') + ` Opero ${r.pair}.`;
   if (q === 'today') return r.ops ? `Hoje fiz ${r.ops} ${r.ops > 1 ? 'operações' : 'operação'}, ${r.wins} no lucro, resultado ${money(r.today)}.` : 'Hoje ainda não fechei nenhuma operação.';
   if (q === 'pool') return r.trade ? 'Agora não dá, tô posicionado. Me chama depois que eu fechar essa.' : 'Bora! Te espero na mesa de sinuca.';
+  if (q === 'dance') return r.trade ? 'Tô operando. Já já vou pra pista!' : 'Bora! Vou dar uns passos na discoteca.';
   if (q === 'casino') return r.trade ? 'Tô posicionado agora. Vamos jogar 21 depois que eu fechar?' : 'Bora jogar 21! Só fichas de brincadeira.';
   if (q === 'room') { const tot = equity() - BASE, n = robots.filter(x => x.trade).length; return `A sala está ${money(tot)} no total, com ${n} de 10 robôs operando agora.`; }
   return 'Até mais!';
 }
-const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?'], ['casino', 'Bora jogar 21?']];
+const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?'], ['casino', 'Bora jogar 21?'], ['dance', 'Bora dançar?']];
 function addMsg(cls, text) { const p = document.createElement('p'); p.className = cls; p.textContent = text; const log = $('talkLog'); log.appendChild(p); log.scrollTop = 1e6; return p; }
 function greet(r) { const h = r.trade ? (r.trade.pnl >= 0 ? 'Opa! Dia bom até agora.' : 'E aí. Essa operação está me dando trabalho.') : 'Fala! Tô esperando o próximo sinal.'; return h + ' Sou ' + r.person.split(' ')[0] + ', robô de ' + r.name + '.'; }
 function openTalk(r) {
@@ -2089,6 +2210,7 @@ function ask(k, label) {
   const r = talk.r; if (!r) return;
   addMsg('you', label); const ans = scripted(r, k); addMsg('bot', ans);
   r.chat.push({ role: 'user', content: label }, { role: 'assistant', content: ans });
+  if (k === 'dance' && !r.trade) { closeTalk(); inviteDancers(r); goDisco(); }
   if (k === 'casino' && !r.trade) { closeTalk(); startCasino(r); }
   if (k === 'pool' && !r.trade) setTimeout(() => { if (talk.r === r) { closeTalk(); startPool(r); } }, 900);
 }
@@ -2291,6 +2413,149 @@ $('musicFile').onchange = () => {
 };
 MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
 
+/* ================= dança, reações e acesso à discoteca ================= */
+const DISCO_STYLES = ['groove', 'disco', 'party'];
+const DISCO_EMOJIS = ['🔥', '❤️', '😂', '🎉', '🕺'];
+const DISCO = { dancing: false, style: 'groove', lights: !reduceMotion, player: null, loading: false, emojis: [], emoji: '', emojiUntil: 0, emojiId: 0, lastEmoji: -10, lastBotEmoji: 0 };
+const inDisco = (x, z) => Math.abs(x) < 3.8 && z > 6.4 && z < 13.7;
+function danceWave(t, style, phase = 0) {
+  const amount = reduceMotion ? 0.25 : 1, b = t * 4.2 + phase, s = Math.sin(b);
+  return { sway: s * 0.24 * amount, bounce: Math.abs(Math.sin(b * 2)) * 0.065 * amount,
+    arm: (style === 'disco' ? 1.25 + s * 0.55 : style === 'party' ? 2.3 + s * 0.25 : 0.35 + s * 0.3) * amount,
+    otherArm: (style === 'party' ? 2.3 - s * 0.25 : 0.4 - s * 0.3) * amount,
+    knee: Math.max(0, s) * 0.3 * amount, otherKnee: Math.max(0, -s) * 0.3 * amount };
+}
+function applyAvatarDance(A, t) {
+  const b = danceWave(t, A.danceStyle || 'groove', A.dancePhase || 0);
+  A.danceRest = A.danceBones.map(bone => bone ? bone.quaternion.clone() : null);
+  const [spine, chest, la, ra, le, re, lt, rt, lk, rk] = A.danceBones;
+  if (spine) spine.rotateX(b.sway);
+  if (chest) chest.rotateY(b.sway * 0.6);
+  if (la) la.rotateY(-b.arm); if (ra) ra.rotateY(b.otherArm);
+  if (le) le.rotateZ(-0.65); if (re) re.rotateZ(-0.65);
+  if (lt) lt.rotateY(b.knee * 0.4); if (rt) rt.rotateY(-b.otherKnee * 0.4);
+  if (lk) lk.rotateY(-b.knee); if (rk) rk.rotateY(b.otherKnee);
+  A.root.rotation.y = A.yaw + b.sway * 0.5; A.root.rotation.z = b.sway * 0.12; A.root.position.y = 0.015 + b.bounce * 0.2;
+}
+function goDisco() {
+  if (!inRoom) return;
+  if (seatState.s) { standUp(goDisco); return; }
+  if (mode !== 'fp') return;
+  fp.pos.set(0, 0, 7.1); fp.vel.set(0, 0, 0); fp.yaw = Math.PI; fp.pitch = -0.05;
+  if (document.pointerLockElement) document.exitPointerLock();
+  startTween(new THREE.Vector3(0, EYE, 7.1), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; cross.hidden = isTouch; });
+  $('discoMsg').textContent = 'Bem-vindo! Escolha seus passos ou chame os robôs para a pista.';
+}
+function exitDisco() {
+  if (DISCO.dancing) stopDance();
+  if (mode !== 'fp') return;
+  fp.pos.set(0, 0, 5.5); fp.vel.set(0, 0, 0); fp.yaw = 0; fp.pitch = 0;
+  startTween(new THREE.Vector3(0, EYE, 5.5), fpQuat(0, 0), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; cross.hidden = isTouch; });
+}
+async function loadDancer() {
+  if (!AV.clips || DISCO.loading || DISCO.player?.isAvatar) return;
+  DISCO.loading = true;
+  try {
+    const file = VISITOR_FILES[myLook], { g, SU } = await getVisitorModel(file);
+    const old = DISCO.player;
+    const A = new Avatar({ scene: SU.clone(g.scene) }, file.startsWith('Female') ? AV.clips.f : AV.clips.m, old, file);
+    GROUPS.main.remove(old.root); A.root.visible = DISCO.dancing; DISCO.player = A;
+  } catch (e) { /* boneco procedural continua disponível */ }
+  finally { DISCO.loading = false; }
+}
+function publishDiscoPresence() {
+  if (MP.room && inRoom) MP.room.presence(myPresence()).catch(() => { });
+}
+function startDance() {
+  if (mode !== 'fp' || !inDisco(fp.pos.x, fp.pos.z)) return;
+  const spots = [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
+  const free = spots.find(([x, z]) => !blocked(x, z));
+  if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return; }
+  fp.pos.set(free[0], 0, free[1]);
+  if (!DISCO.player) { DISCO.player = makePerson(10 + myLook); DISCO.player.root.visible = false; }
+  DISCO.dancing = true; mode = 'dance';
+  DISCO.style = $('discoStyle').value;
+  for (const k in keys) keys[k] = false;
+  fp.vel.set(0, 0, 0); joy = null; joyEl.hidden = true; ptr.clear();
+  if (document.pointerLockElement) document.exitPointerLock();
+  cross.hidden = true; $('discoDance').textContent = 'Parar de dançar'; $('discoDance').setAttribute('aria-pressed', 'true');
+  $('discoMsg').textContent = 'Você está dançando! Mande emojis para animar a pista.';
+  loadDancer(); publishDiscoPresence();
+}
+function stopDance() {
+  DISCO.dancing = false; if (DISCO.player) DISCO.player.root.visible = false;
+  if (mode === 'dance') { mode = 'fp'; camera.position.set(fp.pos.x, EYE, fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); cross.hidden = isTouch; }
+  $('discoDance').textContent = 'Dançar'; $('discoDance').setAttribute('aria-pressed', 'false');
+  $('discoMsg').textContent = 'Pausa nos passos. Você pode andar pela pista.'; publishDiscoPresence();
+}
+function inviteDancers(pref = null) {
+  let called = 0;
+  const candidates = pref ? [pref] : robots;
+  for (const r of candidates) {
+    const slot = Object.entries(SPOTS).find(([k, s]) => k.startsWith('dance') && !s.busy);
+    if (!slot) break;
+    if (r.trade || r.inPool || r.inCasino || r.talking || !['seated', 'lounge'].includes(r.mode) || r.spot?.startsWith('dance')) continue;
+    const [key, s] = slot;
+    if (r.mode === 'seated') { if (!goBreak(r, key)) continue; }
+    else { const from = SPOTS[r.spot].node; SPOTS[r.spot].busy = null; s.busy = r.id; r.spot = key; r.path = [...route(from, s.node), [s.x, s.z]]; r.mode = 'walking'; r.back = false; }
+    r.discoUntil = simT + 120; r.danceStyle = DISCO_STYLES[called % 3]; called++;
+  }
+  $('discoMsg').textContent = called ? called + (called === 1 ? ' robô está vindo para a pista!' : ' robôs estão vindo para a pista!') : 'Os robôs estão ocupados ou já estão na pista. Tente daqui a pouco.';
+  return called;
+}
+const discoEmojiTextures = new Map();
+function spawnDiscoEmoji(emoji, x, z, y = 1.8) {
+  if (!DISCO_EMOJIS.includes(emoji)) return;
+  if (DISCO.emojis.length >= 18) { const old = DISCO.emojis.shift(); CLUB.particles.remove(old.sprite); old.sprite.material.dispose(); }
+  if (!discoEmojiTextures.has(emoji)) discoEmojiTextures.set(emoji, canvasTex(128, 128, (g) => { g.font = '86px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(emoji, 64, 68); }));
+  const material = new THREE.SpriteMaterial({ map: discoEmojiTextures.get(emoji), transparent: true, depthWrite: false, toneMapped: false });
+  const sprite = new THREE.Sprite(material); sprite.position.set(x, y, z); sprite.scale.setScalar(0.5); CLUB.particles.add(sprite);
+  DISCO.emojis.push({ sprite, age: 0, y });
+}
+function sendDiscoEmoji(emoji) {
+  const now = performance.now() / 1000;
+  if (!inDisco(fp.pos.x, fp.pos.z) || !['fp', 'dance'].includes(mode) || now - DISCO.lastEmoji < 0.65 || !DISCO_EMOJIS.includes(emoji)) return;
+  DISCO.lastEmoji = now; DISCO.emoji = emoji; DISCO.emojiUntil = Date.now() + 4000; DISCO.emojiId = Date.now(); publishDiscoPresence();
+  const offset = mode === 'fp' ? 0.9 : 0;
+  spawnDiscoEmoji(emoji, fp.pos.x - Math.sin(fp.yaw) * offset, fp.pos.z - Math.cos(fp.yaw) * offset); $('discoMsg').textContent = emoji + ' Você animou a pista!';
+}
+const danceCameraTarget = new THREE.Vector3();
+function stepDanceCamera(dt) {
+  danceCameraTarget.set(fp.pos.x, 1.0, fp.pos.z);
+  const cx = clamp(fp.pos.x, -2.6, 2.6), cz = Math.max(6.8, fp.pos.z - 2.4);
+  camera.position.lerp(new THREE.Vector3(cx, 2.1, cz), 1 - Math.exp(-5 * dt)); camera.lookAt(danceCameraTarget);
+}
+function stepDisco(dt, t) {
+  CLUB.ball.rotation.y = DISCO.lights && !reduceMotion ? t * 0.25 : 0;
+  for (const { mesh, hue } of CLUB.tiles) mesh.material.color.setHSL(DISCO.lights ? (hue + t * 0.025) % 1 : hue, 0.8, DISCO.lights ? 0.22 + Math.sin(t * 1.2 + hue * 6) * 0.04 : 0.14);
+  CLUB.lights.forEach(l => { l.intensity = DISCO.lights ? 9 : 2; });
+  CLUB.beams.forEach(m => { m.visible = DISCO.lights; });
+  for (let i = DISCO.emojis.length - 1; i >= 0; i--) {
+    const p = DISCO.emojis[i]; p.age += dt; p.sprite.position.y = p.y + (reduceMotion ? 0 : p.age * 0.35);
+    p.sprite.material.opacity = Math.max(0, 1 - p.age / 3.5);
+    if (p.age >= 3.5) { CLUB.particles.remove(p.sprite); p.sprite.material.dispose(); DISCO.emojis.splice(i, 1); }
+  }
+  if (DISCO.dancing && DISCO.player) {
+    const A = DISCO.player; A.root.visible = true; A.root.position.set(fp.pos.x, 0, fp.pos.z); A.yaw = Math.PI; A.pose = 'dance'; A.danceStyle = DISCO.style; A.speed = 0;
+    A.isAvatar ? A.update(dt, t) : animatePerson(A, dt, t); if (!A.isAvatar && AV.clips) loadDancer();
+  }
+  if (t - DISCO.lastBotEmoji > 5) {
+    DISCO.lastBotEmoji = t;
+    const dancers = robots.filter(r => r.mode === 'lounge' && r.spot?.startsWith('dance'));
+    if (dancers.length && inDisco(camera.position.x, camera.position.z)) {
+      const r = dancers[Math.floor(Math.random() * dancers.length)]; spawnDiscoEmoji(DISCO_EMOJIS[Math.floor(Math.random() * DISCO_EMOJIS.length)], r.P.root.position.x, r.P.root.position.z);
+    }
+  }
+}
+$('discoGo').onclick = goDisco; $('discoExit').onclick = exitDisco;
+$('discoDance').onclick = () => DISCO.dancing ? stopDance() : startDance();
+$('discoStyle').onchange = () => { DISCO.style = $('discoStyle').value; if (DISCO.dancing) publishDiscoPresence(); };
+$('discoInvite').onclick = () => inviteDancers();
+$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!MUSIC.playing) { $('musicStyle').value = 'electro'; musicPlay(); } };
+$('discoLights').setAttribute('aria-pressed', String(DISCO.lights));
+$('discoLights').onclick = () => { DISCO.lights = !DISCO.lights; $('discoLights').setAttribute('aria-pressed', String(DISCO.lights)); $('discoLights').textContent = DISCO.lights ? 'Luzes suaves' : 'Luzes reduzidas'; };
+document.querySelectorAll('[data-emoji]').forEach(b => { b.onclick = () => sendDiscoEmoji(b.dataset.emoji); });
+
 
 /* ================= várias pessoas na sala (sala ao vivo + banco de dados da página) ================= */
 const MP = { room: null, db: null, sb: null, ch: null, sendDt: 0.125, vis: new Map(), seen: new Set(), log: [], unread: 0, open: false, lastSend: '', sendT: 0, peerT: 0 };
@@ -2334,7 +2599,8 @@ class Visitor {
     this.x = damp(this.x, this.tx, 6, dt); this.z = damp(this.z, this.tz, 6, dt); this.yaw = angDamp(this.yaw, this.tyaw, 8, dt);
     if (!this.A) { if (AV.clips && !this.loading) this.load(); return; }
     this.A.root.position.set(this.x, 0, this.z); this.A.yaw = this.yaw;
-    this.A.pose = this.m === 's' ? 'sofa' : this.m === 't' ? 'cross' : 'stand';
+    this.A.pose = this.m === 'd' ? 'dance' : this.m === 's' ? 'sofa' : this.m === 't' ? 'cross' : 'stand';
+    this.A.danceStyle = this.ds;
     this.A.speed = this.m === 'w' && d > 0.08 ? clamp(d * 4, 0.6, 1.8) : 0;
     this.A.update(dt, t);
     if (this.m === 's') this.A.root.position.y = this.sy || 0;
@@ -2442,7 +2708,8 @@ function myPresence() {
   if ((mode === 'seat' || mode === 'music') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
   else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
-  return { v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
+  if (DISCO.dancing) { m = 'd'; yaw = Math.PI; }
+  return { ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
 function stepMulti(dt, t) {
   if (MP.room && inRoom && (t - MP.sendT > MP.sendDt)) {
@@ -2458,7 +2725,11 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 5.8); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
+      if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
+        v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
+      }
       const msg = p.msg;
       if (msg && typeof msg === 'object' && msg.id && !MP.seen.has(String(msg.id))) { addChat(String(msg.id), p.n, msg.s, msg.t); v.say = String(msg.s || '').slice(0, 120); v.sayT = t + 8; }
     }
@@ -2470,7 +2741,7 @@ const _vh = new THREE.Vector3();
 function updateVisitorLabels(t) {
   const W = innerWidth, H = innerHeight;
   for (const v of MP.vis.values()) {
-    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.vc ? 'visitante · voz' : 'visitante';
+    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
     if (!v.A || !v.A.J.head) { el.style.opacity = '0'; continue; }
@@ -2780,9 +3051,9 @@ function frame(now) {
   moveRobots(dt);
   for (const r of robots) r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t);
   /* câmera */
-  if (mode === 'casino' || mode === 'music') { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } else if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
-  setWalls(mode === 'casino' || mode === 'music' || mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  if (mode === 'dance') stepDanceCamera(dt); else if (mode === 'casino' || mode === 'music') { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } else if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
+  setWalls(mode === 'dance' || mode === 'casino' || mode === 'music' || mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
+  stepDisco(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -2810,7 +3081,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>

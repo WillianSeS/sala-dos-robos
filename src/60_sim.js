@@ -65,7 +65,8 @@ const equity = () => BASE + realized + openPnl();
 /* ---------- caminhos (grafo de corredores) ---------- */
 const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], poolW: [0.45, 3.15], poolE: [4.6, 3.15], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-const EDGES = [['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
+const EDGES = [['poolW', 'discoGate'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
@@ -78,6 +79,9 @@ function route(from, to) {
   return out;
 }
 const SPOTS = {
+  dance1: { x: -1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
+  dance2: { x: 1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
+  dance3: { x: 0, z: 11.1, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   sofa: { x: -6.1, z: 5.37, yaw: Math.PI, pose: 'sofa', node: 'sofaA', w: 1 },
   poolShoot: { x: 0.82, z: 4.32, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
   poolWait: { x: 4.5, z: 4.95, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
@@ -134,7 +138,7 @@ function moveRobots(dt) {
       else { const s = Math.min(d, r.spd * dt); pos.x += dx / d * s; pos.z += dz / d * s; speed = r.spd; P.yaw = angDamp(P.yaw, Math.atan2(dx, dz), 9, dt); }
       if (!r.path.length) {
         if (r.back) { r.mode = 'sitting'; r.t1 = simT + 0.9; SPOTS[r.spot].busy = null; r.spot = null; }
-        else { r.mode = 'lounge'; r.t1 = simT + (r.inPool ? 999 : rnd(18, 40)); }
+        else { r.mode = 'lounge'; r.t1 = Math.max(simT + (r.inPool ? 999 : rnd(18, 40)), r.discoUntil || 0); }
       }
     }
     P.speed = speed;
@@ -146,7 +150,7 @@ function moveRobots(dt) {
       P.pose = r.mode === 'sitting' ? 'sitRelax' : (r.react && simT < r.reactT) ? r.react : r.trade ? 'sitType' : r.relax;
     } else if (r.mode === 'standing') { pos.z = damp(pos.z, seatZ + 0.25, 5, dt); P.pose = 'stand'; }
     else if (r.mode === 'walking') P.pose = 'stand';
-    else if (r.mode === 'lounge') { const s = SPOTS[r.spot]; pos.x = damp(pos.x, s.x, 5, dt); pos.z = damp(pos.z, s.z, 5, dt); P.yaw = angDamp(P.yaw, s.yaw, 6, dt); P.pose = s.pose; }
+    else if (r.mode === 'lounge') { const s = SPOTS[r.spot]; pos.x = damp(pos.x, s.x, 5, dt); pos.z = damp(pos.z, s.z, 5, dt); P.yaw = angDamp(P.yaw, s.yaw, 6, dt); P.pose = s.pose; if (s.pose === 'dance') P.danceStyle = r.danceStyle || ['groove', 'disco', 'party'][r.i % 3]; }
     if (standingTalk) { P.yaw = angDamp(P.yaw, Math.atan2(camera.position.x - pos.x, camera.position.z - pos.z), 6, dt); P.pose = 'cross'; }
     /* cadeira acompanha */
     const ch = r.st.chair, sat = (r.mode === 'seated' || r.mode === 'sitting') && !cheering, pl = r.st.playerSeated;

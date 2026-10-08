@@ -24,6 +24,7 @@ class Avatar {
     });
     this.mixer = new THREE.AnimationMixer(gltf.scene);
     this.actions = {}; for (const c of clips) this.actions[c.name] = this.mixer.clipAction(c);
+    this.danceBones = ['Spine', 'Spine1', 'L_UpperArm', 'R_UpperArm', 'L_Forearm', 'R_Forearm', 'L_Thigh', 'R_Thigh', 'L_Calf', 'R_Calf'].map(n => gltf.scene.getObjectByName('Bip01_' + n));
     this.J = { head: gltf.scene.getObjectByName('Bip01_Head') };
     this.hand = gltf.scene.getObjectByName('Bip01_R_Hand'); this.finger = gltf.scene.getObjectByName('Bip01_R_Finger21') || this.hand;
     this.cup = new THREE.Mesh(PG.cup, mat.mug); this.cup.castShadow = true; this.cup.visible = false; GROUPS.main.add(this.cup);
@@ -38,6 +39,8 @@ class Avatar {
     this.cur = a; this.clip = name;
   }
   update(dt, t) {
+    if (this.danceRest) { this.danceBones.forEach((bone, i) => { if (bone && this.danceRest[i]) bone.quaternion.copy(this.danceRest[i]); }); this.danceRest = null; }
+    this.root.rotation.z = 0;
     let name = POSE_CLIP[this.pose] || 'idle';
     if (this.pose === 'stand' && this.speed > 0.05) name = 'walk';
     if (this.pose === 'sitFrustr') name = this.frKind;
@@ -47,6 +50,7 @@ class Avatar {
     this.mixer.update(dt);
     this.root.rotation.y = this.yaw;
     this.root.position.y = this.pose === 'sofa' ? -0.03 : 0;
+    if (this.pose === 'dance') applyAvatarDance(this, t);
     /* xícara na mão durante o café */
     this.cup.visible = name === 'drink';
     if (this.cup.visible) {

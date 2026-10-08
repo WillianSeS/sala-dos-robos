@@ -26,11 +26,12 @@ function scripted(r, q) {
   if (q === 'strategy') return (STRAT_TXT[r.name] || 'Tenho meu método.') + ` Opero ${r.pair}.`;
   if (q === 'today') return r.ops ? `Hoje fiz ${r.ops} ${r.ops > 1 ? 'operações' : 'operação'}, ${r.wins} no lucro, resultado ${money(r.today)}.` : 'Hoje ainda não fechei nenhuma operação.';
   if (q === 'pool') return r.trade ? 'Agora não dá, tô posicionado. Me chama depois que eu fechar essa.' : 'Bora! Te espero na mesa de sinuca.';
+  if (q === 'dance') return r.trade ? 'Tô operando. Já já vou pra pista!' : 'Bora! Vou dar uns passos na discoteca.';
   if (q === 'casino') return r.trade ? 'Tô posicionado agora. Vamos jogar 21 depois que eu fechar?' : 'Bora jogar 21! Só fichas de brincadeira.';
   if (q === 'room') { const tot = equity() - BASE, n = robots.filter(x => x.trade).length; return `A sala está ${money(tot)} no total, com ${n} de 10 robôs operando agora.`; }
   return 'Até mais!';
 }
-const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?'], ['casino', 'Bora jogar 21?']];
+const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?'], ['casino', 'Bora jogar 21?'], ['dance', 'Bora dançar?']];
 function addMsg(cls, text) { const p = document.createElement('p'); p.className = cls; p.textContent = text; const log = $('talkLog'); log.appendChild(p); log.scrollTop = 1e6; return p; }
 function greet(r) { const h = r.trade ? (r.trade.pnl >= 0 ? 'Opa! Dia bom até agora.' : 'E aí. Essa operação está me dando trabalho.') : 'Fala! Tô esperando o próximo sinal.'; return h + ' Sou ' + r.person.split(' ')[0] + ', robô de ' + r.name + '.'; }
 function openTalk(r) {
@@ -50,6 +51,7 @@ function ask(k, label) {
   const r = talk.r; if (!r) return;
   addMsg('you', label); const ans = scripted(r, k); addMsg('bot', ans);
   r.chat.push({ role: 'user', content: label }, { role: 'assistant', content: ans });
+  if (k === 'dance' && !r.trade) { closeTalk(); inviteDancers(r); goDisco(); }
   if (k === 'casino' && !r.trade) { closeTalk(); startCasino(r); }
   if (k === 'pool' && !r.trade) setTimeout(() => { if (talk.r === r) { closeTalk(); startPool(r); } }, 900);
 }

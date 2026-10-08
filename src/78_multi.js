@@ -41,7 +41,8 @@ class Visitor {
     this.x = damp(this.x, this.tx, 6, dt); this.z = damp(this.z, this.tz, 6, dt); this.yaw = angDamp(this.yaw, this.tyaw, 8, dt);
     if (!this.A) { if (AV.clips && !this.loading) this.load(); return; }
     this.A.root.position.set(this.x, 0, this.z); this.A.yaw = this.yaw;
-    this.A.pose = this.m === 's' ? 'sofa' : this.m === 't' ? 'cross' : 'stand';
+    this.A.pose = this.m === 'd' ? 'dance' : this.m === 's' ? 'sofa' : this.m === 't' ? 'cross' : 'stand';
+    this.A.danceStyle = this.ds;
     this.A.speed = this.m === 'w' && d > 0.08 ? clamp(d * 4, 0.6, 1.8) : 0;
     this.A.update(dt, t);
     if (this.m === 's') this.A.root.position.y = this.sy || 0;
@@ -149,7 +150,8 @@ function myPresence() {
   if ((mode === 'seat' || mode === 'music') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
   else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
-  return { v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
+  if (DISCO.dancing) { m = 'd'; yaw = Math.PI; }
+  return { ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
 function stepMulti(dt, t) {
   if (MP.room && inRoom && (t - MP.sendT > MP.sendDt)) {
@@ -165,7 +167,11 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 5.8); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
+      if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
+        v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
+      }
       const msg = p.msg;
       if (msg && typeof msg === 'object' && msg.id && !MP.seen.has(String(msg.id))) { addChat(String(msg.id), p.n, msg.s, msg.t); v.say = String(msg.s || '').slice(0, 120); v.sayT = t + 8; }
     }
@@ -177,7 +183,7 @@ const _vh = new THREE.Vector3();
 function updateVisitorLabels(t) {
   const W = innerWidth, H = innerHeight;
   for (const v of MP.vis.values()) {
-    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.vc ? 'visitante · voz' : 'visitante';
+    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
     if (!v.A || !v.A.J.head) { el.style.opacity = '0'; continue; }

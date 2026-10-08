@@ -40,6 +40,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (DISCO.dancing) stopDance();
   if (CASINO.active) exitCasino(); if (mode === 'music') closeMusic(); $('musicOpen').hidden = true;
   if (mode === 'talk') closeTalk(); if (POOL.active) { POOL.active = false; $('poolHud').hidden = true; $('hud').hidden = false; $('mp').classList.remove('off'); if (lampMeshes) for (const m of lampMeshes) m.visible = true; aimLine.visible = objLine.visible = ghost.visible = cueStick.visible = false; if (POOL.opp) { POOL.opp.inPool = false; POOL.opp.t1 = simT + 3; } POOL.opp = null; }
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
@@ -55,8 +56,9 @@ btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); })
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
-  if (typing) return;
+  if (e.code === 'Escape') { if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (typing || e.target?.tagName === 'SELECT') return;
+  if (mode === 'dance') { if (e.code === 'KeyE' && !e.repeat) stopDance(); return; }
   if (e.code === 'KeyE' && !e.repeat && (mode === 'fp' || mode === 'seat')) { doAct(); return; }
   if (mode === 'seat' && e.code === 'Space') { e.preventDefault(); standUp(); return; }
   if (mode === 'pool' && e.code === 'Space') { e.preventDefault(); if (!e.repeat) startCharge(); return; }
@@ -101,7 +103,9 @@ canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault
 
 /* colisão do visitante com móveis e pessoas */
 function blocked(x, z) {
-  if (x < -RW + PR || x > RW - PR || z < -RD + PR || z > RD - PR) return true;
+  if (z > RD - PR) {
+    if (Math.abs(x) > 4 - PR || z > 14 - PR || (z < RD + PR && Math.abs(x) > 1.1 - PR)) return true;
+  } else if (x < -RW + PR || x > RW - PR || z < -RD + PR) return true;
   for (const c of COLL) if (x > c.minX - PR && x < c.maxX + PR && z > c.minZ - PR && z < c.maxZ + PR) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   return false;

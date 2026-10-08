@@ -52,8 +52,9 @@ Partes de `src/`:
 | `00_head.html` | Título, fontes, todo o CSS, o HTML da interface, o import map do Three.js e a abertura do `<script type="module">`. |
 | `10_core.js` | Renderizador, utilidades (`rnd`, `clamp`, `damp`, `money`…), materiais, geometrias, junção de malhas estáticas, colisores. |
 | `20_textures.js` | Texturas procedurais e a vista de Nova York (Empire State, Chrysler etc.). |
-| `30_room.js` | Arquitetura e luzes. A sala tem x de -8 a 8, z de -6 a 6 e altura 3,2. |
+| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. |
 | `40_furniture.js` | Mesas (`STATIONS`, `SCREENS`), sofá, mesa de sinuca, café, geladeira (`FRIDGE`). |
+| `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
 | `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
@@ -64,6 +65,7 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias) e música local por Web Audio ou arquivo do aparelho. |
+| `77z_disco.js` | Acesso à discoteca, dança procedural e realista, reações, convites e câmera. |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
 | `78v_voice.js` | Chat de voz (WebRTC + som 3D). Também chama `mpInit()`. |
 | `79_traffic.js` | Avenida e carros lá embaixo. |
@@ -96,6 +98,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_discoteca.py` valida passagem e colisões, danças realistas, robôs andando à pista, emojis e dança entre visitantes, música e saída no desktop/celular.
 - `python3 testes/teste_lazer.py` valida 21 (ás, vitória, derrota, empate, fichas e saída), música (estilos, volume, arquivo e parada) e interface em desktop/celular. Usa Supabase falso.
 - `python3 testes/teste_multiplayer.py` testa duas pessoas na sala com um Supabase falso. Ele confere:
   - presença;
@@ -118,6 +121,7 @@ Testes:
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
 - lazer: `CASINO`, `startCasino`, `exitCasino`, `casinoDeal`, `casinoHit`, `casinoStand`, `handValue`, `MUSIC`, `openMusic`, `closeMusic`;
+- discoteca: `DISCO`, `goDisco`, `exitDisco`, `startDance`, `stopDance`, `inviteDancers`, `sendDiscoEmoji`;
 - multiplayer: `MP`, `VOICE`, `voiceJoin`, `voiceLeave`, `saveRanking`, `myId`.
 
 O ambiente de teste não tem placa de vídeo, então roda a 1–2 quadros por segundo e os avatares andam devagar. Isso não é erro.
@@ -137,12 +141,14 @@ O ambiente de teste não tem placa de vídeo, então roda a 1–2 quadros por se
   - a escrita só acontece pela função `record_pool_result(p_name, p_result)`, que soma +1 em `win`, `loss` ou `draw`.
 
 **Canal em tempo real** `sala-dos-robos` (público):
-- **Presença:** a chave é um id aleatório por aba (`myId`). O conteúdo é `{v:1, n, a, x, z, yaw, m, sy, vc}`:
+- **Presença:** a chave é um id aleatório por aba (`myId`). O conteúdo é `{v:1, n, a, x, z, yaw, m, sy, vc, ds, em, ei, et}`:
   - `n`: nome;
   - `a`: aparência, de 0 a 3;
-  - `m`: `w` em pé ou andando, `s` sentado, `t` conversando;
+  - `m`: `w` em pé ou andando, `s` sentado, `t` conversando, `d` dançando;
   - `sy`: altura do assento;
-  - `vc`: 1 se está na voz.
+  - `vc`: 1 se está na voz;
+  - `ds`: estilo de dança (`groove`, `disco`, `party`);
+  - `em`, `ei`, `et`: emoji permitido, identificador e expiração da reação. Reações duram poucos segundos e não são gravadas no banco.
 
   A presença é atualizada no máximo a cada 4 s e serve para quem chega depois.
 - **Broadcast `pos`:** o mesmo conteúdo mais o `id`, enviado só quando muda.
