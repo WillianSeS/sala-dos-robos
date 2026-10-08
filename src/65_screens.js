@@ -125,7 +125,7 @@ function updateLabels() {
   const W = innerWidth, H = innerHeight;
   for (const r of robots) {
     const tr = r.trade, flash = !tr && r.react && simT < r.reactT, v = tr ? tr.pnl : flash ? r.lastPnl : 0;
-    const txt = r.P.pose === 'dance' ? '🕺 na pista' : tr || flash ? money(v) : '+$0,00', cls = tr || flash ? (v >= 0 ? 'pl g' : 'pl r') : 'pl n';
+    const txt = r.P.consumeUntil > performance.now()/1000 ? (CONSUMABLES[r.P.heldItem]?.kind === 'food' ? '🍽️ comendo' : '🥤 bebendo') : r.smokingUntil > performance.now()/1000 ? '💨 no lounge' : r.P.pose === 'dance' ? '🕺 na pista' : tr || flash ? money(v) : '+$0,00', cls = tr || flash ? (v >= 0 ? 'pl g' : 'pl r') : 'pl n';
     if (txt !== r.txt) { r.elV.textContent = txt; r.txt = txt; }
     if (r.el.className !== cls) r.el.className = cls;
     r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42;

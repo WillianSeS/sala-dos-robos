@@ -42,12 +42,13 @@ class Visitor {
     if (!this.A) { if (AV.clips && !this.loading) this.load(); return; }
     this.A.root.position.set(this.x, 0, this.z); this.A.yaw = this.yaw;
     this.A.pose = this.m === 'd' ? 'dance' : this.m === 's' ? 'sofa' : this.m === 't' ? 'cross' : 'stand';
-    this.A.danceStyle = this.ds;
+    this.A.danceStyle = this.ds; this.A.smokingUntil = this.smokingUntil || 0;
+    setPersonItem(this.A, this.item || '', this.consumeUntil || 0);
     this.A.speed = this.m === 'w' && d > 0.08 ? clamp(d * 4, 0.6, 1.8) : 0;
     this.A.update(dt, t);
     if (this.m === 's') this.A.root.position.y = this.sy || 0;
   }
-  remove() { this.dead = true; this.el.remove(); if (this.A) { GROUPS.main.remove(this.A.root); GROUPS.main.remove(this.A.cup); } }
+  remove() { this.dead = true; this.el.remove(); if (this.A) { disposePersonItem(this.A); disposeSmokingPerson(this.A); GROUPS.main.remove(this.A.root); GROUPS.main.remove(this.A.cup); } }
 }
 function addChat(id, name, text, t) {
   if (!id || MP.seen.has(id)) return; MP.seen.add(id);
@@ -147,11 +148,11 @@ async function mpInit() {
 /* minha presença: onde estou e o que estou fazendo (8x por segundo, só quando muda) */
 function myPresence() {
   let x = fp.pos.x, z = fp.pos.z, yaw = fp.yaw + Math.PI, m = 'w', sy = 0;
-  if ((mode === 'seat' || mode === 'music') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
+  if ((mode === 'seat' || mode === 'music' || mode === 'menu') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
   else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
   if (DISCO.dancing) { m = 'd'; yaw = Math.PI; }
-  return { ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
+  return { it: HOSP.item, ct: HOSP.consumeUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.consumeUntil - performance.now()/1000)*1000) : 0, hs: HOSP.smokingUntil > performance.now()/1000 ? HOSP.hookIndex : -1, ht: HOSP.smokingUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.smokingUntil - performance.now()/1000)*1000) : 0, ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
 function stepMulti(dt, t) {
   if (MP.room && inRoom && (t - MP.sendT > MP.sendDt)) {
@@ -167,7 +168,10 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 21.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.item = Object.hasOwn(CONSUMABLES, p.it) ? p.it : '';
+      v.consumeUntil = +p.ct > Date.now() && +p.ct < Date.now() + 5000 ? performance.now()/1000 + (+p.ct - Date.now())/1000 : 0;
+      v.smokingUntil = inLounge(v.tx, v.tz) && [0, 1].includes(p.hs) && +p.ht > Date.now() && +p.ht < Date.now()+8000 ? performance.now()/1000 + (+p.ht - Date.now())/1000 : 0; v.hookIndex = p.hs;
       v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
       if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
         v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
@@ -183,7 +187,7 @@ const _vh = new THREE.Vector3();
 function updateVisitorLabels(t) {
   const W = innerWidth, H = innerHeight;
   for (const v of MP.vis.values()) {
-    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
+    const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.smokingUntil > t ? '💨 no lounge' : v.consumeUntil > t && v.item ? (CONSUMABLES[v.item].kind === 'food' ? '🍽️ comendo' : '🥤 bebendo') : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
     if (!v.A || !v.A.J.head) { el.style.opacity = '0'; continue; }

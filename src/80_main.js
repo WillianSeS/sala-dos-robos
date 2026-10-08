@@ -50,11 +50,11 @@ function frame(now) {
   acc += dt;
   while (acc >= 0.25) { acc -= 0.25; simT += 0.25; stepMarket(); stepRobots(0.25); }
   moveRobots(dt);
-  for (const r of robots) r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t);
+  for (const r of robots) { r.P.smokingUntil = r.smokingUntil || 0; r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t); }
   /* câmera */
-  if (mode === 'dance') stepDanceCamera(dt); else if (mode === 'casino' || mode === 'music') { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } else if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
-  setWalls(mode === 'dance' || mode === 'casino' || mode === 'music' || mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepDisco(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  if (mode === 'dance' || (mode === 'menu' && HOSP.returnMode === 'dance')) stepDanceCamera(dt); else if (mode === 'menu' || mode === 'casino' || mode === 'music') { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } else if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
+  setWalls(mode === 'menu' || mode === 'dance' || mode === 'casino' || mode === 'music' || mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
+  stepDisco(dt, t); stepHospitality(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -65,7 +65,7 @@ function frame(now) {
   /* render (sombras recalculadas em quadros alternados) */
   if (frameN % 2 === 0) renderer.shadowMap.needsUpdate = true;
   if (composer) composer.render(); else renderer.render(scene, camera);
-  updateLabels(); updateVisitorLabels(t);
+  updateLabels(); updateVisitorLabels(t); updateStaffLabels(t);
   frameN++;
   if (!envDone && frameN === 3) { captureEnv(); envDone = true; }
   /* qualidade adaptativa: se ficar lento, reduz a resolução */
@@ -73,6 +73,7 @@ function frame(now) {
   if (ftAcc > 2.5) { const fps = frames / ftAcc; ftAcc = 0; frames = 0; if (fps < 26 && pixelRatio > 0.75 && frameN > 200) { pixelRatio = Math.max(0.75, pixelRatio - 0.2); resize(); } }
 }
 
+initStaff();
 await setupPost();
 resize();
 requestAnimationFrame(frame);
@@ -82,4 +83,4 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };

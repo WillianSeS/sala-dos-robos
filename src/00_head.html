@@ -114,6 +114,12 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .disco-shortcuts{display:flex;gap:6px;flex-wrap:wrap;max-width:300px;justify-content:flex-end;position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
 @media(max-width:600px){.disco-shortcuts{top:calc(155px + env(safe-area-inset-top,0px))}.disco-panel .btn.sm{padding:8px 9px;font-size:11px}.disco-panel{gap:8px}}
 @media(max-height:500px){.disco-panel{max-height:calc(100dvh - 70px);overflow:auto;left:14px;transform:none;width:330px}.disco-shortcuts{top:110px}}
+
+.hospitality-menu{box-sizing:border-box;max-height:70dvh;overflow:auto}
+.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.menu-item{display:grid;gap:5px;text-align:left;min-height:68px;white-space:normal}.menu-item span{font-size:23px}.menu-item small{font:10px var(--mono);color:var(--muted)}
+.held-bar{position:fixed;right:16px;bottom:calc(104px + env(safe-area-inset-bottom,0px));width:218px;box-sizing:border-box;background:#0e1719ed;border:1px solid #8eb5a466;border-radius:12px;padding:10px;display:grid;gap:7px;z-index:3}.held-bar p{margin:0;font-size:11px;color:var(--muted)}.held-bar .pool-row{justify-content:flex-start}.service-note{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;padding:9px 13px;border:1px solid var(--line);background:#101917ed;border-radius:10px;font-size:11px;z-index:4;text-align:center}
+.lounge-panel{border-color:#be984d88;background:#15120ded}.lounge-panel b{font-size:20px}.pl.staff{border-color:#d9bf80}.pl.staff .v{color:#e1cc99}
+@media(max-width:600px){.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.disco-shortcuts{max-width:270px}.held-bar{width:210px;bottom:calc(95px + env(safe-area-inset-bottom,0px))}.service-note{top:calc(245px + env(safe-area-inset-top,0px));width:max-content;max-width:calc(100% - 32px)}}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -127,14 +133,26 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
 <div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
-<div class="disco-shortcuts"><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
+<div class="disco-shortcuts"><button id="loungeGo" class="btn sm" hidden>🛋️ Lounge</button><button id="menuOpen" class="btn sm" hidden>🍽️ Cardápio</button><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <b>🪩 Discoteca dos Robôs</b><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
   <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>
   <div class="pool-row"><button id="discoDance" class="btn sm" aria-pressed="false">Dançar</button><button id="discoInvite" class="btn sm">Chamar os robôs</button><button id="discoMusic" class="btn sm">🎶 Música</button></div>
-  <div class="pool-row" aria-label="Reações"><button class="disco-emoji" data-emoji="🔥" aria-label="Mandar fogo">🔥</button><button class="disco-emoji" data-emoji="❤️" aria-label="Mandar coração">❤️</button><button class="disco-emoji" data-emoji="😂" aria-label="Mandar risada">😂</button><button class="disco-emoji" data-emoji="🎉" aria-label="Mandar festa">🎉</button><button class="disco-emoji" data-emoji="🕺" aria-label="Mandar dança">🕺</button></div>
+  <div class="pool-row"><button id="discoSip" class="btn sm" hidden>Tomar bebida</button></div><div class="pool-row" aria-label="Reações"><button class="disco-emoji" data-emoji="🔥" aria-label="Mandar fogo">🔥</button><button class="disco-emoji" data-emoji="❤️" aria-label="Mandar coração">❤️</button><button class="disco-emoji" data-emoji="😂" aria-label="Mandar risada">😂</button><button class="disco-emoji" data-emoji="🎉" aria-label="Mandar festa">🎉</button><button class="disco-emoji" data-emoji="🕺" aria-label="Mandar dança">🕺</button></div>
   <div class="pool-row"><button id="discoLights" class="btn sm" aria-pressed="true">Luzes suaves</button><button id="discoExit" class="btn sm">Voltar à sala</button></div>
 </section>
+<section id="loungePanel" class="disco-panel lounge-panel" hidden aria-label="Lounge e smoking">
+  <b>🛋️ Smoking Lounge</b><p id="loungeMsg">Descanse no sofá, ouça música e peça algo ao atendimento.</p>
+  <div class="pool-row"><button id="loungeSmoke" class="btn sm">Usar narguilé</button><button id="loungeInvite" class="btn sm">Chamar os robôs</button><button id="loungeMusic" class="btn sm">🎶 Música</button><button id="loungeSip" class="btn sm" hidden>Tomar bebida</button></div>
+  <div class="pool-row"><button id="loungeMenu" class="btn sm">🍽️ Pedir algo</button><button id="loungeExit" class="btn sm">Voltar aos jogos</button></div>
+</section>
+<section id="hospitalityMenu" class="talk leisure hospitality-menu" hidden role="dialog" aria-label="Cardápio de bebidas e comidas">
+  <div class="talk-h"><div><b id="menuTitle">Bebidas e comidas</b><span id="menuHint">Escolha seu pedido. O atendimento leva até você.</span></div><button id="menuClose" class="btn sm">Fechar</button></div>
+  <div id="menuItems" class="menu-grid"></div><p id="menuMsg" role="status"></p>
+  <div class="pool-row"><button id="fridgeClose" class="btn sm" hidden>Fechar geladeira</button><button id="serviceCancel" class="btn sm" hidden>Cancelar pedido</button></div>
+</section>
+<aside id="heldBar" class="held-bar" hidden aria-label="Item na mão"><b id="heldName"></b><p id="heldPortions"></p><div class="pool-row"><button id="consumeBtn" class="btn sm">Tomar</button><button id="putAwayBtn" class="btn sm">Guardar</button></div></aside>
+<div id="serviceNote" class="service-note" hidden role="status"></div>
 <div class="cross" id="cross" hidden></div>
 <div class="help" id="help" hidden></div>
 <div class="joy" id="joy" hidden><i></i></div>
@@ -175,7 +193,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 <div class="intro" id="intro">
   <div class="card">
     <h1>Sala dos <em>Robôs</em></h1>
-    <p>Dez robôs de trading, cada um é um trader na mesa. Entre, ande entre eles, converse, jogue sinuca, abra a geladeira e sente onde quiser. Quem você convidar entra junto e aparece na sala.</p>
+    <p>Dez robôs de trading, cada um é um trader na mesa. Entre, converse, visite a sala de jogos, dance na discoteca e descanse no lounge. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
     <div class="nick"><label for="nick">Seu nome na sala</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Como os outros vão te ver"></div>
     <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status">Carregando a sala…</span></div>
     <p class="small">Pessoas 3D: Microsoft Rocketbox, licença MIT (people/LICENSE-Rocketbox.txt). Nomes fictícios. Cidade desenhada.</p>

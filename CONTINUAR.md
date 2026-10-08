@@ -7,7 +7,7 @@ Leia este arquivo inteiro antes de mudar qualquer coisa.
 A **Sala dos Robôs** é uma sala de trading em 3D em Nova York, à noite.
 
 - **Robôs e mercado:** 10 robôs operam pares de moedas (EURUSD, GBPUSD, USDJPY, USDCAD). Cada robô é uma pessoa 3D sentada numa mesa, com o resultado flutuando sobre a cabeça. O telão mostra a curva da carteira. Todos os dados são simulados no navegador.
-- **O que o visitante faz:** entra em primeira pessoa, anda, senta (mesa e sofá), abre a geladeira, conversa com os traders e joga sinuca contra eles.
+- **O que o visitante faz:** entra em primeira pessoa, anda, senta (mesa e sofá), abre a geladeira, conversa com os traders e joga sinuca e 21 contra eles. A sala de jogos e a discoteca são separadas do escritório; o lounge tem atendimento, bebidas, comida e narguilé virtual.
 - **Outras pessoas:** quem está no site encontra os outros visitantes (avatares ao vivo), com chat de texto e chat de voz em 3D.
 
 Links:
@@ -52,13 +52,15 @@ Partes de `src/`:
 | `00_head.html` | Título, fontes, todo o CSS, o HTML da interface, o import map do Three.js e a abertura do `<script type="module">`. |
 | `10_core.js` | Renderizador, utilidades (`rnd`, `clamp`, `damp`, `money`…), materiais, geometrias, junção de malhas estáticas, colisores. |
 | `20_textures.js` | Texturas procedurais e a vista de Nova York (Empire State, Chrysler etc.). |
-| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. A sala de jogos ocupa x de 4 a 12, z de 6 a 14, com porta em x=5,5; a sinuca fica em (8; 9,4) e o 21 em (8; 12,1). |
+| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. A sala de jogos ocupa x de 4 a 12, z de 6 a 14, com porta em x=5,5; a sinuca fica em (8; 9,4) e o 21 em (8; 12,1). O lounge ocupa x de 4 a 12, z de 14 a 22, conectado aos jogos pela porta x=10,5 (largura 1,8). |
 | `40_furniture.js` | Mesas (`STATIONS`, `SCREENS`), sofá, mesa de sinuca, café, geladeira (`FRIDGE`). |
 | `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
 | `43_games_room.js` | Sala de jogos: paredes, iluminação, mesa do 21, placas e tacos. |
+| `44_smoking_room.js` | Lounge: sofás, bar, mesas de narguilé, fumaça leve e `LOUNGE_LAYOUT` com posições/assentos. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
 | `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
+| `56_consumables.js` | Nove bebidas/comidas 3D compartilhadas; IK da mão até a boca, fumar e limpeza de props. Tempos de animação em `performance.now()/1000`. |
 | `60_sim.js` | Mercado simulado (`PAIRS`), robôs, operações e rotas pela sala (`NODES`, `EDGES`, `SPOTS`). |
 | `65_screens.js` | Desenho dos monitores, do telão e do letreiro. Etiquetas de resultado. |
 | `70_controls.js` | Modos de câmera (`orbit`, `tween`, `fp`, `seat`, `talk`, `pool`), teclado, mouse, joystick, colisão. |
@@ -66,6 +68,8 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias) e música local por Web Audio ou arquivo do aparelho. |
+| `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
+| `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |
 | `77y_games.js` | Atalhos para entrar na sala de jogos e voltar ao escritório. |
 | `77z_disco.js` | Acesso à discoteca, dança procedural e realista, reações, convites e câmera. |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
@@ -100,6 +104,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_hospitalidade.py` valida atendimento andando e bandeja, geladeira, itens/gestos, lounge, fumaça, música sentado, presença e limpeza no desktop/celular.
 - `python3 testes/teste_sala_jogos.py` valida entradas, paredes, sinuca e 21 na sala separada, caminhos dos robôs, presença fora dos limites antigos e retorno no desktop/celular.
 - `python3 testes/teste_discoteca.py` valida passagem e colisões, danças realistas, robôs andando à pista, emojis e dança entre visitantes, música e saída no desktop/celular.
 - `python3 testes/teste_lazer.py` valida 21 (ás, vitória, derrota, empate, fichas e saída), música (estilos, volume, arquivo e parada) e interface em desktop/celular. Usa Supabase falso.
@@ -123,6 +128,7 @@ Testes:
 - robôs e simulação: `robots`, `fast(seg)`, `openTrade`, `closeTrade`;
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
+- lounge e atendimento: `HOSP`, `STAFF`, `CONSUMABLES`, `goLounge`, `openHospitality`, `requestService`, `consumeHeld`, `startSmoking`, `stopSmoking`;
 - lazer: `CASINO`, `startCasino`, `exitCasino`, `casinoDeal`, `casinoHit`, `casinoStand`, `handValue`, `MUSIC`, `openMusic`, `closeMusic`;
 - discoteca: `DISCO`, `goDisco`, `exitDisco`, `startDance`, `stopDance`, `inviteDancers`, `sendDiscoEmoji`;
 - multiplayer: `MP`, `VOICE`, `voiceJoin`, `voiceLeave`, `saveRanking`, `myId`.
@@ -144,13 +150,15 @@ O ambiente de teste não tem placa de vídeo, então roda a 1–2 quadros por se
   - a escrita só acontece pela função `record_pool_result(p_name, p_result)`, que soma +1 em `win`, `loss` ou `draw`.
 
 **Canal em tempo real** `sala-dos-robos` (público):
-- **Presença:** a chave é um id aleatório por aba (`myId`). O conteúdo é `{v:1, n, a, x, z, yaw, m, sy, vc, ds, em, ei, et}`:
+- **Presença:** a chave é um id aleatório por aba (`myId`). O conteúdo é `{v:1, n, a, x, z, yaw, m, sy, vc, ds, em, ei, et, it, ct, hs, ht}`:
   - `n`: nome;
   - `a`: aparência, de 0 a 3;
   - `m`: `w` em pé ou andando, `s` sentado, `t` conversando, `d` dançando;
   - `sy`: altura do assento;
   - `vc`: 1 se está na voz;
   - `ds`: estilo de dança (`groove`, `disco`, `party`);
+  - `it`: id de bebida/comida do catálogo; `ct`: fim da animação em milissegundos de `Date.now()`.
+  - `hs`: índice da mesa de narguilé (0/1, -1 inativo); `ht`: fim do gesto em milissegundos. IDs e durações recebidas são validados. A recepção converte para relógio monotônico local. Esses estados são transitórios, sem novos registros/tabelas.
   - `em`, `ei`, `et`: emoji permitido, identificador e expiração da reação. Reações duram poucos segundos e não são gravadas no banco.
 
   A presença é atualizada no máximo a cada 4 s e serve para quem chega depois.
@@ -199,3 +207,10 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 - As fichas do 21 são fictícias e ficam apenas na sessão aberta. A música toca localmente, sem sincronização entre visitantes.
 - Os nomes dos traders são fictícios e a cidade é desenhada.
 - É uma simulação, não é recomendação de investimento.
+
+## 11. Referências consultadas para objetos e atendimento
+
+- [Three.js r160 — Bone](https://github.com/mrdoob/three.js/blob/r160/docs/api/en/objects/Bone.html): vínculo dos objetos aos ossos e conversão de rotação local/mundial.
+- [Three.js r160 — SkeletonUtils](https://github.com/mrdoob/three.js/blob/r160/docs/examples/en/utils/SkeletonUtils.html): clones independentes de esqueleto para Caio e Sofia, reutilizando geometrias/texturas.
+- [Three.js r160 — TubeGeometry](https://github.com/mrdoob/three.js/blob/r160/docs/api/en/geometries/TubeGeometry.html): mangueiras curvas.
+- [Supabase — Presence](https://supabase.com/docs/guides/realtime/presence): bebidas/gestos acrescentados ao payload existente, mantendo os limites de envio.

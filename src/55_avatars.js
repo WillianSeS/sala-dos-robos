@@ -25,39 +25,47 @@ class Avatar {
     this.mixer = new THREE.AnimationMixer(gltf.scene);
     this.actions = {}; for (const c of clips) this.actions[c.name] = this.mixer.clipAction(c);
     this.danceBones = ['Spine', 'Spine1', 'L_UpperArm', 'R_UpperArm', 'L_Forearm', 'R_Forearm', 'L_Thigh', 'R_Thigh', 'L_Calf', 'R_Calf'].map(n => gltf.scene.getObjectByName('Bip01_' + n));
-    this.J = { head: gltf.scene.getObjectByName('Bip01_Head') };
+    this.J = { head: gltf.scene.getObjectByName('Bip01_Head'), rSh: gltf.scene.getObjectByName('Bip01_R_UpperArm'), rEl: gltf.scene.getObjectByName('Bip01_R_Forearm'), rWr: gltf.scene.getObjectByName('Bip01_R_Hand') };
     this.hand = gltf.scene.getObjectByName('Bip01_R_Hand'); this.finger = gltf.scene.getObjectByName('Bip01_R_Finger21') || this.hand;
     this.cup = new THREE.Mesh(PG.cup, mat.mug); this.cup.castShadow = true; this.cup.visible = false; GROUPS.main.add(this.cup);
     this.cur = null; this.clip = null; this.alt = false; this.altT = 0; this.frKind = 'frustr';
+    this.smokingUntil = old.smokingUntil || 0;
+    if (old.heldItem) { setPersonItem(this, old.heldItem, old.consumeUntil || 0); disposePersonItem(old); }
+    if (old.smokeRig && typeof disposeSmokingPerson === 'function') disposeSmokingPerson(old);
   }
   play(name) {
     if (name === this.clip) return;
     const a = this.actions[name] || this.actions.idle;
     if (this.cur) this.cur.fadeOut(0.5);
-    a.reset(); a.time = name === 'walk' || name === 'cheer' || name === 'frustr' || name === 'touchFace' ? 0 : Math.random() * a.getClip().duration;
+    a.reset(); a.time = name === 'walk' || name === 'cheer' || name === 'frustr' || name === 'touchFace' || (name === 'drink' && this.heldItem) ? 0 : Math.random() * a.getClip().duration;
     a.setEffectiveWeight(1).fadeIn(0.5).play();
     this.cur = a; this.clip = name;
   }
   update(dt, t) {
+    restorePersonItemPose(this);
     if (this.danceRest) { this.danceBones.forEach((bone, i) => { if (bone && this.danceRest[i]) bone.quaternion.copy(this.danceRest[i]); }); this.danceRest = null; }
     this.root.rotation.z = 0;
     let name = POSE_CLIP[this.pose] || 'idle';
     if (this.pose === 'stand' && this.speed > 0.05) name = 'walk';
     if (this.pose === 'sitFrustr') name = this.frKind;
+    const consumingDrink = CONSUMABLES[this.heldItem]?.kind === 'drink' && this.consumeUntil > t;
+    if (consumingDrink && this.speed < 0.05 && ['stand', 'standCup', 'pocket', 'cross'].includes(this.pose)) name = 'drink';
     if (name === 'sitWork') { if (t > this.altT) { this.alt = Math.random() < 0.3; this.altT = t + rnd(12, 30); } if (this.alt) name = 'sitLook'; }
     this.play(name);
-    this.cur.timeScale = name === 'walk' ? clamp(this.speed / 1.25, 0.6, 1.6) : 1;
+    this.cur.timeScale = name === 'walk' ? clamp(this.speed / 1.25, 0.6, 1.6) : name === 'drink' && consumingDrink ? this.cur.getClip().duration / 2.4 : 1;
     this.mixer.update(dt);
     this.root.rotation.y = this.yaw;
     this.root.position.y = this.pose === 'sofa' ? -0.03 : 0;
     if (this.pose === 'dance') applyAvatarDance(this, t);
     /* xícara na mão durante o café */
-    this.cup.visible = name === 'drink';
+    this.cup.visible = name === 'drink' && !this.heldItem && !!this.hand;
     if (this.cup.visible) {
       this.root.updateMatrixWorld(true);
       this.hand.getWorldPosition(_ha); this.finger.getWorldPosition(_hb);
       this.cup.position.addVectors(_ha, _hb).multiplyScalar(0.5); this.cup.position.y -= 0.015;
     }
+    updatePersonItem(this, t);
+    updatePersonSmokingPose(this, t);
   }
 }
 const AV = { ready: false, loaded: 0, total: AV_FILES.length + 2, failed: false };

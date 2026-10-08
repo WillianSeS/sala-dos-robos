@@ -10,6 +10,7 @@ STATIONS.forEach((st, i) => SEATS.push({
 [-6.1, -5.1, -4.1].forEach(x => SEATS.push({ kind: 'sofa', label: 'Sentar no sofá', x, z: 5.36, eye: 1.06, yaw: 0, free: () => !(x === -6.1 && SPOTS.sofa.busy) }));
 SEATS.push({ kind: 'arm', label: 'Sentar na poltrona', x: -2.78, z: 4.45, eye: 1.08, yaw: 1.32, free: () => true });
 for (const x of [-3.45, 3.45]) SEATS.push({ kind: 'club', label: 'Sentar no banco da discoteca', x, z: 10.2, eye: 1.08, yaw: x < 0 ? -Math.PI / 2 : Math.PI / 2, free: () => true });
+for (const [i, s] of LOUNGE_LAYOUT.seats.entries()) SEATS.push({ kind: 'lounge', label: 'Sentar no sofá do lounge', ...s, free: () => !(i === 0 && SPOTS.lounge1.busy || i === 3 && SPOTS.lounge2.busy) });
 const seatState = { s: null, from: new THREE.Vector3() };
 
 function findAct() {
@@ -20,18 +21,24 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
+  if (inLounge(px, pz)) {
+    for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
+    consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));
+  }
+  for (const member of STAFF.members) consider(member.P.root.position.x, member.P.root.position.z, 2.1, .65, 'Pedir ao ' + member.role + ' ' + member.name, () => openHospitality());
   if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
   consider(8, 12.1, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
   if (Math.hypot(ex, ez) < 1.1) consider(POOL.cx, POOL.cz, 4, 0.3, 'Jogar sinuca', () => startPool(null));
-  consider(FRIDGE.x - 0.1, FRIDGE.z, 1.8, 0.5, FRIDGE.open ? 'Fechar a geladeira' : 'Abrir a geladeira', () => { FRIDGE.open = !FRIDGE.open; });
+  consider(FRIDGE.x - 0.1, FRIDGE.z, 1.8, 0.5, 'Pegar bebida ou comida na geladeira', () => openHospitality('fridge'));
   for (const s of SEATS) if (s.free()) consider(s.x, s.z, 1.35, 0.4, s.label, () => sitDown(s));
   return best;
 }
 function sitDown(s) {
   seatState.s = s; seatState.from.copy(fp.pos);
   if (s.st) s.st.playerSeated = true;
+  if (s.kind === 'lounge') { const spot = s.id === 'loungeSideA' ? SPOTS.lounge1 : s.id === 'loungeBackB' ? SPOTS.lounge2 : null; if (spot) spot.busy = 'player'; }
   if (s.kind === 'sofa' && s.x === -6.1) SPOTS.sofa.busy = 'player';
   fp.yaw = s.yaw; fp.pitch = -0.08; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(s.x, s.eye, s.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.7, () => { mode = 'seat'; });
@@ -46,6 +53,7 @@ function standUp(after) {
   if (!spot) spot = [seatState.from.x, seatState.from.z];
   if (s.st) s.st.playerSeated = false;
   if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null;
+  for (const spot of [SPOTS.lounge1, SPOTS.lounge2]) if (spot.busy === 'player') spot.busy = null;
   seatState.s = null; fp.pos.set(spot[0], 0, spot[1]);
   startTween(new THREE.Vector3(spot[0], EYE, spot[1]), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.6, () => { mode = 'fp'; if (after) after(); });
 }

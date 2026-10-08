@@ -65,8 +65,8 @@ const equity = () => BASE + realized + openPnl();
 /* ---------- caminhos (grafo de corredores) ---------- */
 const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], officeFront: [0.45, 3.15], officeRight: [4.6, 3.15], poolW: [5.5, 9.4], poolE: [10, 10.8], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-Object.assign(NODES, { gamesGate: [5.5, 5.5], gamesDoor: [5.5, 7.1], gamesBack: [5.5, 10.8], discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
-const EDGES = [['officeFront', 'discoGate'], ['officeRight', 'gamesGate'], ['gamesGate', 'gamesDoor'], ['gamesDoor', 'poolW'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { loungeGate: [10.5, 13.3], loungeDoor: [10.5, 14.8], loungeHub: [10.5, 17], loungeSide: [6.5, 16], loungeBack: [10.5, 19], gamesGate: [5.5, 5.5], gamesDoor: [5.5, 7.1], gamesBack: [5.5, 10.8], discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
+const EDGES = [['poolE', 'loungeGate'], ['loungeGate', 'loungeDoor'], ['loungeDoor', 'loungeHub'], ['loungeHub', 'loungeSide'], ['loungeHub', 'loungeBack'], ['officeFront', 'discoGate'], ['officeRight', 'gamesGate'], ['gamesGate', 'gamesDoor'], ['gamesDoor', 'poolW'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
@@ -79,6 +79,8 @@ function route(from, to) {
   return out;
 }
 const SPOTS = {
+  lounge1: { x: 4.95, z: 17.5, yaw: -Math.PI / 2, pose: 'sofa', node: 'loungeSide', w: 0.45 },
+  lounge2: { x: 9.4, z: 21.3, yaw: 0, pose: 'sofa', node: 'loungeBack', w: 0.45 },
   dance1: { x: -1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   dance2: { x: 1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   dance3: { x: 0, z: 11.1, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
@@ -138,7 +140,7 @@ function moveRobots(dt) {
       else { const s = Math.min(d, r.spd * dt); pos.x += dx / d * s; pos.z += dz / d * s; speed = r.spd; P.yaw = angDamp(P.yaw, Math.atan2(dx, dz), 9, dt); }
       if (!r.path.length) {
         if (r.back) { r.mode = 'sitting'; r.t1 = simT + 0.9; SPOTS[r.spot].busy = null; r.spot = null; }
-        else { r.mode = 'lounge'; r.t1 = Math.max(simT + (r.inPool ? 999 : rnd(18, 40)), r.discoUntil || 0); }
+        else { r.mode = 'lounge'; r.t1 = Math.max(simT + (r.inPool ? 999 : rnd(18, 40)), r.discoUntil || 0, r.hospitalityUntil || 0); }
       }
     }
     P.speed = speed;

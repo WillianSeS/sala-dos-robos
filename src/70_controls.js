@@ -40,10 +40,12 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (mode === 'menu') closeHospitality(); cancelService(true); stopSmoking(); putAwayConsumable();
   if (DISCO.dancing) stopDance();
   if (CASINO.active) exitCasino(); if (mode === 'music') closeMusic(); $('musicOpen').hidden = true;
   if (mode === 'talk') closeTalk(); if (POOL.active) { POOL.active = false; $('poolHud').hidden = true; $('hud').hidden = false; $('mp').classList.remove('off'); if (lampMeshes) for (const m of lampMeshes) m.visible = true; aimLine.visible = objLine.visible = ghost.visible = cueStick.visible = false; if (POOL.opp) { POOL.opp.inPool = false; POOL.opp.t1 = simT + 3; } POOL.opp = null; }
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
+  for (const spot of [SPOTS.lounge1, SPOTS.lounge2]) if (spot.busy === 'player') spot.busy = null;
   inRoom = false; if (document.pointerLockElement) document.exitPointerLock();
   cross.hidden = true; help.hidden = true; btnView.textContent = 'Entrar na sala';
   const o = orbitPose({}); startTween(o.pos, o.q, reduceMotion ? 0.01 : 1.8, () => { mode = 'orbit'; });
@@ -56,8 +58,9 @@ btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); })
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (e.code === 'Escape') { if (mode === 'menu') { closeHospitality(); return; } if (HOSP.smokingUntil > performance.now()/1000) { stopSmoking(); return; } if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
   if (typing || e.target?.tagName === 'SELECT') return;
+  if (e.code === 'KeyF' && !e.repeat) { consumeHeld(); return; }
   if (mode === 'dance') { if (e.code === 'KeyE' && !e.repeat) stopDance(); return; }
   if (e.code === 'KeyE' && !e.repeat && (mode === 'fp' || mode === 'seat')) { doAct(); return; }
   if (mode === 'seat' && e.code === 'Space') { e.preventDefault(); standUp(); return; }
@@ -102,15 +105,24 @@ canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercan
 canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; } }, { passive: false });
 
 /* colisão do visitante com móveis e pessoas */
+function roomBlocked(x, z, radius = PR) {
+  if (z <= RD - radius) {
+    if (x < -RW + radius || x > RW - radius || z < -RD + radius) return true;
+  } else {
+    const disco = x >= -4 + radius && x <= 4 - radius;
+    const annex = x >= 4 + radius && x <= 12 - radius;
+    const officeDoor = Math.abs(x) <= 1.1 - radius || Math.abs(x - 5.5) <= 1.1 - radius;
+    if ((!disco && !annex) || (disco && z > 14 - radius) || (annex && z > 22 - radius)) return true;
+    if (z < RD + radius && !officeDoor) return true;
+    if (annex && z > 14 - radius && z < 14 + radius && Math.abs(x - 10.5) > .9 - radius) return true;
+  }
+  for (const c of COLL) if (x > c.minX - radius && x < c.maxX + radius && z > c.minZ - radius && z < c.maxZ + radius) return true;
+  return false;
+}
 function blocked(x, z) {
-  if (z > RD - PR) {
-    const disco = x >= -4 + PR && x <= 4 - PR;
-    const games = x >= 4 + PR && x <= 12 - PR;
-    const door = Math.abs(x) <= 1.1 - PR || Math.abs(x - 5.5) <= 1.1 - PR;
-    if ((!disco && !games) || z > 14 - PR || (z < RD + PR && !door)) return true;
-  } else if (x < -RW + PR || x > RW - PR || z < -RD + PR) return true;
-  for (const c of COLL) if (x > c.minX - PR && x < c.maxX + PR && z > c.minZ - PR && z < c.maxZ + PR) return true;
+  if (roomBlocked(x, z)) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
+  for (const m of STAFF.members) { const p = m.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
   return false;
 }
 function stepFP(dt) {

@@ -125,6 +125,7 @@ function makePerson(i) {
 const _q1 = new THREE.Quaternion();
 const _cueAim = { p: new THREE.Vector3(-0.12, 0.98, -0.3), d: new THREE.Vector3(0.12, -0.15, 1.35).normalize() };
 function animatePerson(P, dt, t) {
+  restorePersonItemPose(P);
   const tgt = POSES[P.pose] || POSES.stand, c = P.cur, sp = P.spec.ph;
   const lam = P.pose.startsWith('sit') || P.pose === 'sofa' ? 5 : 7;
   for (const k of JK) {
@@ -180,7 +181,7 @@ function animatePerson(P, dt, t) {
   J.lHip.rotation.set(f.lHipX, 0, f.lHipZ); J.rHip.rotation.set(f.rHipX, 0, f.rHipZ);
   J.lKn.rotation.x = f.lKnX; J.rKn.rotation.x = f.rKnX; J.lAn.rotation.x = f.lAnX; J.rAn.rotation.x = f.rAnX;
   /* adereços */
-  P.cup.visible = P.pose === 'standCup' || P.pose === 'sofa';
+  P.cup.visible = !P.heldItem && (P.pose === 'standCup' || P.pose === 'sofa');
   P.cue.visible = P.pose === 'poolAim' || P.pose === 'standCue';
   if (P.cue.visible) {
     if (P.pose === 'poolAim') {
@@ -192,4 +193,6 @@ function animatePerson(P, dt, t) {
   P.root.rotation.y = P.yaw;
   P.root.updateMatrixWorld(true);
   if (P.cup.visible) { P.cup.parent.getWorldQuaternion(_q1); P.cup.quaternion.copy(_q1.invert()).multiply(P.root.quaternion); P.cup.updateMatrixWorld(true); }
+  updatePersonItem(P, t);
+  updatePersonSmokingPose(P, t);
 }
