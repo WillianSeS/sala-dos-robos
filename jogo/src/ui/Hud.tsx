@@ -63,7 +63,7 @@ export function Hud() {
         </div>
       )}
       {ajudaRapida && toque && (
-        <div className="ajuda-rapida" role="note">
+        <div className="ajuda-rapida no-topo" role="note">
           Joystick para andar · arraste a tela para olhar · pinça para zoom
         </div>
       )}

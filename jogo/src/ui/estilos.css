@@ -74,6 +74,7 @@ kbd {
   animation: some 1s ease 8s forwards;
 }
 @keyframes some { to { opacity: 0; } }
+.ajuda-rapida.no-topo { bottom: auto; top: calc(max(12px, env(safe-area-inset-top)) + 58px); }
 
 /* controles de toque */
 .controles-toque { position: absolute; inset: 0; pointer-events: none; }

@@ -81,9 +81,12 @@ def bleed_rgba(f):
 
 
 def roughness_from_specular(f, base):
-    """Especular claro = superfície lisa. G = rugosidade, B = metal (0), R = oclusão (1)."""
+    """Especular claro = superfície lisa. G = rugosidade, B = metal (0), R = oclusão (1).
+    Pele e couro cabeludo ficam foscos (mín. ~0,47); só o especular muito alto (olhos, dentes) fica brilhante."""
     spec = np.asarray(load(f, 'L')).astype(np.float32) / 255.0
-    rough = np.clip(base - 0.45 * np.clip(spec / 0.12, 0, 1), 0.22, 0.95)
+    rough = base - 0.15 * np.clip(spec / 0.15, 0, 1)
+    rough = np.where(spec > 0.5, 0.2, rough)
+    rough = np.clip(rough, 0.18, 0.95)
     orm = np.stack([np.ones_like(rough), rough, np.zeros_like(rough)], -1)
     return Image.fromarray((orm * 255).astype(np.uint8), 'RGB')
 
