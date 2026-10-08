@@ -210,6 +210,9 @@ with sync_playwright() as p:
         page.click('#loungeGo')
         page.wait_for_function('__sala.mode==="fp" && __sala.inLounge(__sala.fp.pos.x,__sala.fp.pos.z)')
         assert page.evaluate('__sala.roomBlocked(10.5,14) && __sala.roomBlocked(8,14) && __sala.roomBlocked(12,18) && __sala.roomBlocked(8,22)')
+        # O painel do lounge começa fechado e abre pelo botão 💨.
+        assert not page.locator('#loungePanel').is_visible()
+        page.click('#loungePanelOpen')
         assert panel_fits(page, '#loungePanel')
         page.evaluate('__sala.setFP(6.5,16.65,Math.PI)')
         page.wait_for_function('!document.getElementById("loungeSmoke").disabled')

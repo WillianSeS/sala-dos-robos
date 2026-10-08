@@ -1,5 +1,5 @@
 /* ================= cardápio, geladeira, comida e smoking virtual ================= */
-const HOSP = { item: '', portions: 0, consumeUntil: 0, finishing: false, prop: null, rig: null, hand: null, smokeProp: null, smokingUntil: 0, hookIndex: 0, menuFrom: 'service', returnMode: 'fp', noteUntil: 0, botNext: 0 };
+const HOSP = { item: '', portions: 0, consumeUntil: 0, finishing: false, prop: null, rig: null, hand: null, smokeProp: null, smokingUntil: 0, hookIndex: 0, menuFrom: 'service', returnMode: 'fp', noteUntil: 0, botNext: 0, panelOpen: false };
 const inLounge = (x, z) => x > 4.2 && x < 11.8 && z > 14.4 && z < 21.8;
 const FRIDGE_ITEMS = ['water', 'soda', 'juice', 'beer', 'wine', 'sandwich', 'fruit'];
 function publishHospitality() {
@@ -135,12 +135,13 @@ function stepHospitality(dt, t) {
   for (const v of MP.vis.values()) if (v.A) updateSmokingPerson(v.A, v.smokingUntil || 0, t);
   if (t > HOSP.noteUntil) $('serviceNote').hidden = true;
   const panel = inRoom && ['fp', 'seat'].includes(mode) && inLounge(fp.pos.x, fp.pos.z);
-  $('loungePanel').hidden = !panel;
+  /* O painel do lounge começa fechado e abre pelo botão 💨. */
+  $('loungePanel').hidden = !panel || !HOSP.panelOpen; $('loungePanelOpen').hidden = !panel || HOSP.panelOpen;
   $('loungeGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inLounge(fp.pos.x, fp.pos.z);
   $('menuOpen').hidden = !inRoom || !['fp', 'seat', 'dance'].includes(mode);
   const item = CONSUMABLES[HOSP.item], label = item ? (item.kind === 'food' ? 'Comer' : 'Tomar') : '';
   const discoPanel = ! $('discoPanel').hidden;
-  $('heldBar').hidden = !inRoom || !item || !['fp', 'seat', 'dance'].includes(mode) || (isTouch && (panel || discoPanel));
+  $('heldBar').hidden = !inRoom || !item || !['fp', 'seat', 'dance'].includes(mode) || (isTouch && ((panel && HOSP.panelOpen) || discoPanel));
   $('heldName').textContent = item ? item.emoji + ' ' + item.label : '';
   $('heldPortions').textContent = item ? HOSP.portions + (item.kind === 'food' ? ' pedaços restantes' : ' goles restantes') : '';
   for (const id of ['consumeBtn', 'discoSip', 'loungeSip']) { $(id).textContent = using ? (item?.kind === 'food' ? 'Comendo…' : 'Bebendo…') : label + (id === 'consumeBtn' && !isTouch ? ' · F' : ''); $(id).disabled = using || smoke; }
@@ -155,4 +156,6 @@ $('serviceCancel').onclick = () => { cancelService(); renderMenu(); };
 $('consumeBtn').onclick = consumeHeld; $('discoSip').onclick = consumeHeld; $('loungeSip').onclick = consumeHeld;
 $('putAwayBtn').onclick = putAwayConsumable;
 $('loungeGo').onclick = goLounge; $('loungeExit').onclick = exitLounge;
+function setLoungePanel(open) { HOSP.panelOpen = open; $('loungePanel').hidden = !open; $('loungePanelOpen').hidden = open; }
+$('loungePanelOpen').onclick = () => setLoungePanel(true); $('loungePanelClose').onclick = () => setLoungePanel(false);
 $('loungeSmoke').onclick = () => startSmoking(); $('loungeInvite').onclick = inviteLoungeRobots; $('loungeMusic').onclick = openMusic;

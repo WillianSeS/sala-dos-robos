@@ -129,8 +129,11 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .spotify-box iframe{display:block;width:100%;height:152px;border:0;border-radius:10px}
 .spotify-dock.min{width:auto}.spotify-dock.min .spotify-box{position:absolute;left:-10000px;width:300px}
 /* No celular o player aparece junto com o painel de música e segue tocando escondido. */
-@media(max-width:600px){.spotify-dock{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100% - 32px);z-index:6}.spotify-box iframe{height:80px}body:not(.music-open) .spotify-dock{left:-10000px}}
-.host-offer{z-index:4;border-color:#ff4fb488}.host-offer p{margin:0;font-size:13px;line-height:1.5}
+body.touch .spotify-dock{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:min(420px,calc(100% - 32px));z-index:6}body.touch .spotify-box iframe{height:80px}body.touch:not(.music-open) .spotify-dock{left:-10000px}
+.host-offer{z-index:4;border-color:#ff4fb488}.cyber-offer{z-index:2;border-color:#36f3ffaa;box-shadow:0 0 24px #36f3ff33}.cyber-offer b{color:#bff8ff}.pl.cyber{border-color:#36f3ff;color:#bff8ff}
+.welcome-card{max-width:360px;justify-items:stretch;text-align:center}.welcome-card h1{font-size:40px}.welcome-sub{margin:-6px 0 4px!important;color:#ffd77a!important;letter-spacing:.08em;text-transform:uppercase;font-size:12px!important}
+.welcome-ask{font-size:14px;color:var(--ink)}.welcome-card input{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:500 16px var(--mono);padding:12px 14px;text-align:center}
+.welcome-card input:focus-visible{outline:2px solid var(--gain);outline-offset:2px}.welcome-card .btn{width:100%}.host-offer p{margin:0;font-size:13px;line-height:1.5}
 .show-bar{position:fixed;left:16px;top:calc(104px + env(safe-area-inset-top,0px));display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 200px);background:#1a0a1aee;border:1px solid #ff4fb466;border-radius:12px;padding:6px 8px;z-index:3}.show-bar b{font-size:12px;color:#ffd77a;padding:0 4px}.show-bar .btn.sm{padding:7px 10px}
 .fade{position:fixed;inset:0;background:#000;opacity:0;transition:opacity .35s;pointer-events:none;z-index:9}
 body.touch .show-bar{top:calc(120px + env(safe-area-inset-top,0px));max-width:calc(100% - 210px);flex-wrap:nowrap}body.touch .show-bar .lbl{display:none}body.touch .show-bar .btn.sm{width:40px;height:40px;padding:0;font-size:19px;border-radius:50%}
@@ -143,7 +146,15 @@ body.touch .joy i{width:56px;height:56px;margin:-28px 0 0 -28px;background:rgba(
 body.touch .act{min-width:84px;height:64px;border-radius:32px;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:13px;max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.touch .disco-shortcuts{flex-direction:row-reverse;flex-wrap:wrap;max-width:162px;top:calc(160px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));gap:6px}
 body.touch .disco-shortcuts .btn.sm{width:48px;height:48px;padding:0;border-radius:50%;font-size:22px;display:grid;place-items:center}
-body.touch .disco-shortcuts .lbl{display:none}
+body.touch .disco-shortcuts .lbl,body.touch .ctrl .lbl,body.touch .mp-row .lbl{display:none}
+/* Celular: botões do topo viram ícones redondos e o placar fica com o essencial. */
+body.touch .ctrl .btn.sm,body.touch .mp-row .btn.sm{width:44px;height:44px;padding:0;border-radius:50%;font-size:19px;display:grid;place-items:center}
+body.touch .ctrl{gap:6px}body.touch .hud{max-width:calc(100% - 250px)}body.touch .hud .opt,body.touch #hPeople,body.touch #hOpChip{display:none}
+body.touch .mp{left:auto;right:calc(126px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));justify-items:end;width:auto}body.touch .mp-row{flex-direction:row}
+body.touch .mp-box{position:fixed;left:16px;right:16px;top:calc(64px + env(safe-area-inset-top,0px));width:auto}
+body.touch .vc.on::before{display:none}body.touch .vc.on{box-shadow:0 0 0 2px var(--gain)}body.touch .vc.on.speaking{box-shadow:0 0 0 3px var(--gain),0 0 12px var(--gain)}
+body.touch .disco-shortcuts{top:calc(66px + env(safe-area-inset-top,0px))}body.touch .show-bar{top:calc(96px + env(safe-area-inset-top,0px))}
+body.touch .disco-panel{max-height:calc(100dvh - 150px);overflow:auto}body.touch .host-offer{z-index:5}
 body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:190px}
 @media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}body.touch .show-bar{top:calc(86px + env(safe-area-inset-top,0px))}}
 </style>
@@ -153,13 +164,13 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 <div class="hud" id="hud" aria-live="polite">
   <span class="chip"><span class="live"></span><b>SALA DOS ROBÔS</b></span>
   <span class="chip">Portfólio <b id="hTot">—</b></span>
-  <span class="chip">Em operação <b id="hOp">—</b></span>
+  <span class="chip" id="hOpChip">Em operação <b id="hOp">—</b></span>
   <span class="chip opt">dados simulados</span>
   <span class="chip" id="hLoad">Pessoas <b>0%</b></span>
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
-<div class="ctrl"><button id="btnOutside" class="btn sm">🔍 Ver por dentro</button> <button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
-<div class="disco-shortcuts"><button id="viewToggle" class="btn sm" hidden aria-pressed="false">👤<span class="lbl"> 3ª pessoa</span></button><button id="loungeGo" class="btn sm" hidden aria-label="Lounge">🛋️<span class="lbl"> Lounge</span></button><button id="menuOpen" class="btn sm" hidden aria-label="Cardápio">🍽️<span class="lbl"> Cardápio</span></button><button id="gamesGo" class="btn sm" hidden aria-label="Sala de jogos">🎮<span class="lbl"> Sala de jogos</span></button><button id="gamesBack" class="btn sm" hidden aria-label="Escritório">🏢<span class="lbl"> Escritório</span></button><button id="discoGo" class="btn sm" hidden aria-label="Discoteca">🪩<span class="lbl"> Discoteca</span></button><button id="discoPanelOpen" class="btn sm" hidden aria-label="Painel da pista">🪩<span class="lbl"> Pista</span></button></div>
+<div class="ctrl"><button id="btnOutside" class="btn sm">🔍<span class="lbl"> Ver por dentro</span></button> <button id="musicOpen" class="btn sm" hidden aria-label="Música">🎵<span class="lbl"> Música</span></button> <button id="btnView" class="btn sm" hidden>🗺️<span class="lbl"> Vista aérea</span></button></div>
+<div class="disco-shortcuts"><button id="viewToggle" class="btn sm" hidden aria-pressed="false">👤<span class="lbl"> 3ª pessoa</span></button><button id="loungeGo" class="btn sm" hidden aria-label="Lounge">🛋️<span class="lbl"> Lounge</span></button><button id="menuOpen" class="btn sm" hidden aria-label="Cardápio">🍽️<span class="lbl"> Cardápio</span></button><button id="gamesGo" class="btn sm" hidden aria-label="Sala de jogos">🎮<span class="lbl"> Sala de jogos</span></button><button id="gamesBack" class="btn sm" hidden aria-label="Escritório">🏢<span class="lbl"> Escritório</span></button><button id="discoGo" class="btn sm" hidden aria-label="Discoteca">🪩<span class="lbl"> Discoteca</span></button><button id="discoPanelOpen" class="btn sm" hidden aria-label="Painel da pista">🪩<span class="lbl"> Pista</span></button><button id="loungePanelOpen" class="btn sm" hidden aria-label="Painel do lounge">💨<span class="lbl"> Lounge</span></button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <div class="talk-h"><b>🪩 Discoteca dos Robôs</b><button id="discoPanelClose" class="btn sm" aria-label="Minimizar o painel da pista">Minimizar</button></div><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
   <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>
@@ -168,7 +179,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
   <div class="pool-row"><button id="discoLights" class="btn sm" aria-pressed="true">Luzes suaves</button><button id="discoExit" class="btn sm">Voltar à sala</button></div>
 </section>
 <section id="loungePanel" class="disco-panel lounge-panel" hidden aria-label="Lounge e smoking">
-  <b>🛋️ Smoking Lounge</b><p id="loungeMsg">Descanse no sofá, ouça música e peça algo ao atendimento.</p>
+  <div class="talk-h"><b>🛋️ Smoking Lounge</b><button id="loungePanelClose" class="btn sm" aria-label="Minimizar o painel do lounge">Minimizar</button></div><p id="loungeMsg">Descanse no sofá, ouça música e peça algo ao atendimento.</p>
   <div class="pool-row"><button id="loungeSmoke" class="btn sm">Usar narguilé</button><button id="loungeInvite" class="btn sm">Chamar os robôs</button><button id="loungeMusic" class="btn sm">🎶 Música</button><button id="loungeSip" class="btn sm" hidden>Tomar bebida</button></div>
   <div class="pool-row"><button id="loungeMenu" class="btn sm">🍽️ Pedir algo</button><button id="loungeExit" class="btn sm">Voltar aos jogos</button></div>
 </section>
@@ -182,7 +193,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 <div class="cross" id="cross" hidden></div>
 <div class="help" id="help" hidden></div>
 <div class="joy" id="joy" hidden><i></i></div>
-<div class="mp" id="mp" hidden><div class="mp-row"><button class="btn sm" id="mpToggle" type="button">Chat da sala</button><button class="btn sm vc" id="vcToggle" type="button" hidden aria-pressed="false" title="Fale por voz com quem está na sala. Use fone de ouvido para não dar eco.">Entrar na voz</button></div><div class="mp-box" id="mpBox" hidden><div class="mp-log" id="mpLog" aria-live="polite"></div><form class="mp-form" id="mpForm"><input id="mpInput" maxlength="200" autocomplete="off" placeholder="Mensagem para quem está na sala…"><button class="btn sm" type="submit">Enviar</button></form></div></div>
+<div class="mp" id="mp" hidden><div class="mp-row"><button class="btn sm" id="mpToggle" type="button">💬<span class="lbl"> Chat da sala</span></button><button class="btn sm vc" id="vcToggle" type="button" hidden aria-pressed="false" title="Fale por voz com quem está na sala. Use fone de ouvido para não dar eco.">🎙️<span class="lbl"> Entrar na voz</span></button></div><div class="mp-box" id="mpBox" hidden><div class="mp-log" id="mpLog" aria-live="polite"></div><form class="mp-form" id="mpForm"><input id="mpInput" maxlength="200" autocomplete="off" placeholder="Mensagem para quem está na sala…"><button class="btn sm" type="submit">Enviar</button></form></div></div>
 <div class="prompt" id="prompt" hidden><kbd>E</kbd><span></span></div>
 <button class="act" id="btnAct" hidden>Interagir</button>
 <button class="mbtn" id="mRun" hidden aria-pressed="false" aria-label="Correr">🏃</button>
@@ -218,6 +229,11 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 </section>
 <div id="elevRide" class="elev-ride" hidden aria-live="polite"><b id="elevRideText"></b><span id="elevRideName"></span></div>
 <aside id="spotifyDock" class="spotify-dock" hidden aria-label="Player do Spotify"><div class="spotify-head"><b>🎧 Spotify</b><button id="spotifyMin" class="btn sm">Minimizar</button><button id="spotifyClose" class="btn sm">Fechar</button></div><div id="spotifyBox" class="spotify-box"></div></aside>
+<section id="welcome" class="talk host-offer cyber-offer" hidden aria-label="Boas-vindas da recepção">
+  <div class="talk-h"><div><b>Aurora · recepcionista</b><span>Las Vegas Night · 40º andar</span></div></div>
+  <p id="welcomeLine" role="status"></p>
+  <div class="pool-row"><button id="welDrink" class="btn sm">🍹 Aceito uma bebida</button><button id="welShow" class="btn sm">🎰 Me leva ao show</button><button id="welGames" class="btn sm">🎮 Sala de jogos</button><button id="welNo" class="btn sm">Obrigado</button></div>
+</section>
 <section id="hostOffer" class="talk host-offer" hidden aria-label="Atendente do Las Vegas Night">
   <div class="talk-h"><div><b id="hostName"></b><span>Las Vegas Night · 44º andar</span></div></div>
   <p id="hostLine" role="status"></p>
@@ -234,12 +250,13 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
   </div>
 </div>
 <div class="intro" id="intro">
-  <div class="card">
-    <h1>Sala dos <em>Robôs</em></h1>
-    <p>Bem-vindo ao hotel <b>Las Vegas Night</b>. Dez robôs de trading, cada um é um trader na mesa. Entre, converse, suba de elevador para a sala de jogos, a discoteca, o lounge e o show no 44º andar. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
-    <div class="nick"><label for="nick">Seu nome na sala</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Como os outros vão te ver"></div>
-    <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status">Carregando a sala…</span></div>
-    <p class="small">Pessoas 3D: Microsoft Rocketbox, licença MIT (people/LICENSE-Rocketbox.txt). Nomes fictícios. Cidade desenhada.</p>
+  <div class="card welcome-card">
+    <h1>Bem-<em>vindo</em></h1>
+    <p class="welcome-sub">ao hotel Las Vegas Night</p>
+    <label for="nick" class="welcome-ask">Como deseja ser chamado?</label>
+    <input id="nick" maxlength="24" autocomplete="nickname" placeholder="Seu nome">
+    <button id="btnEnter" class="btn" disabled>Entrar</button>
+    <span class="small" id="status">Carregando o hotel…</span>
   </div>
 </div>
 <script>
@@ -256,6 +273,11 @@ const isTouch = matchMedia('(pointer: coarse)').matches;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const HIGH = !isTouch && (navigator.hardwareConcurrency || 4) >= 4;
 const DEBUG = location.hash === '#debug';
+/* Botão com ícone e texto: no celular aparece só o ícone (o texto vira o nome acessível). */
+function setLabel(el, icon, text) {
+  const span = document.createElement('span'); span.className = 'lbl'; span.textContent = ' ' + text;
+  el.replaceChildren(icon, span); el.setAttribute('aria-label', text);
+}
 
 const canvas = $('gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
@@ -1873,10 +1895,12 @@ const shortName = n => { const p = n.split(' '); return p[0][0] + '. ' + p.slice
 /* pose da simulação -> animação capturada */
 const POSE_CLIP = { sitType: 'sitWork', sitRelax: 'sitRelax', sitHead: 'sitWait', sitCheer: 'cheer', sitFrustr: 'frustr', sofa: 'sitRelax', standCup: 'drink', pocket: 'idle', cross: 'talk', poolAim: 'idle', standCue: 'lookAround', stand: 'idle' };
 const _ha = new THREE.Vector3(), _hb = new THREE.Vector3();
+/* Velocidade natural da animação de caminhada (passada medida nos clipes do Rocketbox): com ela os pés não deslizam. */
+const WALK_CLIP_SPEED = 2.1;
 class Avatar {
   constructor(gltf, clips, old, file) {
     this.isAvatar = true; this.file = file;
-    this.root = new THREE.Group(); this.root.add(gltf.scene); GROUPS.main.add(this.root);
+    this.root = new THREE.Group(); this.root.rotation.order = 'YXZ'; this.root.add(gltf.scene); GROUPS.main.add(this.root);
     this.root.position.copy(old.root.position); this.yaw = old.yaw; this.pose = old.pose; this.speed = 0;
     gltf.scene.traverse(o => {
       if (!o.isMesh) return;
@@ -1918,9 +1942,12 @@ class Avatar {
     if (consumingDrink && this.speed < 0.05 && ['stand', 'standCup', 'pocket', 'cross'].includes(this.pose)) name = 'drink';
     if (name === 'sitWork') { if (t > this.altT) { this.alt = Math.random() < 0.3; this.altT = t + rnd(12, 30); } if (this.alt) name = 'sitLook'; }
     this.play(name);
-    this.cur.timeScale = name === 'walk' ? clamp(this.speed / 1.25, 0.6, 1.6) : name === 'drink' && consumingDrink ? this.cur.getClip().duration / 2.4 : 1;
+    this.cur.timeScale = name === 'walk' ? clamp(this.speed / WALK_CLIP_SPEED, 0.45, 1.9) : name === 'drink' && consumingDrink ? this.cur.getClip().duration / 2.4 : 1;
     this.mixer.update(dt);
     this.root.rotation.y = this.yaw;
+    /* Correndo, o corpo inclina um pouco para frente. */
+    this.lean = damp(this.lean || 0, name === 'walk' && this.speed > 2.4 ? 0.12 : 0, 6, dt);
+    this.root.rotation.x = this.lean;
     this.root.position.y = this.pose === 'sofa' ? -0.03 : 0;
     if (this.pose === 'dance') applyAvatarDance(this, t);
     /* xícara na mão durante o café */
@@ -2502,7 +2529,7 @@ function setOrbitView(name) {
   const v = ORBIT_VIEWS[name]; Object.assign(orbit, { view: name, r: v.r, th: v.th, ph: v.ph, min: v.min, max: v.max }); orbit.target.copy(v.target);
   if (portrait()) { if (name === 'inside') { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); } else orbit.r = 250; }
   EXT.group.visible = name === 'outside';
-  $('btnOutside').textContent = name === 'outside' ? '🔍 Ver por dentro' : '🏨 Hotel por fora';
+  setLabel($('btnOutside'), name === 'outside' ? '🔍' : '🏨', name === 'outside' ? 'Ver por dentro' : 'Hotel por fora');
 }
 setOrbitView('outside');
 /* Corte com escurecimento rápido entre a vista de fora e a de dentro. */
@@ -2545,8 +2572,9 @@ function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0
 
 function enterRoom() {
   if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
-  inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
-  fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
+  inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; setLabel(btnView, '🗺️', 'Vista aérea');
+  /* Chega pelo elevador já olhando para a Aurora, na recepção. */
+  fp.pos.set(6.6, 0, -4.6); fp.yaw = 3.0; fp.body = fp.yaw + Math.PI; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
     mode = 'fp'; cross.hidden = isTouch;
     help.innerHTML = isTouch ? 'Joystick à esquerda anda · arraste à direita para olhar · 🏃 corre · botão verde interage'
@@ -2556,6 +2584,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  closeWelcome();
   if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
   if (mode === 'menu') closeHospitality(); cancelService(true); stopSmoking(); putAwayConsumable();
@@ -2565,12 +2594,13 @@ function leaveRoom() {
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
   for (const spot of [SPOTS.lounge1, SPOTS.lounge2]) if (spot.busy === 'player') spot.busy = null;
   inRoom = false; if (document.pointerLockElement) document.exitPointerLock();
-  cross.hidden = true; help.hidden = true; btnView.textContent = 'Entrar na sala';
+  cross.hidden = true; help.hidden = true; setLabel(btnView, '🚪', 'Entrar na sala');
   const o = orbitPose({}); startTween(o.pos, o.q, reduceMotion ? 0.01 : 1.8, () => { mode = 'orbit'; });
 }
 function lockMouse() { try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } }
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
 btnEnter.addEventListener('click', enterRoom);
+$('nick').addEventListener('keydown', e => { if (e.key === 'Enter' && !btnEnter.disabled) { e.preventDefault(); enterRoom(); } });
 btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); });
 $('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoom) cut(() => setOrbitView(orbit.view === 'outside' ? 'inside' : 'outside')); });
 
@@ -2666,6 +2696,7 @@ function blocked(x, z) {
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   for (const m of STAFF.members) { const p = m.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
   for (const h of SHOW.hosts) { const p = h.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
+  if ((x - WELCOME.x) ** 2 + (z - WELCOME.z) ** 2 < (PR + 0.25) ** 2) return true;
   return false;
 }
 function stepFP(dt) {
@@ -2729,6 +2760,7 @@ function findAct() {
   const elev = FLOOR[floorAt(px, pz)];
   if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
   else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
+  if (floorAt(px, pz) === 'office') consider(WELCOME.x, WELCOME.z, 2.2, 0.5, 'Falar com a Aurora', greetGuest);
   if (inShow(px, pz)) {
     for (const h of SHOW.hosts) if (['wander', 'approach'].includes(h.state)) consider(h.P.root.position.x, h.P.root.position.z, 2.1, 0.6, 'Falar com a atendente ' + h.name, () => openOffer(h));
     const st = SHOW_LAYOUT.stage;
@@ -3479,6 +3511,64 @@ function stepPartyFx(dt, t) {
   }
 }
 
+/* ================= recepção: Aurora, a recepcionista cyber, dá as boas-vindas ================= */
+/* Fica na entrada do escritório (40º andar). Ao chegar, o visitante ouve as boas-vindas e recebe ofertas. */
+const WELCOME = { npc: null, greeted: false, open: false, x: 6.4, z: -3.25, rings: [] };
+const cyberMat = (color, opacity) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending });
+function initAurora() {
+  if (WELCOME.npc) return;
+  const n = showPerson(5, 'Business_Female_02', 'Aurora', 'recepcionista', WELCOME.x, WELCOME.z, 0);
+  n.el.classList.add('cyber'); WELCOME.npc = n;
+  /* Anel holográfico no chão e auréola sobre a cabeça. */
+  const base = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.012, 8, 48), cyberMat('#36f3ff', 0.9)); base.rotation.x = Math.PI / 2; base.position.set(WELCOME.x, 0.03, WELCOME.z);
+  const base2 = new THREE.Mesh(new THREE.RingGeometry(0.2, 0.36, 40), cyberMat('#ff3fd8', 0.25)); base2.rotation.x = -Math.PI / 2; base2.position.set(WELCOME.x, 0.02, WELCOME.z);
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.008, 6, 36), cyberMat('#36f3ff', 0.85)); halo.rotation.x = Math.PI / 2;
+  for (const m of [base, base2, halo]) GROUPS.main.add(m);
+  WELCOME.rings = [base, base2]; WELCOME.halo = halo;
+}
+/* Visual cyber: brilho neon frio na roupa e na pele (materiais copiados, sem mudar os outros avatares). */
+function cyberize(A) {
+  if (A.cyber) return; A.cyber = true;
+  A.root.traverse(o => {
+    if (!o.isMesh) return;
+    o.material = (Array.isArray(o.material) ? o.material : [o.material]).map(m => {
+      const c = m.clone(); c.emissive = new THREE.Color('#1fb8ff'); c.emissiveIntensity = 0.1; if (c.color) c.color.lerp(new THREE.Color('#bcd4ff'), 0.08); return c;
+    });
+    if (o.material.length === 1) o.material = o.material[0];
+  });
+}
+function greetGuest() {
+  initAurora(); WELCOME.greeted = true; WELCOME.open = true;
+  const name = (myName || '').split(' ')[0];
+  $('welcomeLine').textContent = 'Olá' + (name ? ', ' + name : '') + '! Bem-vindo ao Las Vegas Night. Eu sou a Aurora. Posso te oferecer uma bebida ou levar você ao show no 44º andar?';
+  $('welcome').hidden = false;
+  showSay('Olá' + (name ? ', ' + name : '') + '! Bem-vindo ao Las Vegas Night. Eu sou a Aurora. Posso te oferecer uma bebida, ou levar você ao show no quadragésimo quarto andar?', 'office');
+}
+function closeWelcome() { WELCOME.open = false; $('welcome').hidden = true; }
+function welcomeDrink() {
+  closeWelcome(); deliverConsumable(SHOW_DRINKS[Math.floor(Math.random() * SHOW_DRINKS.length)], { name: 'Aurora' });
+  showSay('Aqui está. Aproveite a noite!', 'office');
+}
+function welcomeRide(key) { closeWelcome(); showSay(key === 'show' ? 'Ótima escolha! O show está começando.' : 'Divirta-se na sala de jogos!', 'office'); rideTo(key); }
+function stepWelcome(dt, t) {
+  initAurora();
+  const n = WELCOME.npc, P = n.P;
+  if (AV.clips && !P.isAvatar) loadShowPerson(n);
+  if (n.P.isAvatar) cyberize(n.P);
+  const A = n.P, here = inRoom && playerFloor() === 'office';
+  A.root.position.set(WELCOME.x, 0, WELCOME.z); A.pose = 'stand'; A.speed = 0;
+  A.yaw = angDamp(A.yaw, here ? Math.atan2(fp.pos.x - WELCOME.x, fp.pos.z - WELCOME.z) : 0, 4, dt);
+  A.isAvatar ? A.update(dt, t) : animatePerson(A, dt, t);
+  const pulse = 0.5 + 0.5 * Math.sin(t * (reduceMotion ? 0.8 : 2.4));
+  WELCOME.rings[0].material.opacity = 0.55 + 0.4 * pulse; WELCOME.rings[1].material.opacity = 0.15 + 0.2 * pulse; WELCOME.rings[1].rotation.z = t * 0.6;
+  if (A.J.head) { A.J.head.getWorldPosition(WELCOME.halo.position); WELCOME.halo.position.y += 0.27; }
+  /* Boas-vindas na primeira chegada; o painel fecha se o visitante se afasta ou abre outra coisa. */
+  if (!WELCOME.greeted && here && mode === 'fp') greetGuest();
+  if (WELCOME.open && (!here || mode !== 'fp' || Math.hypot(fp.pos.x - WELCOME.x, fp.pos.z - WELCOME.z) > 4.5)) closeWelcome();
+}
+$('welDrink').onclick = welcomeDrink; $('welShow').onclick = () => welcomeRide('show'); $('welGames').onclick = () => welcomeRide('games');
+$('welNo').onclick = () => { showSay('Por nada! Estou aqui na recepção.', 'office'); closeWelcome(); };
+
 /* ================= Las Vegas Night: dançarinas no palco, atendentes, gorjetas e vozes ================= */
 /* Personagens locais (como os robôs): cada visitante vê o próprio show. As fichas são as de brincadeira do 21. */
 const SHOW = { dancers: [], hosts: [], offer: null, nextOffer: 0, voice: true, tips: 0, ready: false };
@@ -3486,8 +3576,8 @@ try { SHOW.voice = localStorage.getItem('sala-voz') !== '0'; } catch (e) { }
 const inShow = (x, z) => x > -3.8 && x < 3.8 && z > 14.4 && z < 21.8;
 const SHOW_DRINKS = ['wine', 'beer', 'juice', 'soda', 'water'];
 const HOST_SPEED = 0.95, HOST_RADIUS = 0.22;
-function showSay(text) {
-  if (!SHOW.voice || !inRoom || playerFloor() !== 'show' || !window.speechSynthesis) return;
+function showSay(text, floor = 'show') {
+  if (!SHOW.voice || !inRoom || playerFloor() !== floor || !window.speechSynthesis) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text), voices = speechSynthesis.getVoices().filter(v => /^pt/i.test(v.lang));
@@ -3646,7 +3736,7 @@ function stepShow(dt, t) {
 }
 const _showHead = new THREE.Vector3();
 function updateShowLabels(t) {
-  for (const n of [...SHOW.dancers, ...SHOW.hosts]) {
+  for (const n of [...SHOW.dancers, ...SHOW.hosts, ...(WELCOME.npc ? [WELCOME.npc] : [])]) {
     const el = n.el, txt = n.cheerUntil > t ? '💵 obrigada!' : n.role === 'dançarina' ? 'no palco' : { offer: 'conversando', fetch: 'buscando bebida', bring: 'levando bebida', dance: 'dançando', approach: 'vindo até você' }[n.state] || 'pode chamar';
     if (el.lastChild.textContent !== txt) el.lastChild.textContent = txt;
     if (!n.P.J.head || otherFloor(n.P.root.position.x, n.P.root.position.z) || !inRoom) { el.style.opacity = '0'; continue; }
@@ -3663,7 +3753,7 @@ $('showTip').onclick = () => tipDancer();
 $('showVoice').onclick = () => { SHOW.voice = !SHOW.voice; try { localStorage.setItem('sala-voz', SHOW.voice ? '1' : '0'); } catch (e) { } if (!SHOW.voice && window.speechSynthesis) speechSynthesis.cancel(); };
 
 /* ================= cardápio, geladeira, comida e smoking virtual ================= */
-const HOSP = { item: '', portions: 0, consumeUntil: 0, finishing: false, prop: null, rig: null, hand: null, smokeProp: null, smokingUntil: 0, hookIndex: 0, menuFrom: 'service', returnMode: 'fp', noteUntil: 0, botNext: 0 };
+const HOSP = { item: '', portions: 0, consumeUntil: 0, finishing: false, prop: null, rig: null, hand: null, smokeProp: null, smokingUntil: 0, hookIndex: 0, menuFrom: 'service', returnMode: 'fp', noteUntil: 0, botNext: 0, panelOpen: false };
 const inLounge = (x, z) => x > 4.2 && x < 11.8 && z > 14.4 && z < 21.8;
 const FRIDGE_ITEMS = ['water', 'soda', 'juice', 'beer', 'wine', 'sandwich', 'fruit'];
 function publishHospitality() {
@@ -3799,12 +3889,13 @@ function stepHospitality(dt, t) {
   for (const v of MP.vis.values()) if (v.A) updateSmokingPerson(v.A, v.smokingUntil || 0, t);
   if (t > HOSP.noteUntil) $('serviceNote').hidden = true;
   const panel = inRoom && ['fp', 'seat'].includes(mode) && inLounge(fp.pos.x, fp.pos.z);
-  $('loungePanel').hidden = !panel;
+  /* O painel do lounge começa fechado e abre pelo botão 💨. */
+  $('loungePanel').hidden = !panel || !HOSP.panelOpen; $('loungePanelOpen').hidden = !panel || HOSP.panelOpen;
   $('loungeGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inLounge(fp.pos.x, fp.pos.z);
   $('menuOpen').hidden = !inRoom || !['fp', 'seat', 'dance'].includes(mode);
   const item = CONSUMABLES[HOSP.item], label = item ? (item.kind === 'food' ? 'Comer' : 'Tomar') : '';
   const discoPanel = ! $('discoPanel').hidden;
-  $('heldBar').hidden = !inRoom || !item || !['fp', 'seat', 'dance'].includes(mode) || (isTouch && (panel || discoPanel));
+  $('heldBar').hidden = !inRoom || !item || !['fp', 'seat', 'dance'].includes(mode) || (isTouch && ((panel && HOSP.panelOpen) || discoPanel));
   $('heldName').textContent = item ? item.emoji + ' ' + item.label : '';
   $('heldPortions').textContent = item ? HOSP.portions + (item.kind === 'food' ? ' pedaços restantes' : ' goles restantes') : '';
   for (const id of ['consumeBtn', 'discoSip', 'loungeSip']) { $(id).textContent = using ? (item?.kind === 'food' ? 'Comendo…' : 'Bebendo…') : label + (id === 'consumeBtn' && !isTouch ? ' · F' : ''); $(id).disabled = using || smoke; }
@@ -3819,6 +3910,8 @@ $('serviceCancel').onclick = () => { cancelService(); renderMenu(); };
 $('consumeBtn').onclick = consumeHeld; $('discoSip').onclick = consumeHeld; $('loungeSip').onclick = consumeHeld;
 $('putAwayBtn').onclick = putAwayConsumable;
 $('loungeGo').onclick = goLounge; $('loungeExit').onclick = exitLounge;
+function setLoungePanel(open) { HOSP.panelOpen = open; $('loungePanel').hidden = !open; $('loungePanelOpen').hidden = open; }
+$('loungePanelOpen').onclick = () => setLoungePanel(true); $('loungePanelClose').onclick = () => setLoungePanel(false);
 $('loungeSmoke').onclick = () => startSmoking(); $('loungeInvite').onclick = inviteLoungeRobots; $('loungeMusic').onclick = openMusic;
 
 
@@ -4446,7 +4539,7 @@ function renderChat() {
 }
 function updToggle() {
   const n = MP.room ? MP.room.peers().length : 0;
-  $('mpToggle').textContent = (MP.open ? 'Fechar chat' : 'Chat da sala') + (MP.unread && !MP.open ? ' (' + MP.unread + ')' : '');
+  setLabel($('mpToggle'), '💬' + (MP.unread && !MP.open ? MP.unread : ''), (MP.open ? 'Fechar chat' : 'Chat da sala') + (MP.unread && !MP.open ? ' (' + MP.unread + ')' : ''));
   const hp = $('hPeople'); if (MP.room) { hp.hidden = false; hp.lastElementChild.textContent = String(Math.max(1, n)); }
 }
 $('mpToggle').addEventListener('click', () => { MP.open = !MP.open; $('mpBox').hidden = !MP.open; MP.unread = 0; updToggle(); if (MP.open && !isTouch) setTimeout(() => $('mpInput').focus(), 30); if (MP.open && document.pointerLockElement) document.exitPointerLock(); });
@@ -4677,7 +4770,7 @@ async function voiceSignal(m) {
   }
 }
 function vcUI(msg) {
-  vcBtn.textContent = msg || (VOICE.busy ? 'Ligando microfone…' : VOICE.on ? 'Sair da voz' : 'Entrar na voz');
+  setLabel(vcBtn, '🎙️', msg || (VOICE.busy ? 'Ligando microfone…' : VOICE.on ? 'Sair da voz' : 'Entrar na voz'));
   vcBtn.classList.toggle('on', VOICE.on); vcBtn.setAttribute('aria-pressed', VOICE.on ? 'true' : 'false');
   if (msg) setTimeout(() => vcUI(), 4500);
 }
@@ -4888,7 +4981,7 @@ function frame(now) {
   else if (['menu', 'casino', 'music', 'elevator', 'ride'].includes(mode)) { if (VIEW.third) stepThirdCam(dt); else { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } if (mode === 'ride') camera.position.y += ELEV.shake; }
   else if (mode === 'fp') { stepFP(dt); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') { stepSeat(); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
   setWalls(['menu', 'dance', 'casino', 'music', 'elevator', 'ride', 'fp', 'seat', 'talk', 'pool'].includes(mode) || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepElevator(dt, t); stepRadio(); stepExterior(dt, t); stepShow(dt, t); stepPartyFx(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  stepElevator(dt, t); stepRadio(); stepExterior(dt, t); stepShow(dt, t); stepWelcome(dt, t); stepPartyFx(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -4917,7 +5010,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { WELCOME, greetGuest, closeWelcome, welcomeDrink, PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>

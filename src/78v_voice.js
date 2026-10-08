@@ -70,7 +70,7 @@ async function voiceSignal(m) {
   }
 }
 function vcUI(msg) {
-  vcBtn.textContent = msg || (VOICE.busy ? 'Ligando microfone…' : VOICE.on ? 'Sair da voz' : 'Entrar na voz');
+  setLabel(vcBtn, '🎙️', msg || (VOICE.busy ? 'Ligando microfone…' : VOICE.on ? 'Sair da voz' : 'Entrar na voz'));
   vcBtn.classList.toggle('on', VOICE.on); vcBtn.setAttribute('aria-pressed', VOICE.on ? 'true' : 'false');
   if (msg) setTimeout(() => vcUI(), 4500);
 }

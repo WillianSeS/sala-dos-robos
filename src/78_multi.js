@@ -63,7 +63,7 @@ function renderChat() {
 }
 function updToggle() {
   const n = MP.room ? MP.room.peers().length : 0;
-  $('mpToggle').textContent = (MP.open ? 'Fechar chat' : 'Chat da sala') + (MP.unread && !MP.open ? ' (' + MP.unread + ')' : '');
+  setLabel($('mpToggle'), '💬' + (MP.unread && !MP.open ? MP.unread : ''), (MP.open ? 'Fechar chat' : 'Chat da sala') + (MP.unread && !MP.open ? ' (' + MP.unread + ')' : ''));
   const hp = $('hPeople'); if (MP.room) { hp.hidden = false; hp.lastElementChild.textContent = String(Math.max(1, n)); }
 }
 $('mpToggle').addEventListener('click', () => { MP.open = !MP.open; $('mpBox').hidden = !MP.open; MP.unread = 0; updToggle(); if (MP.open && !isTouch) setTimeout(() => $('mpInput').focus(), 30); if (MP.open && document.pointerLockElement) document.exitPointerLock(); });

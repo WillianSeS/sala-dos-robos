@@ -62,7 +62,8 @@ Partes de `src/`:
 | `44x_exterior.js` | O hotel visto de fora, a 700 m das salas (a câmera alcança 260 m, então nunca vê os dois juntos): torre com janelas, letreiro LAS VEGAS NIGHT nas quatro faces com lâmpadas, neon, holofotes, farol e prédios vizinhos. `ORBIT_VIEWS` tem a vista de fora e a de dentro. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
-| `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
+| `55_avatars.js` | `WALK_CLIP_SPEED` (2,1 m/s, passada medida dos clipes) acerta o ritmo da caminhada; inclinação ao correr. |
+| `55_avatars.js` (resto) | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
 | `56_consumables.js` | Nove bebidas/comidas 3D compartilhadas; IK da mão até a boca, fumar e limpeza de props. Tempos de animação em `performance.now()/1000`. |
 | `60_sim.js` | Mercado simulado (`PAIRS`), robôs, operações e rotas pela sala (`NODES`, `EDGES`, `SPOTS`). |
 | `65_screens.js` | Desenho dos monitores, do telão e do letreiro. Etiquetas de resultado. |
@@ -72,6 +73,7 @@ Partes de `src/`:
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias); rádio da sala compartilhada (`RADIO`, batida presa ao relógio); arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`), que tocam só para quem escolheu. |
 | `77q_party_fx.js` | Clima de festa na discoteca e no show (`PARTY`): névoa baixa tingida pela luz da sala, jato da máquina de fumaça (`partyBurst`, a cada 22–32 s), lâmpadas nas paredes e refletores de teto piscando. Só roda no andar do visitante; com "reduzir movimento", fica mais lento. |
+| `77r_welcome.js` | Recepção: Aurora, recepcionista cyber (materiais com brilho neon próprio, anel e auréola), dá boas-vindas na primeira chegada (`greetGuest`) e oferece bebida, show ou sala de jogos. |
 | `77s_show.js` | Show do 44º andar: dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
 | `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
 | `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |

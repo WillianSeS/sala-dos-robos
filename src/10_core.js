@@ -6,6 +6,11 @@ const isTouch = matchMedia('(pointer: coarse)').matches;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const HIGH = !isTouch && (navigator.hardwareConcurrency || 4) >= 4;
 const DEBUG = location.hash === '#debug';
+/* Botão com ícone e texto: no celular aparece só o ícone (o texto vira o nome acessível). */
+function setLabel(el, icon, text) {
+  const span = document.createElement('span'); span.className = 'lbl'; span.textContent = ' ' + text;
+  el.replaceChildren(icon, span); el.setAttribute('aria-label', text);
+}
 
 const canvas = $('gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });

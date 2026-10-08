@@ -25,6 +25,7 @@ function findAct() {
   const elev = FLOOR[floorAt(px, pz)];
   if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
   else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
+  if (floorAt(px, pz) === 'office') consider(WELCOME.x, WELCOME.z, 2.2, 0.5, 'Falar com a Aurora', greetGuest);
   if (inShow(px, pz)) {
     for (const h of SHOW.hosts) if (['wander', 'approach'].includes(h.state)) consider(h.P.root.position.x, h.P.root.position.z, 2.1, 0.6, 'Falar com a atendente ' + h.name, () => openOffer(h));
     const st = SHOW_LAYOUT.stage;

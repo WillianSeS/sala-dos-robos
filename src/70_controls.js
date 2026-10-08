@@ -8,7 +8,7 @@ function setOrbitView(name) {
   const v = ORBIT_VIEWS[name]; Object.assign(orbit, { view: name, r: v.r, th: v.th, ph: v.ph, min: v.min, max: v.max }); orbit.target.copy(v.target);
   if (portrait()) { if (name === 'inside') { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); } else orbit.r = 250; }
   EXT.group.visible = name === 'outside';
-  $('btnOutside').textContent = name === 'outside' ? '🔍 Ver por dentro' : '🏨 Hotel por fora';
+  setLabel($('btnOutside'), name === 'outside' ? '🔍' : '🏨', name === 'outside' ? 'Ver por dentro' : 'Hotel por fora');
 }
 setOrbitView('outside');
 /* Corte com escurecimento rápido entre a vista de fora e a de dentro. */
@@ -51,8 +51,9 @@ function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0
 
 function enterRoom() {
   if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
-  inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
-  fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
+  inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; setLabel(btnView, '🗺️', 'Vista aérea');
+  /* Chega pelo elevador já olhando para a Aurora, na recepção. */
+  fp.pos.set(6.6, 0, -4.6); fp.yaw = 3.0; fp.body = fp.yaw + Math.PI; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
     mode = 'fp'; cross.hidden = isTouch;
     help.innerHTML = isTouch ? 'Joystick à esquerda anda · arraste à direita para olhar · 🏃 corre · botão verde interage'
@@ -62,6 +63,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  closeWelcome();
   if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
   if (mode === 'menu') closeHospitality(); cancelService(true); stopSmoking(); putAwayConsumable();
@@ -71,12 +73,13 @@ function leaveRoom() {
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
   for (const spot of [SPOTS.lounge1, SPOTS.lounge2]) if (spot.busy === 'player') spot.busy = null;
   inRoom = false; if (document.pointerLockElement) document.exitPointerLock();
-  cross.hidden = true; help.hidden = true; btnView.textContent = 'Entrar na sala';
+  cross.hidden = true; help.hidden = true; setLabel(btnView, '🚪', 'Entrar na sala');
   const o = orbitPose({}); startTween(o.pos, o.q, reduceMotion ? 0.01 : 1.8, () => { mode = 'orbit'; });
 }
 function lockMouse() { try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } }
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
 btnEnter.addEventListener('click', enterRoom);
+$('nick').addEventListener('keydown', e => { if (e.key === 'Enter' && !btnEnter.disabled) { e.preventDefault(); enterRoom(); } });
 btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); });
 $('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoom) cut(() => setOrbitView(orbit.view === 'outside' ? 'inside' : 'outside')); });
 
@@ -172,6 +175,7 @@ function blocked(x, z) {
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   for (const m of STAFF.members) { const p = m.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
   for (const h of SHOW.hosts) { const p = h.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
+  if ((x - WELCOME.x) ** 2 + (z - WELCOME.z) ** 2 < (PR + 0.25) ** 2) return true;
   return false;
 }
 function stepFP(dt) {

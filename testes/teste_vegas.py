@@ -44,10 +44,26 @@ with sync_playwright() as p:
         assert page.evaluate('__sala.orbit.view==="inside" && !__sala.EXT.group.visible')
         page.click('#btnOutside')
         assert page.evaluate('__sala.orbit.view==="outside"')
-        page.evaluate('__sala.enterRoom()')
+        # Entrada simples: boas-vindas, nome e botão Entrar (Enter também entra).
+        assert page.inner_text('#intro h1').replace('\n', '') == 'Bem-vindo' and page.locator('#nick').is_visible() and page.locator('#btnEnter').is_visible()
+        page.fill('#nick', 'Willian')
+        page.press('#nick', 'Enter')
         page.wait_for_function('__sala.mode==="fp"', timeout=60000)
         assert page.evaluate('__sala.orbit.view==="inside" && !__sala.EXT.group.visible') and not page.locator('#btnOutside').is_visible()
-        print(nome + ': hotel visto de fora OK', flush=True)
+        print(nome + ': hotel visto de fora e entrada OK', flush=True)
+
+        # Aurora, a recepcionista cyber, dá as boas-vindas com o nome, por voz, e oferece uma bebida.
+        page.wait_for_function('__sala.WELCOME.open && !document.getElementById("welcome").hidden', timeout=60000)
+        assert 'Willian' in page.inner_text('#welcomeLine') and page.evaluate('__falas.some(f=>f.includes("Aurora") && f.includes("Willian"))')
+        page.wait_for_function('__sala.WELCOME.npc.P.isAvatar && __sala.WELCOME.npc.P.cyber', timeout=90000)
+        page.click('#welDrink')
+        assert page.evaluate('!!__sala.HOSP.item && !__sala.WELCOME.open') and 'Aurora entregou' in page.inner_text('#menuMsg')
+        page.evaluate('__sala.putAwayConsumable(); __sala.setFP(6.4,-4.4,Math.PI)')
+        # Confere e usa a ação no mesmo instante (um robô passando pode disputar o botão de ação).
+        page.wait_for_function('(()=>{if(__sala.act!=="Falar com a Aurora")return false;__sala.doAct();return __sala.WELCOME.open})()', polling=300, timeout=60000)
+        page.evaluate('__sala.setFP(0,0,0)')
+        page.wait_for_function('!__sala.WELCOME.open')
+        print(nome + ': recepcionista Aurora OK', flush=True)
 
         # 44º andar pelo elevador; dançarinas no palco, acima do chão.
         page.evaluate('__sala.rideTo("show")')

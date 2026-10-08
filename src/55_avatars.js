@@ -7,10 +7,12 @@ const shortName = n => { const p = n.split(' '); return p[0][0] + '. ' + p.slice
 /* pose da simulação -> animação capturada */
 const POSE_CLIP = { sitType: 'sitWork', sitRelax: 'sitRelax', sitHead: 'sitWait', sitCheer: 'cheer', sitFrustr: 'frustr', sofa: 'sitRelax', standCup: 'drink', pocket: 'idle', cross: 'talk', poolAim: 'idle', standCue: 'lookAround', stand: 'idle' };
 const _ha = new THREE.Vector3(), _hb = new THREE.Vector3();
+/* Velocidade natural da animação de caminhada (passada medida nos clipes do Rocketbox): com ela os pés não deslizam. */
+const WALK_CLIP_SPEED = 2.1;
 class Avatar {
   constructor(gltf, clips, old, file) {
     this.isAvatar = true; this.file = file;
-    this.root = new THREE.Group(); this.root.add(gltf.scene); GROUPS.main.add(this.root);
+    this.root = new THREE.Group(); this.root.rotation.order = 'YXZ'; this.root.add(gltf.scene); GROUPS.main.add(this.root);
     this.root.position.copy(old.root.position); this.yaw = old.yaw; this.pose = old.pose; this.speed = 0;
     gltf.scene.traverse(o => {
       if (!o.isMesh) return;
@@ -52,9 +54,12 @@ class Avatar {
     if (consumingDrink && this.speed < 0.05 && ['stand', 'standCup', 'pocket', 'cross'].includes(this.pose)) name = 'drink';
     if (name === 'sitWork') { if (t > this.altT) { this.alt = Math.random() < 0.3; this.altT = t + rnd(12, 30); } if (this.alt) name = 'sitLook'; }
     this.play(name);
-    this.cur.timeScale = name === 'walk' ? clamp(this.speed / 1.25, 0.6, 1.6) : name === 'drink' && consumingDrink ? this.cur.getClip().duration / 2.4 : 1;
+    this.cur.timeScale = name === 'walk' ? clamp(this.speed / WALK_CLIP_SPEED, 0.45, 1.9) : name === 'drink' && consumingDrink ? this.cur.getClip().duration / 2.4 : 1;
     this.mixer.update(dt);
     this.root.rotation.y = this.yaw;
+    /* Correndo, o corpo inclina um pouco para frente. */
+    this.lean = damp(this.lean || 0, name === 'walk' && this.speed > 2.4 ? 0.12 : 0, 6, dt);
+    this.root.rotation.x = this.lean;
     this.root.position.y = this.pose === 'sofa' ? -0.03 : 0;
     if (this.pose === 'dance') applyAvatarDance(this, t);
     /* xícara na mão durante o café */

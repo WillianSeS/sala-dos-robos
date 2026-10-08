@@ -5,8 +5,8 @@ try { SHOW.voice = localStorage.getItem('sala-voz') !== '0'; } catch (e) { }
 const inShow = (x, z) => x > -3.8 && x < 3.8 && z > 14.4 && z < 21.8;
 const SHOW_DRINKS = ['wine', 'beer', 'juice', 'soda', 'water'];
 const HOST_SPEED = 0.95, HOST_RADIUS = 0.22;
-function showSay(text) {
-  if (!SHOW.voice || !inRoom || playerFloor() !== 'show' || !window.speechSynthesis) return;
+function showSay(text, floor = 'show') {
+  if (!SHOW.voice || !inRoom || playerFloor() !== floor || !window.speechSynthesis) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text), voices = speechSynthesis.getVoices().filter(v => /^pt/i.test(v.lang));
@@ -165,7 +165,7 @@ function stepShow(dt, t) {
 }
 const _showHead = new THREE.Vector3();
 function updateShowLabels(t) {
-  for (const n of [...SHOW.dancers, ...SHOW.hosts]) {
+  for (const n of [...SHOW.dancers, ...SHOW.hosts, ...(WELCOME.npc ? [WELCOME.npc] : [])]) {
     const el = n.el, txt = n.cheerUntil > t ? '💵 obrigada!' : n.role === 'dançarina' ? 'no palco' : { offer: 'conversando', fetch: 'buscando bebida', bring: 'levando bebida', dance: 'dançando', approach: 'vindo até você' }[n.state] || 'pode chamar';
     if (el.lastChild.textContent !== txt) el.lastChild.textContent = txt;
     if (!n.P.J.head || otherFloor(n.P.root.position.x, n.P.root.position.z) || !inRoom) { el.style.opacity = '0'; continue; }
