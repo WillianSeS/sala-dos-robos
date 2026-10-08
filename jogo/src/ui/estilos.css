@@ -1,0 +1,160 @@
+:root {
+  --preto: #07080d;
+  --vidro: rgba(10, 11, 20, 0.62);
+  --vidro-forte: rgba(10, 11, 20, 0.86);
+  --ouro: #d8b36a;
+  --ouro-claro: #f3d79a;
+  --ouro-linha: rgba(216, 179, 106, 0.45);
+  --azul-noite: #101a3a;
+  --roxo-neon: #a34dff;
+  --texto: #f2ede4;
+  --texto-suave: #b9b2a6;
+  --raio: 14px;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--preto);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; overflow: hidden; background: var(--preto); overscroll-behavior: none; }
+body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+.jogo { position: fixed; inset: 0; }
+.palco { position: absolute; inset: 0; touch-action: none; }
+.palco canvas { display: block; }
+
+kbd {
+  display: inline-block; min-width: 1.6em; padding: 1px 6px; margin: 0 1px;
+  border: 1px solid var(--ouro-linha); border-bottom-width: 2px; border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06); font: 600 0.78em/1.4 ui-monospace, monospace; color: var(--ouro-claro);
+  text-align: center;
+}
+
+/* marca */
+.marca {
+  position: absolute; top: max(12px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left));
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px;
+  background: var(--vidro); border: 1px solid var(--ouro-linha); border-radius: var(--raio);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); pointer-events: none;
+}
+.marca strong { display: block; letter-spacing: 0.14em; font-size: 0.86rem; color: var(--ouro-claro); }
+.marca small { display: block; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--texto-suave); }
+.coroa { color: var(--ouro); font-size: 1.5rem; filter: drop-shadow(0 0 8px rgba(216, 179, 106, 0.6)); }
+
+/* botões do topo */
+.acoes-topo {
+  position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right));
+  display: flex; gap: 8px;
+}
+.botao-vidro {
+  display: flex; align-items: center; gap: 8px; padding: 9px 12px; min-height: 44px;
+  background: var(--vidro); border: 1px solid var(--ouro-linha); border-radius: 12px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: border-color 0.2s, background 0.2s;
+}
+.botao-vidro:hover { border-color: var(--ouro); background: rgba(30, 26, 18, 0.7); }
+.botao-vidro .rotulo { font-size: 0.85rem; }
+
+.fps {
+  position: absolute; top: 72px; right: 16px; padding: 4px 8px; border-radius: 8px;
+  background: var(--vidro); font: 600 0.78rem ui-monospace, monospace; color: #8fe3a5;
+}
+
+.dica {
+  position: absolute; left: 50%; bottom: 13%; transform: translateX(-50%);
+  padding: 10px 18px; border-radius: 999px; background: var(--vidro-forte);
+  border: 1px solid var(--ouro); box-shadow: 0 0 22px rgba(216, 179, 106, 0.25);
+  font-weight: 600; white-space: nowrap;
+}
+
+.ajuda-rapida {
+  position: absolute; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%);
+  padding: 9px 16px; border-radius: 12px; background: var(--vidro); border: 1px solid var(--ouro-linha);
+  font-size: 0.82rem; color: var(--texto-suave); white-space: nowrap; pointer-events: none;
+  animation: some 1s ease 8s forwards;
+}
+@keyframes some { to { opacity: 0; } }
+
+/* controles de toque */
+.controles-toque { position: absolute; inset: 0; pointer-events: none; }
+.joystick {
+  position: absolute; left: max(26px, env(safe-area-inset-left)); bottom: max(26px, env(safe-area-inset-bottom));
+  width: 136px; height: 136px; border-radius: 50%; pointer-events: auto; touch-action: none;
+  background: radial-gradient(circle, rgba(16, 26, 58, 0.55), rgba(7, 8, 13, 0.35));
+  border: 2px solid var(--ouro-linha); display: grid; place-items: center;
+}
+.joystick.ativo { border-color: var(--ouro); }
+.joystick-pino {
+  width: 58px; height: 58px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--ouro-claro), var(--ouro) 60%, #8a6a2c);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5); pointer-events: none;
+}
+.botoes-toque {
+  position: absolute; right: max(18px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: repeat(2, 76px); gap: 12px; pointer-events: auto;
+}
+.botao-redondo {
+  width: 76px; height: 76px; border-radius: 50%; display: grid; place-content: center; gap: 2px;
+  background: var(--vidro-forte); border: 2px solid var(--ouro-linha); touch-action: manipulation;
+}
+.botao-redondo span { font-size: 1.5rem; line-height: 1; }
+.botao-redondo small { font-size: 0.62rem; color: var(--texto-suave); max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.botao-redondo.ativo { border-color: var(--roxo-neon); box-shadow: 0 0 18px rgba(163, 77, 255, 0.55); }
+.botao-redondo.interagir { grid-column: span 2; justify-self: center; }
+.botao-redondo.interagir small { white-space: normal; line-height: 1.05; text-align: center; }
+.botao-redondo.interagir.pronto { border-color: var(--ouro); box-shadow: 0 0 18px rgba(216, 179, 106, 0.5); }
+.botao-redondo:disabled { opacity: 0.35; }
+
+/* carregamento */
+.carregando {
+  position: absolute; inset: 0; display: grid; place-items: center; z-index: 10;
+  background: radial-gradient(ellipse at 50% 35%, #1a1236, var(--preto) 70%);
+}
+.carregando-caixa { text-align: center; padding: 16px; width: min(420px, 100% - 32px); }
+.carregando h1 { margin: 6px 0 0; letter-spacing: 0.22em; font-size: clamp(1.4rem, 5vw, 2.1rem); color: var(--ouro-claro); }
+.carregando .sub { margin: 4px 0 22px; letter-spacing: 0.4em; color: var(--roxo-neon); font-size: 0.85rem; text-shadow: 0 0 12px rgba(163, 77, 255, 0.8); }
+.coroa.grande { font-size: 3rem; }
+.barra { height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); overflow: hidden; border: 1px solid var(--ouro-linha); }
+.barra div { height: 100%; background: linear-gradient(90deg, #8a6a2c, var(--ouro-claro)); transition: width 0.25s; }
+.carregando .detalhe { margin-top: 10px; font-size: 0.78rem; color: var(--texto-suave); overflow-wrap: anywhere; }
+
+/* painéis */
+.painel-fundo { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(4, 4, 8, 0.55); padding: 16px; }
+.painel {
+  width: min(560px, 100%); max-height: calc(100% - 24px); overflow: auto; padding: 22px;
+  background: var(--vidro-forte); border: 1px solid var(--ouro); border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(216, 179, 106, 0.12);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.painel h2 { margin: 0 0 12px; letter-spacing: 0.12em; color: var(--ouro-claro); font-size: 1.15rem; }
+.painel h3 { margin: 16px 0 8px; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-suave); }
+.opcoes { display: grid; gap: 8px; }
+.opcoes.duas { grid-template-columns: 1fr 1fr; }
+.opcoes button {
+  text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--ouro-linha);
+  background: rgba(255, 255, 255, 0.03);
+}
+.opcoes button small { display: block; margin-top: 2px; color: var(--texto-suave); font-size: 0.76rem; }
+.opcoes button.escolhido { border-color: var(--ouro); background: rgba(216, 179, 106, 0.12); }
+.linha { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 0.9rem; }
+.linha input[type='range'] { flex: 1; accent-color: var(--ouro); }
+.linha.caixa input { width: 20px; height: 20px; accent-color: var(--ouro); }
+.tabela-controles ul { margin: 0; padding-left: 18px; line-height: 1.9; font-size: 0.9rem; }
+.botao-ouro {
+  margin-top: 18px; width: 100%; min-height: 46px; border-radius: 12px; border: none; font-weight: 700;
+  color: #1b1408; background: linear-gradient(180deg, var(--ouro-claro), var(--ouro));
+}
+
+@media (max-width: 720px), (max-height: 480px) {
+  .botao-vidro .rotulo, .botao-vidro kbd { display: none; }
+  .botao-vidro { padding: 8px 11px; }
+  .marca { padding: 6px 10px 6px 8px; }
+  .marca strong { font-size: 0.74rem; }
+  .ajuda-rapida { white-space: normal; text-align: center; width: max-content; max-width: calc(100% - 32px); }
+}
+@media (max-height: 480px) {
+  .joystick { width: 118px; height: 118px; }
+  .botoes-toque { grid-template-columns: repeat(3, 64px); }
+  .botao-redondo { width: 64px; height: 64px; }
+  .botao-redondo.interagir { grid-column: auto; }
+}
