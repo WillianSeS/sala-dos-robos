@@ -4,15 +4,19 @@ Hotel **Las Vegas Night** em 3D, com uma sala de trading no 40º andar. Cada rob
 
 **Abrir a sala:** https://willianses.github.io/sala-dos-robos/
 
+**Mapa dos andares e recursos atuais:** https://willianses.github.io/sala-dos-robos/mapa.html
+
 ## O que dá para fazer
 
+- Entrar pela nova recepção visual do **Las Vegas Night**, com o hotel em 3D e a fachada **Sala dos Robôs · IA + Club**.
+- Jogar **dardos** na sala de jogos: nove lançamentos, setores simples/duplos/triplos e centro. Mire e clique no computador, use Espaço ou toque no alvo e em **Lançar** no celular. Medalhas e recorde são virtuais e ficam neste navegador.
 - Entrar na sala em primeira pessoa: WASD e mouse no computador. No celular, controles de jogo na tela: joystick fixo no canto esquerdo, arrastar à direita para olhar, botão 🏃 para correr, botão verde para interagir; os botões do topo e os atalhos viram ícones redondos e os painéis das salas abrem por ícone (funciona em pé e deitado). A caminhada é calma (1,25 m/s andando, 2,5 m/s correndo), acompanha a velocidade real (sem pés deslizando) e o corpo inclina ao correr. As danças são coreografias no ritmo da rádio: balanço, disco, comemoração e cancan. O botão **👤 3ª pessoa** (ou a tecla **V**) mostra o seu personagem andando, sentando, dançando, comendo e bebendo; ele vira para o lado em que anda, e a roda do mouse ou a pinça com dois dedos aproximam a câmera. No celular, o joystick empurrado até o fim corre.
 - Entrar pela tela de **boas-vindas** (só o nome e o botão Entrar). Na recepção, a **Aurora**, recepcionista cyber, dá as boas-vindas pelo nome, por voz, e oferece uma bebida, o show ou a sala de jogos.
 - Ver o **hotel por fora**: a página abre com a torre à noite, o letreiro **LAS VEGAS NIGHT** no topo, lâmpadas piscando em sequência, neon nos cantos e holofotes. O botão 🔍/🏨 alterna entre a vista de fora e o corte por dentro, que mostra os cinco andares empilhados (40º embaixo, 44º no alto), cada um com a sua placa.
 - Andar pelo **prédio**: cada sala fica num andar (40º Escritório, 41º Sala de jogos, 42º Discoteca, 43º Lounge, 44º Las Vegas Night). As portas do elevador abrem quando você chega perto; entre na cabine (ou aperte **E** na porta), escolha o andar e veja o visor contar os andares até as portas abrirem no destino. Os atalhos também usam o elevador, e robôs e garçons viajam nele.
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
 - Jogar 21 contra os traders com fichas fictícias: use a mesa de cartas na **Sala de jogos** ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.
-- Visitar o **Smoking Lounge**, no último andar: sofás, balcão, música e duas mesas de narguilé virtual com bocal na mão e fumaça leve.
+- Visitar o **Smoking Lounge**, no 43º andar: sofás, balcão, música e duas mesas de narguilé virtual com bocal na mão e fumaça leve.
 - Pegar água, latas, suco, vinho, sanduíche ou maçã na geladeira. O **Cardápio** também oferece café e pizza: Caio (garçom) e Sofia (garçonete) caminham até você com bandejas para entregar.
 - Segurar bebidas e comidas, tomar goles e dar mordidas pelo botão ou pela tecla **F**. Outros visitantes veem os objetos e os gestos. Robôs em pausa também comem e bebem.
 - Ouvir a **📻 Rádio da sala** pelo botão **Música**: três estações instrumentais geradas no navegador. Ligar, desligar e trocar a estação vale para todos na sala, e todos ouvem a mesma nota ao mesmo tempo; cada um ajusta o próprio volume ou silencia a rádio só para si.

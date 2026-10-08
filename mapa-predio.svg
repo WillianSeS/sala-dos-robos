@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="900" viewBox="0 0 1000 900" role="group" aria-labelledby="building-map-title building-map-desc">
+  <title id="building-map-title">Sala dos Robôs — mapa do sistema</title>
+  <desc id="building-map-desc">Cinco andares ativos ligados por um elevador. O escritório fica no 40º andar; jogos no 41º; discoteca no 42º; lounge no 43º; e o show Las Vegas Night no 44º. A entrada pela fachada IA e Club leva ao escritório.</desc>
+  <defs>
+    <linearGradient id="night" x2="1" y2="1"><stop stop-color="#081020"/><stop offset="1" stop-color="#101025"/></linearGradient>
+    <linearGradient id="shaft" x2="1" y2="0"><stop stop-color="#1b2c42"/><stop offset=".5" stop-color="#111c32"/><stop offset="1" stop-color="#1b2c42"/></linearGradient>
+    <linearGradient id="door" x2="0" y2="1"><stop stop-color="#324765"/><stop offset="1" stop-color="#172a42"/></linearGradient>
+    <linearGradient id="stage" x2="0" y2="1"><stop stop-color="#7e3b70"/><stop offset="1" stop-color="#352d4c"/></linearGradient>
+    <linearGradient id="floor-glow" x2="1" y2="0"><stop stop-color="#41d6e3" stop-opacity=".15"/><stop offset="1" stop-color="#a976ff" stop-opacity=".03"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#7186b0" stroke-opacity=".04"/></pattern>
+    <pattern id="dance" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="#262246"/><rect width="12" height="12" fill="#6d3da5"/><rect x="12" y="12" width="12" height="12" fill="#317088"/></pattern>
+    <style>
+      text { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .floor { cursor: pointer; outline: none; }
+      .frame { fill: #101b2d; stroke: #28374d; stroke-width: 1.5; transition: stroke .18s, fill .18s; }
+      .floor:hover .frame, .floor:focus .frame, .floor.is-selected .frame, .floor.floor-active .frame { stroke: var(--accent); fill: #18253a; }
+      .floor-title { fill: #f3f7ff; font-size: 34px; font-weight: 750; letter-spacing: -.4px; }
+      .floor-sub { fill: #b5c3d8; font-size: 22px; }
+      .number { font-size: 32px; font-weight: 800; fill: var(--accent); }
+      .mini-label { fill: #a9b9cd; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-anchor: middle; }
+      .object-line { stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <rect width="1000" height="900" fill="url(#night)"/>
+  <rect width="1000" height="900" fill="url(#grid)"/>
+  <circle cx="975" cy="35" r="190" fill="#5939aa" opacity=".06"/>
+  <circle cx="20" cy="890" r="235" fill="#1c92ac" opacity=".05"/>
+
+  <!-- Marca e legenda do mapa. -->
+  <g transform="translate(48 35)" fill="none" stroke="#6ceaf5" stroke-width="2" class="object-line">
+    <rect x="0" y="3" width="43" height="35" rx="12" fill="#152b3e"/>
+    <path d="M21.5 3v-6M-4 17v9M47 17v9"/>
+    <circle cx="21.5" cy="-6" r="2.5" fill="#a781ff" stroke="none"/>
+    <circle cx="13" cy="17" r="3" fill="#6ceaf5" stroke="none"/>
+    <circle cx="30" cy="17" r="3" fill="#6ceaf5" stroke="none"/>
+    <path d="M14 28h15"/>
+  </g>
+  <text x="111" y="58" fill="#f4f7ff" font-size="30" font-weight="850" letter-spacing="1.8">SALA DOS ROBÔS</text>
+  <text x="111" y="81" fill="#8da2be" font-size="18" font-weight="650" letter-spacing="1.3">MAPA DO SISTEMA · 5 ANDARES ATIVOS</text>
+  <rect x="698" y="38" width="140" height="30" rx="15" fill="#14332f" stroke="#2d6359"/>
+  <circle cx="714" cy="53" r="4" fill="#6de5ba"/>
+  <text x="727" y="58" fill="#a3e9d1" font-size="12" font-weight="700">Estrutura atual</text>
+  <text x="915" y="105" fill="#95adc9" font-size="14" font-weight="700" letter-spacing="1.2" text-anchor="middle">ELEVADOR</text>
+
+  <!-- Um único eixo liga todos os andares. -->
+  <g aria-label="Elevador ligando os cinco andares">
+    <rect x="879" y="118" width="72" height="585" rx="17" fill="url(#shaft)" stroke="#496581" stroke-width="1.5"/>
+    <path d="M891 135v550M939 135v550" stroke="#7394b4" stroke-opacity=".28" stroke-width="2"/>
+    <path d="M915 138v548" stroke="#64d8ed" stroke-opacity=".5" stroke-width="2" stroke-dasharray="3 9"/>
+    <path d="m905 144 10-9 10 9M905 157l10-9 10 9" fill="none" stroke="#76e4f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M838 170h41M838 290h41M838 410h41M838 530h41M838 650h41" fill="none" stroke="#536b88" stroke-width="2"/>
+    <circle cx="879" cy="170" r="4" fill="#ecc77a"/>
+    <circle cx="879" cy="290" r="4" fill="#6cdcc8"/>
+    <circle cx="879" cy="410" r="4" fill="#b28cff"/>
+    <circle cx="879" cy="530" r="4" fill="#81dfa5"/>
+    <circle cx="879" cy="650" r="4" fill="#77c7ff"/>
+    <g transform="translate(886 617)">
+      <rect width="58" height="72" rx="8" fill="#0a1424" stroke="#76d9ea" stroke-width="1.5"/>
+      <rect x="7" y="23" width="44" height="42" rx="3" fill="url(#door)" stroke="#5b7794"/>
+      <path d="M29 24v40" stroke="#8faac4"/>
+      <text x="29" y="16" fill="#a6f3fa" font-size="10" font-weight="800" text-anchor="middle">40º</text>
+    </g>
+  </g>
+
+  <g id="floor-show" class="floor" style="--accent:#ecc77a" tabindex="0" role="button" aria-pressed="false" aria-label="44º andar, Las Vegas Night. Palco, bar e mesas para assistir ao show.">
+    <rect class="frame" x="48" y="118" width="790" height="105" rx="17"/>
+    <rect x="48" y="135" width="4" height="71" rx="2" fill="#ecc77a"/>
+    <rect x="72" y="145" width="67" height="50" rx="13" fill="#4c3e26" fill-opacity=".5"/>
+    <text class="number" x="105.5" y="179" text-anchor="middle">44º</text>
+    <text class="floor-title" x="158" y="161">Las Vegas Night</text>
+    <text class="floor-sub" x="158" y="188">Palco · bar · show</text>
+    <g transform="translate(495 133)">
+      <path d="M12 58 24 7h84l12 51Z" fill="#5f324f" fill-opacity=".27"/>
+      <path d="M26 10 57 58H13ZM105 10 118 58H74Z" fill="#ecc77a" fill-opacity=".14"/>
+      <rect x="12" y="44" width="108" height="16" rx="5" fill="url(#stage)" stroke="#9b6a91"/>
+      <path d="M12 63h108M29 49h74" stroke="#efc578" stroke-opacity=".65"/>
+      <path d="M24 7h84" stroke="#eed494" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#e7b4ce" stroke="#e7b4ce" stroke-width="3" stroke-linecap="round">
+        <circle cx="46" cy="25" r="4" stroke="none"/><path d="M46 30v10M36 34l10-3 10 3M46 40l-5 9M46 40l5 9"/>
+        <circle cx="85" cy="25" r="4" stroke="none"/><path d="M85 30v10M75 34l10-3 10 3M85 40l-5 9M85 40l5 9"/>
+      </g>
+    </g>
+    <g transform="translate(637 142)">
+      <rect x="0" y="9" width="68" height="42" rx="5" fill="#293146" stroke="#987c4c"/>
+      <rect x="-4" y="6" width="76" height="8" rx="3" fill="#947340"/>
+      <path d="M20 21v18M47 21v18" stroke="#e2c17f" stroke-opacity=".5"/>
+      <path d="M15 0h12l-3 6h-6ZM44 0h12l-3 6h-6Z" fill="#e1b7d6"/>
+    </g>
+    <g transform="translate(742 145)">
+      <ellipse cx="30" cy="25" rx="28" ry="18" fill="#34303f" stroke="#bb9664"/>
+      <ellipse cx="30" cy="25" rx="18" ry="10" fill="#4e3b41"/>
+      <rect x="21" y="-1" width="18" height="8" rx="3" fill="#705c51"/>
+      <rect x="21" y="44" width="18" height="8" rx="3" fill="#705c51"/>
+    </g>
+  </g>
+
+  <g id="floor-lounge" class="floor" style="--accent:#6cdcc8" tabindex="0" role="button" aria-pressed="false" aria-label="43º andar, Lounge. Sofás, bar, bebidas e narguilé virtual.">
+    <rect class="frame" x="48" y="238" width="790" height="105" rx="17"/>
+    <rect x="48" y="255" width="4" height="71" rx="2" fill="#6cdcc8"/>
+    <rect x="72" y="265" width="67" height="50" rx="13" fill="#204640" fill-opacity=".7"/>
+    <text class="number" x="105.5" y="299" text-anchor="middle">43º</text>
+    <text class="floor-title" x="158" y="281">Lounge</text>
+    <text class="floor-sub" x="158" y="308">Sofás · narguilé virtual</text>
+    <g transform="translate(507 260)">
+      <rect x="0" y="8" width="105" height="36" rx="9" fill="#244f52" stroke="#5b9892"/>
+      <rect x="9" y="28" width="41" height="24" rx="5" fill="#33676a" stroke="#5b9892"/>
+      <rect x="54" y="28" width="41" height="24" rx="5" fill="#33676a" stroke="#5b9892"/>
+      <rect x="-5" y="23" width="13" height="31" rx="5" fill="#285b5e" stroke="#5b9892"/>
+      <rect x="96" y="23" width="13" height="31" rx="5" fill="#285b5e" stroke="#5b9892"/>
+    </g>
+    <g transform="translate(649 258)" class="object-line">
+      <ellipse cx="29" cy="48" rx="22" ry="9" fill="#355253" stroke="#91baaa"/>
+      <path d="M21 44q-9-15 8-20 17 5 8 20Z" fill="#64929b" stroke="#c1ddd9"/>
+      <path d="M29 25V9M20 22h18M21 9h16l-4-5h-8Z" fill="none" stroke="#c1c8a5" stroke-width="2.5"/>
+      <path d="M34 26q29-8 26 10t9 6" fill="none" stroke="#6bafaa" stroke-width="3"/>
+      <path d="M29 1q-6-6 1-12" fill="none" stroke="#c4d1e3" stroke-opacity=".35" stroke-width="2"/>
+    </g>
+    <g transform="translate(752 261)">
+      <rect x="0" y="13" width="48" height="38" rx="4" fill="#2c3d41" stroke="#638b81"/>
+      <rect x="-4" y="8" width="56" height="8" rx="3" fill="#85a996"/>
+      <path d="M9 0h10l-2 8h-6ZM30 0h10l-2 8h-6Z" fill="#c49dc7"/>
+    </g>
+  </g>
+
+  <g id="floor-disco" class="floor" style="--accent:#b28cff" tabindex="0" role="button" aria-pressed="false" aria-label="42º andar, Discoteca. DJ, pista de dança, música e emojis.">
+    <rect class="frame" x="48" y="358" width="790" height="105" rx="17"/>
+    <rect x="48" y="375" width="4" height="71" rx="2" fill="#b28cff"/>
+    <rect x="72" y="385" width="67" height="50" rx="13" fill="#3b2c60" fill-opacity=".8"/>
+    <text class="number" x="105.5" y="419" text-anchor="middle">42º</text>
+    <text class="floor-title" x="158" y="401">Discoteca</text>
+    <text class="floor-sub" x="158" y="428">DJ · dança · emojis</text>
+    <g transform="translate(505 381)">
+      <rect x="0" y="17" width="80" height="36" rx="5" fill="#242942" stroke="#8d75b9"/>
+      <rect x="-4" y="13" width="88" height="9" rx="3" fill="#525078"/>
+      <circle cx="23" cy="17" r="10" fill="#182037" stroke="#c19ff4"/>
+      <circle cx="23" cy="17" r="3" fill="#c19ff4"/>
+      <circle cx="59" cy="17" r="10" fill="#182037" stroke="#c19ff4"/>
+      <circle cx="59" cy="17" r="3" fill="#c19ff4"/>
+    </g>
+    <g transform="translate(617 372)">
+      <path d="M50 0v9" stroke="#879bb9"/>
+      <circle cx="50" cy="20" r="12" fill="#a3b9d5" stroke="#d8daef"/>
+      <path d="M38 20h24M41 13h18M41 27h18M50 8v24M44 10v20M56 10v20" stroke="#596d8c" stroke-width=".8"/>
+      <rect x="0" y="39" width="100" height="36" rx="3" fill="url(#dance)" stroke="#9683cf"/>
+      <path d="M29 29 0 39M71 29l29 10" stroke="#b896f4" stroke-opacity=".4" stroke-dasharray="3 5"/>
+    </g>
+    <g transform="translate(752 386)" class="object-line">
+      <circle cx="24" cy="20" r="21" fill="#ead280" stroke="#f8e8a6"/>
+      <circle cx="17" cy="17" r="2" fill="#725126"/>
+      <circle cx="31" cy="17" r="2" fill="#725126"/>
+      <path d="M14 26q10 11 20 0" fill="none" stroke="#725126" stroke-width="2"/>
+      <path d="m48 1 5 4 5-4v10l-5 4-5-4Z" fill="#d49ddb"/>
+    </g>
+  </g>
+
+  <g id="floor-games" class="floor" style="--accent:#81dfa5" tabindex="0" role="button" aria-pressed="false" aria-label="41º andar, Sala de jogos. Sinuca, jogo de 21 com fichas fictícias e dardos com troféus virtuais.">
+    <rect class="frame" x="48" y="478" width="790" height="105" rx="17"/>
+    <rect x="48" y="495" width="4" height="71" rx="2" fill="#81dfa5"/>
+    <rect x="72" y="505" width="67" height="50" rx="13" fill="#234b38" fill-opacity=".8"/>
+    <text class="number" x="105.5" y="539" text-anchor="middle">41º</text>
+    <text class="floor-title" x="158" y="521">Sala de jogos</text>
+    <text class="floor-sub" x="158" y="548">Sinuca · 21 · dardos</text>
+    <g transform="translate(506 499)">
+      <rect x="0" y="7" width="105" height="50" rx="9" fill="#665544" stroke="#a18765"/>
+      <rect x="6" y="13" width="93" height="38" rx="4" fill="#265d46"/>
+      <g fill="#081b17"><circle cx="8" cy="15" r="3"/><circle cx="98" cy="15" r="3"/><circle cx="8" cy="50" r="3"/><circle cx="98" cy="50" r="3"/><circle cx="53" cy="13" r="3"/><circle cx="53" cy="51" r="3"/></g>
+      <path d="M12 40 76 25" stroke="#d6b789" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="38" cy="28" r="3.3" fill="#eff1e5"/><circle cx="80" cy="32" r="3" fill="#e9bb58"/><circle cx="85" cy="35" r="3" fill="#ad6cb7"/><circle cx="85" cy="29" r="3" fill="#e5847d"/>
+    </g>
+    <g transform="translate(635 499)">
+      <rect x="2" y="10" width="32" height="43" rx="4" fill="#e9eee8" transform="rotate(-9 18 31)"/>
+      <rect x="25" y="8" width="32" height="43" rx="4" fill="#fff6e6" transform="rotate(10 41 30)"/>
+      <text x="11" y="31" fill="#293448" font-size="15" font-weight="800">A</text>
+      <text x="31" y="31" fill="#bf5265" font-size="13" font-weight="800">10</text>
+      <circle cx="66" cy="46" r="9" fill="#213d32" stroke="#90d8af" stroke-width="2" stroke-dasharray="3 2"/>
+    </g>
+    <g transform="translate(749 495)">
+      <circle cx="28" cy="29" r="26" fill="#dddcc9" stroke="#74838f" stroke-width="2"/>
+      <circle cx="28" cy="29" r="21" fill="#223337" stroke="#c77079" stroke-width="4"/>
+      <circle cx="28" cy="29" r="14" fill="#dddcc9" stroke="#6fb997" stroke-width="4"/>
+      <path d="M28 3v52M2 29h52M10 11l36 36M10 47l36-36" stroke="#899693" stroke-width="1"/>
+      <circle cx="28" cy="29" r="5" fill="#cc6574"/>
+      <path d="m28 29 27-18" stroke="#ecebe4" stroke-width="2"/>
+      <path d="m55 11 6-6-2 8Z" fill="#bfcff4"/>
+      <path d="M61 41h13v9q-6.5 9-13 0ZM58 43h-3q0 8 7 8M77 43h3q0 8-7 8M67.5 56v6M61 63h13" fill="none" stroke="#e5c476" stroke-width="2"/>
+    </g>
+  </g>
+
+  <g id="floor-office" class="floor" style="--accent:#77c7ff" tabindex="0" role="button" aria-pressed="false" aria-label="40º andar, Escritório. Dez traders, telão de resultados simulados, recepcionista Aurora e geladeira.">
+    <rect class="frame" x="48" y="598" width="790" height="105" rx="17"/>
+    <rect x="48" y="615" width="4" height="71" rx="2" fill="#77c7ff"/>
+    <rect x="72" y="625" width="67" height="50" rx="13" fill="#253d5d" fill-opacity=".9"/>
+    <text class="number" x="105.5" y="659" text-anchor="middle">40º</text>
+    <text class="floor-title" x="158" y="641">Escritório</text>
+    <text class="floor-sub" x="158" y="668">10 traders · recepção</text>
+    <g transform="translate(506 617)">
+      <rect x="0" y="4" width="90" height="37" rx="4" fill="#182332" stroke="#7b9cc7"/>
+      <path d="m10 30 13-7 10 3 12-13 10 7 10-8 15-4" fill="none" stroke="#6cdbb3" stroke-width="2"/>
+      <path d="M0 45h102" stroke="#8c7970" stroke-width="5" stroke-linecap="round"/>
+      <path d="M6 46v13M90 46v13" stroke="#5e6681" stroke-width="3"/>
+      <rect x="59" y="28" width="30" height="18" rx="2" fill="#273751" stroke="#8cadcf"/>
+      <path d="M74 46v5M67 52h14" stroke="#8cadcf" stroke-width="2"/>
+    </g>
+    <g transform="translate(643 614)" class="object-line">
+      <ellipse cx="30" cy="60" rx="24" ry="5" fill="#47cfd2" fill-opacity=".12" stroke="#4b8caa"/>
+      <path d="M18 52V33q12-8 24 0v19" fill="#474068" stroke="#7d8db0" stroke-width="2"/>
+      <circle cx="30" cy="18" r="10" fill="#d7bcc0"/>
+      <path d="M20 17q-2-17 13-13 10 2 8 15" fill="#42375b" stroke="#a678ba" stroke-width="1.5"/>
+      <path d="M19 36 10 47M41 36l9 11M24 53v8M37 53v8" fill="none" stroke="#a8adce" stroke-width="3"/>
+      <circle cx="52" cy="12" r="6" fill="#1b4853" stroke="#69d6e7"/><path d="M52 9v6M49 12h6" stroke="#69d6e7"/>
+    </g>
+    <g transform="translate(756 618)">
+      <rect x="0" y="0" width="38" height="59" rx="5" fill="#385068" stroke="#96b5cb"/>
+      <path d="M0 20h38" stroke="#a1bdd0"/>
+      <path d="M30 7v7M30 27v12" stroke="#c6e1eb" stroke-width="2" stroke-linecap="round"/>
+      <rect x="7" y="6" width="10" height="7" rx="2" fill="#89c5c9"/>
+    </g>
+  </g>
+
+  <!-- A fachada é a porta de entrada para o escritório. -->
+  <path d="M123 738v-19" stroke="#72dbea" stroke-width="2" stroke-linecap="round"/>
+  <path d="m117 725 6-7 6 7" fill="none" stroke="#72dbea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="48" y="738" width="790" height="107" rx="17" fill="url(#floor-glow)" stroke="#395774" stroke-dasharray="5 5"/>
+  <g transform="translate(80 756)" class="object-line">
+    <rect x="0" y="0" width="106" height="62" rx="7" fill="#162338" stroke="#6689a8"/>
+    <path d="M6 9h94M22 10v37M83 10v37" stroke="#46cbdb" stroke-width="2"/>
+    <rect x="7" y="14" width="18" height="26" fill="#243e5c"/>
+    <rect x="81" y="14" width="18" height="26" fill="#3b2c58"/>
+    <rect x="34" y="22" width="39" height="40" rx="3" fill="#0b1324" stroke="#ac7ee4"/>
+    <path d="M53.5 23v38" stroke="#ae80e7"/>
+    <rect x="29" y="8" width="50" height="12" rx="2" fill="#172837" stroke="#59d7e5"/>
+    <text x="54" y="17" fill="#a4eff5" font-size="7" font-weight="800" text-anchor="middle">IA + CLUB</text>
+    <path d="M-6 64h119" stroke="#ae83f3" stroke-width="2"/>
+  </g>
+  <text x="220" y="778" fill="#f3f7ff" font-size="28" font-weight="750">Entrada · fachada IA + Club</text>
+  <text x="220" y="805" fill="#b5c3d8" font-size="22">Acesso ao escritório no 40º andar.</text>
+  <text x="48" y="881" fill="#869bb7" font-size="18">Visão esquemática · andares ligados por elevador</text>
+  <text x="951" y="881" fill="#657b97" font-size="11" text-anchor="end">SALA DOS ROBÔS</text>
+</svg>

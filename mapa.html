@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mapa dos cinco andares da Sala dos Robôs: escritório, jogos, discoteca, lounge e Las Vegas Night.">
+  <meta name="color-scheme" content="dark">
+  <title>Mapa · Sala dos Robôs</title>
+  <style>
+    :root{--bg:#080d16;--panel:#101926;--line:#29394a;--text:#edf3fc;--muted:#a9b8cb;--cyan:#8ce3e3;--accent:#8ce3e3}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 15% 0,#142a34 0,transparent 48%),var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit}button{font:inherit;cursor:pointer}button,a{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,[role=button]:focus-visible{outline:3px solid #b2f8f3;outline-offset:4px}
+    .wrap{max-width:1320px;padding:0 36px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:26px;padding-bottom:25px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px;text-decoration:none}.mark{display:grid;grid-template-columns:repeat(2,8px);gap:4px;border:1px solid #65b6be5c;padding:10px;border-radius:11px}.mark i{width:8px;height:8px;background:var(--cyan);border-radius:2px}.mark i:last-child{background:#cd93fa}.brand strong{display:block;font-size:13px;letter-spacing:1.8px}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:1px}.button{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:44px;padding:10px 17px;border:1px solid var(--line);border-radius:10px;text-decoration:none;background:#111d2c;color:var(--text);font-size:13px;font-weight:600}.button.primary{background:var(--cyan);border-color:var(--cyan);color:#102733}.button:hover{filter:brightness(1.12)}
+    .hero{padding-top:40px;display:flex;justify-content:space-between;align-items:end;gap:24px}.eyebrow{margin:0 0 9px;color:var(--cyan);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}h1{font-size:clamp(29px,4vw,46px);letter-spacing:-1.5px;line-height:1.14;margin:0 0 15px}h1 span{color:var(--cyan)}.lead{max-width:660px;color:var(--muted);margin:0;font-size:15px}.date{font-size:12px;color:var(--muted);white-space:nowrap}.stats{display:flex;gap:25px;flex-wrap:wrap;margin:25px 0 28px;padding:17px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.stat{display:flex;gap:8px;align-items:baseline}.stat strong{font-size:23px;color:#fff}.stat span{color:var(--muted);font-size:12px}
+    .floor-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}.floor-tab{min-height:45px;border:1px solid var(--line);border-radius:9px;color:var(--muted);padding:9px 12px;background:#111b28;font-size:13px}.floor-tab b{color:var(--text);padding-right:5px}.floor-tab[aria-pressed=true]{border-color:var(--accent);color:var(--accent);background:#1b2c3a}.floor-tab:hover{border-color:#75899c}
+    .map-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(310px,1fr);align-items:start;gap:24px}.map-panel{border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#101d2a,#0d1320);overflow:hidden}.map-hint{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:17px 22px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}.map-hint strong{color:var(--text);font-size:12px}.building{padding:6px 12px}.building svg{display:block;width:100%;height:auto}.building svg [role=button]{cursor:pointer;outline:none}.building svg .floor-active{filter:drop-shadow(0 0 6px #8ce3e350)}.building svg .floor-active>rect:first-of-type{stroke:#ccfefa;stroke-width:3}.building svg [role=button]:focus-visible>rect:first-of-type{stroke:#fff;stroke-width:4}
+    .detail{position:sticky;top:22px;padding:25px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(140deg,#162332,#101825);border-top:3px solid var(--accent)}.detail .eyebrow{color:var(--accent);margin-bottom:10px}.room-title{margin:0 0 13px;font-size:27px;letter-spacing:-.8px;line-height:1.2}.room-desc{color:var(--muted);font-size:14px;margin:0 0 21px}.room-list{list-style:none;padding:0;margin:0;display:grid;gap:15px}.room-list li{display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:13px}.room-list .icon{font-size:21px;line-height:1.3}.room-list b{display:block;font-size:14px;margin-bottom:2px}.room-list p{margin:0;color:var(--muted)}.access{margin-top:23px;padding-top:17px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.access b{color:var(--accent);display:block;font-size:13px;margin-bottom:4px}.note{margin:14px 0 0;padding:11px 13px;border:1px solid #455043;border-radius:9px;color:#ddd7ae;background:#2c2b1b4f;font-size:12px}
+    .map-actions{display:flex;gap:10px;flex-wrap:wrap;padding:18px 0 28px}.shared{padding:25px 0 36px;border-top:1px solid var(--line)}h2{font-size:23px;letter-spacing:-.6px;margin:0 0 8px}.shared-intro{color:var(--muted);font-size:14px;margin:0 0 20px}.shared-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.shared-card{padding:21px;border:1px solid var(--line);border-radius:13px;background:#111a27}.shared-card h3{margin:0 0 10px;font-size:15px}.shared-card p{color:var(--muted);font-size:13px;margin:0}.shared-card p+p{margin-top:9px}.food{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 0;font-size:19px}.route{margin:22px 0 0;padding:16px 20px;background:#11232b;border:1px solid #34565d;border-radius:12px;font-size:13px;color:#c5dddd}.route strong{color:var(--cyan)}footer{border-top:1px solid var(--line);padding:19px 0 27px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}footer a{color:var(--cyan)}
+    @media(max-width:940px){.wrap{padding:0 22px}.map-grid{grid-template-columns:minmax(0,1.25fr) minmax(290px,1fr);gap:16px}.detail{padding:21px}.shared-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{align-items:start}.date{padding-top:5px}.room-title{font-size:24px}}
+    @media(max-width:720px){.wrap{padding:0 16px}.top{padding-top:19px;padding-bottom:19px}.brand strong{font-size:11px;letter-spacing:1px}.brand small{font-size:9px}.top .button{font-size:11px;padding:9px 12px}.hero{display:block;padding-top:27px}.hero .date{margin-top:14px}.lead{font-size:14px}.stats{gap:15px;margin:20px 0;padding:12px 0}.stat{gap:5px}.stat strong{font-size:20px}.stat span{font-size:11px}.floor-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:17px}.floor-tab{text-align:left;font-size:12px}.floor-tab:last-child{grid-column:1/-1}.map-grid{grid-template-columns:1fr;gap:17px}.map-hint{padding:13px 16px;font-size:11px}.map-hint strong{font-size:11px}.building{padding:0 4px}.detail{position:static}.room-title{font-size:27px}.shared-grid{grid-template-columns:1fr}.shared-card{padding:19px}.shared{padding-top:22px}.map-actions{padding-bottom:23px}.map-actions .button{flex:1;font-size:12px}.route{padding:15px;font-size:12px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @media print{body{color:#152431;background:#fff}.wrap{max-width:none;padding:0}.top .button,.floor-nav,.map-actions{display:none}.hero{padding-top:20px}.map-grid{grid-template-columns:1.3fr 1fr}.detail{position:static;background:#fff;border-color:#abb6c0}.map-panel{print-color-adjust:exact;-webkit-print-color-adjust:exact}.room-desc,.room-list p,.access,.shared-card p,.lead,.date,footer{color:#465565}.shared-grid{grid-template-columns:repeat(3,1fr)}.shared-card{background:#fff;border-color:#aeb8c2;break-inside:avoid}.shared-card h3,.room-list b,.room-title{color:#152431}.stats strong{color:#152431}.stats span{color:#465565}.route{background:#effafa;color:#274548}.note{color:#6a5b26;background:#fff9e8}footer{margin-top:10px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="./" aria-label="Sala dos Robôs, abrir a sala 3D"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>SALA DOS ROBÔS</strong><small>LAS VEGAS NIGHT · IA + CLUB</small></span></a>
+      <a class="button primary" href="./">Abrir sala 3D <span aria-hidden="true">↗</span></a>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="map-title">
+        <div><p class="eyebrow">Mapa do sistema atual</p><h1 id="map-title">O prédio, <span>andar por andar.</span></h1><p class="lead">Do escritório à pista: veja os ambientes que já existem e o que dá para fazer em cada um. Escolha um andar no mapa ou nos botões abaixo.</p></div>
+        <div class="date">Conferido em <time datetime="2026-10-08">08/10/2026</time></div>
+      </section>
+      <div class="stats" aria-label="Resumo do sistema"><div class="stat"><strong>5</strong><span>andares acessíveis</span></div><div class="stat"><strong>10</strong><span>robôs traders</span></div><div class="stat"><strong>3</strong><span>jogos</span></div><div class="stat"><strong>9</strong><span>bebidas e comidas</span></div></div>
+      <nav class="floor-nav" aria-label="Escolher andar">
+        <button class="floor-tab" data-floor="office" aria-pressed="true"><b>40º</b> Escritório</button>
+        <button class="floor-tab" data-floor="games" aria-pressed="false"><b>41º</b> Jogos</button>
+        <button class="floor-tab" data-floor="disco" aria-pressed="false"><b>42º</b> Discoteca</button>
+        <button class="floor-tab" data-floor="lounge" aria-pressed="false"><b>43º</b> Lounge</button>
+        <button class="floor-tab" data-floor="show" aria-pressed="false"><b>44º</b> Las Vegas Night</button>
+      </nav>
+      <section class="map-grid" aria-label="Mapa e detalhes dos ambientes">
+        <div class="map-panel"><p class="map-hint"><strong>ANDAR SELECIONADO: <span id="selected-floor">40º</span></strong><span>Toque para explorar</span></p><div class="building" id="building">
+<!-- MAPA_SVG_BEGIN -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="900" viewBox="0 0 1000 900" role="group" aria-labelledby="building-map-title building-map-desc">
+  <title id="building-map-title">Sala dos Robôs — mapa do sistema</title>
+  <desc id="building-map-desc">Cinco andares ativos ligados por um elevador. O escritório fica no 40º andar; jogos no 41º; discoteca no 42º; lounge no 43º; e o show Las Vegas Night no 44º. A entrada pela fachada IA e Club leva ao escritório.</desc>
+  <defs>
+    <linearGradient id="night" x2="1" y2="1"><stop stop-color="#081020"/><stop offset="1" stop-color="#101025"/></linearGradient>
+    <linearGradient id="shaft" x2="1" y2="0"><stop stop-color="#1b2c42"/><stop offset=".5" stop-color="#111c32"/><stop offset="1" stop-color="#1b2c42"/></linearGradient>
+    <linearGradient id="door" x2="0" y2="1"><stop stop-color="#324765"/><stop offset="1" stop-color="#172a42"/></linearGradient>
+    <linearGradient id="stage" x2="0" y2="1"><stop stop-color="#7e3b70"/><stop offset="1" stop-color="#352d4c"/></linearGradient>
+    <linearGradient id="floor-glow" x2="1" y2="0"><stop stop-color="#41d6e3" stop-opacity=".15"/><stop offset="1" stop-color="#a976ff" stop-opacity=".03"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#7186b0" stroke-opacity=".04"/></pattern>
+    <pattern id="dance" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="#262246"/><rect width="12" height="12" fill="#6d3da5"/><rect x="12" y="12" width="12" height="12" fill="#317088"/></pattern>
+    <style>
+      text { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .floor { cursor: pointer; outline: none; }
+      .frame { fill: #101b2d; stroke: #28374d; stroke-width: 1.5; transition: stroke .18s, fill .18s; }
+      .floor:hover .frame, .floor:focus .frame, .floor.is-selected .frame, .floor.floor-active .frame { stroke: var(--accent); fill: #18253a; }
+      .floor-title { fill: #f3f7ff; font-size: 34px; font-weight: 750; letter-spacing: -.4px; }
+      .floor-sub { fill: #b5c3d8; font-size: 22px; }
+      .number { font-size: 32px; font-weight: 800; fill: var(--accent); }
+      .mini-label { fill: #a9b9cd; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-anchor: middle; }
+      .object-line { stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <rect width="1000" height="900" fill="url(#night)"/>
+  <rect width="1000" height="900" fill="url(#grid)"/>
+  <circle cx="975" cy="35" r="190" fill="#5939aa" opacity=".06"/>
+  <circle cx="20" cy="890" r="235" fill="#1c92ac" opacity=".05"/>
+
+  <!-- Marca e legenda do mapa. -->
+  <g transform="translate(48 35)" fill="none" stroke="#6ceaf5" stroke-width="2" class="object-line">
+    <rect x="0" y="3" width="43" height="35" rx="12" fill="#152b3e"/>
+    <path d="M21.5 3v-6M-4 17v9M47 17v9"/>
+    <circle cx="21.5" cy="-6" r="2.5" fill="#a781ff" stroke="none"/>
+    <circle cx="13" cy="17" r="3" fill="#6ceaf5" stroke="none"/>
+    <circle cx="30" cy="17" r="3" fill="#6ceaf5" stroke="none"/>
+    <path d="M14 28h15"/>
+  </g>
+  <text x="111" y="58" fill="#f4f7ff" font-size="30" font-weight="850" letter-spacing="1.8">SALA DOS ROBÔS</text>
+  <text x="111" y="81" fill="#8da2be" font-size="18" font-weight="650" letter-spacing="1.3">MAPA DO SISTEMA · 5 ANDARES ATIVOS</text>
+  <rect x="698" y="38" width="140" height="30" rx="15" fill="#14332f" stroke="#2d6359"/>
+  <circle cx="714" cy="53" r="4" fill="#6de5ba"/>
+  <text x="727" y="58" fill="#a3e9d1" font-size="12" font-weight="700">Estrutura atual</text>
+  <text x="915" y="105" fill="#95adc9" font-size="14" font-weight="700" letter-spacing="1.2" text-anchor="middle">ELEVADOR</text>
+
+  <!-- Um único eixo liga todos os andares. -->
+  <g aria-label="Elevador ligando os cinco andares">
+    <rect x="879" y="118" width="72" height="585" rx="17" fill="url(#shaft)" stroke="#496581" stroke-width="1.5"/>
+    <path d="M891 135v550M939 135v550" stroke="#7394b4" stroke-opacity=".28" stroke-width="2"/>
+    <path d="M915 138v548" stroke="#64d8ed" stroke-opacity=".5" stroke-width="2" stroke-dasharray="3 9"/>
+    <path d="m905 144 10-9 10 9M905 157l10-9 10 9" fill="none" stroke="#76e4f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M838 170h41M838 290h41M838 410h41M838 530h41M838 650h41" fill="none" stroke="#536b88" stroke-width="2"/>
+    <circle cx="879" cy="170" r="4" fill="#ecc77a"/>
+    <circle cx="879" cy="290" r="4" fill="#6cdcc8"/>
+    <circle cx="879" cy="410" r="4" fill="#b28cff"/>
+    <circle cx="879" cy="530" r="4" fill="#81dfa5"/>
+    <circle cx="879" cy="650" r="4" fill="#77c7ff"/>
+    <g transform="translate(886 617)">
+      <rect width="58" height="72" rx="8" fill="#0a1424" stroke="#76d9ea" stroke-width="1.5"/>
+      <rect x="7" y="23" width="44" height="42" rx="3" fill="url(#door)" stroke="#5b7794"/>
+      <path d="M29 24v40" stroke="#8faac4"/>
+      <text x="29" y="16" fill="#a6f3fa" font-size="10" font-weight="800" text-anchor="middle">40º</text>
+    </g>
+  </g>
+
+  <g id="floor-show" class="floor" style="--accent:#ecc77a" tabindex="0" role="button" aria-pressed="false" aria-label="44º andar, Las Vegas Night. Palco, bar e mesas para assistir ao show.">
+    <rect class="frame" x="48" y="118" width="790" height="105" rx="17"/>
+    <rect x="48" y="135" width="4" height="71" rx="2" fill="#ecc77a"/>
+    <rect x="72" y="145" width="67" height="50" rx="13" fill="#4c3e26" fill-opacity=".5"/>
+    <text class="number" x="105.5" y="179" text-anchor="middle">44º</text>
+    <text class="floor-title" x="158" y="161">Las Vegas Night</text>
+    <text class="floor-sub" x="158" y="188">Palco · bar · show</text>
+    <g transform="translate(495 133)">
+      <path d="M12 58 24 7h84l12 51Z" fill="#5f324f" fill-opacity=".27"/>
+      <path d="M26 10 57 58H13ZM105 10 118 58H74Z" fill="#ecc77a" fill-opacity=".14"/>
+      <rect x="12" y="44" width="108" height="16" rx="5" fill="url(#stage)" stroke="#9b6a91"/>
+      <path d="M12 63h108M29 49h74" stroke="#efc578" stroke-opacity=".65"/>
+      <path d="M24 7h84" stroke="#eed494" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#e7b4ce" stroke="#e7b4ce" stroke-width="3" stroke-linecap="round">
+        <circle cx="46" cy="25" r="4" stroke="none"/><path d="M46 30v10M36 34l10-3 10 3M46 40l-5 9M46 40l5 9"/>
+        <circle cx="85" cy="25" r="4" stroke="none"/><path d="M85 30v10M75 34l10-3 10 3M85 40l-5 9M85 40l5 9"/>
+      </g>
+    </g>
+    <g transform="translate(637 142)">
+      <rect x="0" y="9" width="68" height="42" rx="5" fill="#293146" stroke="#987c4c"/>
+      <rect x="-4" y="6" width="76" height="8" rx="3" fill="#947340"/>
+      <path d="M20 21v18M47 21v18" stroke="#e2c17f" stroke-opacity=".5"/>
+      <path d="M15 0h12l-3 6h-6ZM44 0h12l-3 6h-6Z" fill="#e1b7d6"/>
+    </g>
+    <g transform="translate(742 145)">
+      <ellipse cx="30" cy="25" rx="28" ry="18" fill="#34303f" stroke="#bb9664"/>
+      <ellipse cx="30" cy="25" rx="18" ry="10" fill="#4e3b41"/>
+      <rect x="21" y="-1" width="18" height="8" rx="3" fill="#705c51"/>
+      <rect x="21" y="44" width="18" height="8" rx="3" fill="#705c51"/>
+    </g>
+  </g>
+
+  <g id="floor-lounge" class="floor" style="--accent:#6cdcc8" tabindex="0" role="button" aria-pressed="false" aria-label="43º andar, Lounge. Sofás, bar, bebidas e narguilé virtual.">
+    <rect class="frame" x="48" y="238" width="790" height="105" rx="17"/>
+    <rect x="48" y="255" width="4" height="71" rx="2" fill="#6cdcc8"/>
+    <rect x="72" y="265" width="67" height="50" rx="13" fill="#204640" fill-opacity=".7"/>
+    <text class="number" x="105.5" y="299" text-anchor="middle">43º</text>
+    <text class="floor-title" x="158" y="281">Lounge</text>
+    <text class="floor-sub" x="158" y="308">Sofás · narguilé virtual</text>
+    <g transform="translate(507 260)">
+      <rect x="0" y="8" width="105" height="36" rx="9" fill="#244f52" stroke="#5b9892"/>
+      <rect x="9" y="28" width="41" height="24" rx="5" fill="#33676a" stroke="#5b9892"/>
+      <rect x="54" y="28" width="41" height="24" rx="5" fill="#33676a" stroke="#5b9892"/>
+      <rect x="-5" y="23" width="13" height="31" rx="5" fill="#285b5e" stroke="#5b9892"/>
+      <rect x="96" y="23" width="13" height="31" rx="5" fill="#285b5e" stroke="#5b9892"/>
+    </g>
+    <g transform="translate(649 258)" class="object-line">
+      <ellipse cx="29" cy="48" rx="22" ry="9" fill="#355253" stroke="#91baaa"/>
+      <path d="M21 44q-9-15 8-20 17 5 8 20Z" fill="#64929b" stroke="#c1ddd9"/>
+      <path d="M29 25V9M20 22h18M21 9h16l-4-5h-8Z" fill="none" stroke="#c1c8a5" stroke-width="2.5"/>
+      <path d="M34 26q29-8 26 10t9 6" fill="none" stroke="#6bafaa" stroke-width="3"/>
+      <path d="M29 1q-6-6 1-12" fill="none" stroke="#c4d1e3" stroke-opacity=".35" stroke-width="2"/>
+    </g>
+    <g transform="translate(752 261)">
+      <rect x="0" y="13" width="48" height="38" rx="4" fill="#2c3d41" stroke="#638b81"/>
+      <rect x="-4" y="8" width="56" height="8" rx="3" fill="#85a996"/>
+      <path d="M9 0h10l-2 8h-6ZM30 0h10l-2 8h-6Z" fill="#c49dc7"/>
+    </g>
+  </g>
+
+  <g id="floor-disco" class="floor" style="--accent:#b28cff" tabindex="0" role="button" aria-pressed="false" aria-label="42º andar, Discoteca. DJ, pista de dança, música e emojis.">
+    <rect class="frame" x="48" y="358" width="790" height="105" rx="17"/>
+    <rect x="48" y="375" width="4" height="71" rx="2" fill="#b28cff"/>
+    <rect x="72" y="385" width="67" height="50" rx="13" fill="#3b2c60" fill-opacity=".8"/>
+    <text class="number" x="105.5" y="419" text-anchor="middle">42º</text>
+    <text class="floor-title" x="158" y="401">Discoteca</text>
+    <text class="floor-sub" x="158" y="428">DJ · dança · emojis</text>
+    <g transform="translate(505 381)">
+      <rect x="0" y="17" width="80" height="36" rx="5" fill="#242942" stroke="#8d75b9"/>
+      <rect x="-4" y="13" width="88" height="9" rx="3" fill="#525078"/>
+      <circle cx="23" cy="17" r="10" fill="#182037" stroke="#c19ff4"/>
+      <circle cx="23" cy="17" r="3" fill="#c19ff4"/>
+      <circle cx="59" cy="17" r="10" fill="#182037" stroke="#c19ff4"/>
+      <circle cx="59" cy="17" r="3" fill="#c19ff4"/>
+    </g>
+    <g transform="translate(617 372)">
+      <path d="M50 0v9" stroke="#879bb9"/>
+      <circle cx="50" cy="20" r="12" fill="#a3b9d5" stroke="#d8daef"/>
+      <path d="M38 20h24M41 13h18M41 27h18M50 8v24M44 10v20M56 10v20" stroke="#596d8c" stroke-width=".8"/>
+      <rect x="0" y="39" width="100" height="36" rx="3" fill="url(#dance)" stroke="#9683cf"/>
+      <path d="M29 29 0 39M71 29l29 10" stroke="#b896f4" stroke-opacity=".4" stroke-dasharray="3 5"/>
+    </g>
+    <g transform="translate(752 386)" class="object-line">
+      <circle cx="24" cy="20" r="21" fill="#ead280" stroke="#f8e8a6"/>
+      <circle cx="17" cy="17" r="2" fill="#725126"/>
+      <circle cx="31" cy="17" r="2" fill="#725126"/>
+      <path d="M14 26q10 11 20 0" fill="none" stroke="#725126" stroke-width="2"/>
+      <path d="m48 1 5 4 5-4v10l-5 4-5-4Z" fill="#d49ddb"/>
+    </g>
+  </g>
+
+  <g id="floor-games" class="floor" style="--accent:#81dfa5" tabindex="0" role="button" aria-pressed="false" aria-label="41º andar, Sala de jogos. Sinuca, jogo de 21 com fichas fictícias e dardos com troféus virtuais.">
+    <rect class="frame" x="48" y="478" width="790" height="105" rx="17"/>
+    <rect x="48" y="495" width="4" height="71" rx="2" fill="#81dfa5"/>
+    <rect x="72" y="505" width="67" height="50" rx="13" fill="#234b38" fill-opacity=".8"/>
+    <text class="number" x="105.5" y="539" text-anchor="middle">41º</text>
+    <text class="floor-title" x="158" y="521">Sala de jogos</text>
+    <text class="floor-sub" x="158" y="548">Sinuca · 21 · dardos</text>
+    <g transform="translate(506 499)">
+      <rect x="0" y="7" width="105" height="50" rx="9" fill="#665544" stroke="#a18765"/>
+      <rect x="6" y="13" width="93" height="38" rx="4" fill="#265d46"/>
+      <g fill="#081b17"><circle cx="8" cy="15" r="3"/><circle cx="98" cy="15" r="3"/><circle cx="8" cy="50" r="3"/><circle cx="98" cy="50" r="3"/><circle cx="53" cy="13" r="3"/><circle cx="53" cy="51" r="3"/></g>
+      <path d="M12 40 76 25" stroke="#d6b789" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="38" cy="28" r="3.3" fill="#eff1e5"/><circle cx="80" cy="32" r="3" fill="#e9bb58"/><circle cx="85" cy="35" r="3" fill="#ad6cb7"/><circle cx="85" cy="29" r="3" fill="#e5847d"/>
+    </g>
+    <g transform="translate(635 499)">
+      <rect x="2" y="10" width="32" height="43" rx="4" fill="#e9eee8" transform="rotate(-9 18 31)"/>
+      <rect x="25" y="8" width="32" height="43" rx="4" fill="#fff6e6" transform="rotate(10 41 30)"/>
+      <text x="11" y="31" fill="#293448" font-size="15" font-weight="800">A</text>
+      <text x="31" y="31" fill="#bf5265" font-size="13" font-weight="800">10</text>
+      <circle cx="66" cy="46" r="9" fill="#213d32" stroke="#90d8af" stroke-width="2" stroke-dasharray="3 2"/>
+    </g>
+    <g transform="translate(749 495)">
+      <circle cx="28" cy="29" r="26" fill="#dddcc9" stroke="#74838f" stroke-width="2"/>
+      <circle cx="28" cy="29" r="21" fill="#223337" stroke="#c77079" stroke-width="4"/>
+      <circle cx="28" cy="29" r="14" fill="#dddcc9" stroke="#6fb997" stroke-width="4"/>
+      <path d="M28 3v52M2 29h52M10 11l36 36M10 47l36-36" stroke="#899693" stroke-width="1"/>
+      <circle cx="28" cy="29" r="5" fill="#cc6574"/>
+      <path d="m28 29 27-18" stroke="#ecebe4" stroke-width="2"/>
+      <path d="m55 11 6-6-2 8Z" fill="#bfcff4"/>
+      <path d="M61 41h13v9q-6.5 9-13 0ZM58 43h-3q0 8 7 8M77 43h3q0 8-7 8M67.5 56v6M61 63h13" fill="none" stroke="#e5c476" stroke-width="2"/>
+    </g>
+  </g>
+
+  <g id="floor-office" class="floor" style="--accent:#77c7ff" tabindex="0" role="button" aria-pressed="false" aria-label="40º andar, Escritório. Dez traders, telão de resultados simulados, recepcionista Aurora e geladeira.">
+    <rect class="frame" x="48" y="598" width="790" height="105" rx="17"/>
+    <rect x="48" y="615" width="4" height="71" rx="2" fill="#77c7ff"/>
+    <rect x="72" y="625" width="67" height="50" rx="13" fill="#253d5d" fill-opacity=".9"/>
+    <text class="number" x="105.5" y="659" text-anchor="middle">40º</text>
+    <text class="floor-title" x="158" y="641">Escritório</text>
+    <text class="floor-sub" x="158" y="668">10 traders · recepção</text>
+    <g transform="translate(506 617)">
+      <rect x="0" y="4" width="90" height="37" rx="4" fill="#182332" stroke="#7b9cc7"/>
+      <path d="m10 30 13-7 10 3 12-13 10 7 10-8 15-4" fill="none" stroke="#6cdbb3" stroke-width="2"/>
+      <path d="M0 45h102" stroke="#8c7970" stroke-width="5" stroke-linecap="round"/>
+      <path d="M6 46v13M90 46v13" stroke="#5e6681" stroke-width="3"/>
+      <rect x="59" y="28" width="30" height="18" rx="2" fill="#273751" stroke="#8cadcf"/>
+      <path d="M74 46v5M67 52h14" stroke="#8cadcf" stroke-width="2"/>
+    </g>
+    <g transform="translate(643 614)" class="object-line">
+      <ellipse cx="30" cy="60" rx="24" ry="5" fill="#47cfd2" fill-opacity=".12" stroke="#4b8caa"/>
+      <path d="M18 52V33q12-8 24 0v19" fill="#474068" stroke="#7d8db0" stroke-width="2"/>
+      <circle cx="30" cy="18" r="10" fill="#d7bcc0"/>
+      <path d="M20 17q-2-17 13-13 10 2 8 15" fill="#42375b" stroke="#a678ba" stroke-width="1.5"/>
+      <path d="M19 36 10 47M41 36l9 11M24 53v8M37 53v8" fill="none" stroke="#a8adce" stroke-width="3"/>
+      <circle cx="52" cy="12" r="6" fill="#1b4853" stroke="#69d6e7"/><path d="M52 9v6M49 12h6" stroke="#69d6e7"/>
+    </g>
+    <g transform="translate(756 618)">
+      <rect x="0" y="0" width="38" height="59" rx="5" fill="#385068" stroke="#96b5cb"/>
+      <path d="M0 20h38" stroke="#a1bdd0"/>
+      <path d="M30 7v7M30 27v12" stroke="#c6e1eb" stroke-width="2" stroke-linecap="round"/>
+      <rect x="7" y="6" width="10" height="7" rx="2" fill="#89c5c9"/>
+    </g>
+  </g>
+
+  <!-- A fachada é a porta de entrada para o escritório. -->
+  <path d="M123 738v-19" stroke="#72dbea" stroke-width="2" stroke-linecap="round"/>
+  <path d="m117 725 6-7 6 7" fill="none" stroke="#72dbea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="48" y="738" width="790" height="107" rx="17" fill="url(#floor-glow)" stroke="#395774" stroke-dasharray="5 5"/>
+  <g transform="translate(80 756)" class="object-line">
+    <rect x="0" y="0" width="106" height="62" rx="7" fill="#162338" stroke="#6689a8"/>
+    <path d="M6 9h94M22 10v37M83 10v37" stroke="#46cbdb" stroke-width="2"/>
+    <rect x="7" y="14" width="18" height="26" fill="#243e5c"/>
+    <rect x="81" y="14" width="18" height="26" fill="#3b2c58"/>
+    <rect x="34" y="22" width="39" height="40" rx="3" fill="#0b1324" stroke="#ac7ee4"/>
+    <path d="M53.5 23v38" stroke="#ae80e7"/>
+    <rect x="29" y="8" width="50" height="12" rx="2" fill="#172837" stroke="#59d7e5"/>
+    <text x="54" y="17" fill="#a4eff5" font-size="7" font-weight="800" text-anchor="middle">IA + CLUB</text>
+    <path d="M-6 64h119" stroke="#ae83f3" stroke-width="2"/>
+  </g>
+  <text x="220" y="778" fill="#f3f7ff" font-size="28" font-weight="750">Entrada · fachada IA + Club</text>
+  <text x="220" y="805" fill="#b5c3d8" font-size="22">Acesso ao escritório no 40º andar.</text>
+  <text x="48" y="881" fill="#869bb7" font-size="18">Visão esquemática · andares ligados por elevador</text>
+  <text x="951" y="881" fill="#657b97" font-size="11" text-anchor="end">SALA DOS ROBÔS</text>
+</svg>
+<!-- MAPA_SVG_END -->
+        </div></div>
+        <section class="detail" aria-labelledby="room-title" aria-live="polite" aria-atomic="true">
+          <p class="eyebrow" id="room-floor">40º andar · Sua chegada</p><h2 class="room-title" id="room-title">Escritório e recepção</h2><p class="room-desc" id="room-desc">O ponto de entrada da sala: Aurora recebe você enquanto os dez robôs acompanham o mercado simulado.</p>
+          <ul class="room-list" id="room-list"><li><span class="icon" aria-hidden="true">🤖</span><div><b>Aurora e os traders</b><p>Recepção e conversas com os dez robôs.</p></div></li><li><span class="icon" aria-hidden="true">📈</span><div><b>Mesas, monitores e telão</b><p>Operações e resultados do mercado simulado.</p></div></li><li><span class="icon" aria-hidden="true">🧊</span><div><b>Pausa e geladeira</b><p>Sofás, café e bebidas ou comidas para pegar.</p></div></li></ul>
+          <div class="access"><b id="room-access">Chegada pela recepção</b><span id="room-route">Entre pelo botão da sala. Use o elevador do escritório para visitar os andares de lazer.</span></div>
+          <p class="note" id="room-note">Os dados de mercado são simulados.</p>
+        </section>
+      </section>
+      <div class="map-actions"><a class="button" href="mapa-predio.svg" download="mapa-sala-dos-robos.svg">↓ Baixar o mapa</a><button class="button" id="print-map" type="button">Imprimir / salvar PDF</button></div>
+      <section class="shared" aria-labelledby="shared-title"><p class="eyebrow">Além das salas</p><h2 id="shared-title">Recursos que acompanham a visita</h2><p class="shared-intro">O elevador liga os ambientes. Música, pessoas e atendimento completam a experiência.</p>
+        <div class="shared-grid">
+          <article class="shared-card"><h3>🛗 Elevador entre os andares</h3><p>Portas com sensor, cabine, painel de destinos e viagem animada. Os atalhos das salas também usam o elevador.</p><p>Robôs e garçons mudam de andar por ele.</p></article>
+          <article class="shared-card"><h3>🎵 Música para a sala</h3><p>Rádio compartilhada com três estações: lo-fi, lounge e eletrônica. Cada visitante controla seu volume.</p><p>Spotify e arquivos do aparelho tocam só para quem escolheu.</p></article>
+          <article class="shared-card"><h3>🍽️ Comidas e bebidas na mão</h3><p>Água, refrigerante, suco, café, cerveja e vinho. Para comer: sanduíche, pizza e maçã. Com gestos de tomar e comer.</p><div class="food" aria-hidden="true">💧 🥤 🍊 ☕ 🍺 🍷 🥪 🍕 🍎</div></article>
+          <article class="shared-card"><h3>🧑‍🍳 Atendimento de Caio e Sofia</h3><p>Garçom e garçonete com bandejas, cardápio e entrega dos pedidos. O show também tem suas próprias atendentes.</p></article>
+          <article class="shared-card"><h3>💬 Outras pessoas na sala</h3><p>Visitantes ao vivo, chat de texto e voz em 3D. Na pista, as pessoas compartilham danças e reações com emojis.</p></article>
+          <article class="shared-card"><h3>👤 Exploração e conquistas</h3><p>Primeira ou terceira pessoa, controles no computador e no celular. Dardos salvam recorde e medalhas no navegador; a sinuca tem ranking online.</p></article>
+        </div>
+        <p class="route"><strong>Como circular:</strong> entrada → recepção no 40º → elevador → 41º jogos / 42º discoteca / 43º lounge / 44º show. Cada ambiente é separado e a troca de andar acontece pelo elevador.</p>
+      </section>
+    </main>
+    <footer><span>Mapa esquemático dos ambientes já implementados. Fichas e prêmios são virtuais.</span><a href="https://github.com/WillianSeS/sala-dos-robos">Ver projeto no GitHub ↗</a></footer>
+  </div>
+  <script>
+    const floors = {
+      office:{n:40,name:'Escritório e recepção',sub:'Sua chegada',color:'#8ce3e3',description:'O ponto de entrada da sala: Aurora recebe você enquanto os dez robôs acompanham o mercado simulado.',items:[['🤖','Aurora e os traders','Recepção cyber e conversas com os dez robôs.'],['📈','Mesas, monitores e telão','Operações e resultados do mercado simulado.'],['🧊','Pausa e geladeira','Sofás, café e bebidas ou comidas para pegar.']],access:'Chegada pela recepção',route:'Entre pelo botão da sala. Use o elevador do escritório para visitar os andares de lazer.',note:'Os dados de mercado são simulados.'},
+      games:{n:41,name:'Sala de jogos',sub:'Jogue e conquiste',color:'#a4ecc0',description:'Um andar dedicado aos jogos, separado do escritório. Treine, desafie os robôs e conquiste troféus digitais.',items:[['🎱','Sinuca','Jogue contra um robô ou treine. Há ranking de vitórias online.'],['🃏','Clube do 21','Cartas contra os traders usando fichas fictícias.'],['🎯','Dardos e troféus','Nove lançamentos por partida. Bronze aos 80 pontos, prata aos 160, ouro aos 240 e conquista pelo centro.']],access:'Elevador → 41º andar',route:'Escolha Sala de jogos no elevador ou use o atalho Jogos. Na sala, toque no botão Dardos ou aproxime-se do alvo.',note:'Recorde e medalhas dos dardos ficam neste navegador. Prêmios e fichas são virtuais.'},
+      disco:{n:42,name:'Discoteca dos Robôs',sub:'Solte os passos',color:'#ca9bf4',description:'Pista iluminada com DJ, globo espelhado e efeitos de festa. Você pode dançar e chamar os robôs disponíveis.',items:[['🪩','Pista, DJ e luzes','Piso colorido, bancos, globo espelhado, fumaça e refletores.'],['💃','Três estilos de dança','Escolha groove, disco ou festa e convide os robôs.'],['🎉','Emojis e companhia','Reações na pista e danças visíveis para outros visitantes.']],access:'Elevador → 42º andar',route:'Escolha Discoteca no elevador ou use o atalho da discoteca. Abra o painel Pista para danças e emojis.',note:'Convites dependem de os robôs estarem disponíveis.'},
+      lounge:{n:43,name:'Smoking Lounge',sub:'Faça uma pausa',color:'#edc58c',description:'Um ambiente para relaxar: sofás, bebidas, petiscos, atendimento e duas mesas de narguilé virtual.',items:[['🛋️','Sofás e descanso','Quatro lugares para sentar e conversar.'],['🍷','Balcão e atendimento','Peça bebidas e petiscos ou chame Caio e Sofia pelo cardápio.'],['💨','Narguilé virtual','Duas mesas, mangueira e gestos de fumar com fumaça leve.']],access:'Elevador → 43º andar',route:'Escolha Lounge no elevador ou use o atalho Lounge. Aproxime-se do balcão, sofá ou mesa de narguilé para interagir.',note:'O smoking é apenas uma animação virtual dentro da sala.'},
+      show:{n:44,name:'Las Vegas Night',sub:'O show no topo',color:'#f4a6c6',description:'Palco, bar e mesas para assistir ao show, com três dançarinas e atendentes que vêm até você.',items:[['✨','Palco e espetáculo','Três dançarinas, cortinas, refletores e clima de festa.'],['🍸','Bar e atendentes','Ofertas de bebida, companhia para dançar e mesas para assistir.'],['🪑','Mesas e gorjetas','Quatro mesas com oito assentos. Gorjetas usam dez fichas de brincadeira do 21.']],access:'Elevador → 44º andar',route:'Escolha Las Vegas Night no elevador ou use o atalho do show. Fale com as atendentes ou aproxime-se do palco.',note:'Show e personagens são locais para cada visitante. As gorjetas usam fichas virtuais.'}
+    };
+    const byId=id=>document.getElementById(id);
+    function selectFloor(key,writeHash=true){
+      const floor=floors[key]; if(!floor)return;
+      document.documentElement.style.setProperty('--accent',floor.color);
+      document.querySelectorAll('.floor-tab').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.floor===key)));
+      Object.keys(floors).forEach(name=>{const row=byId('floor-'+name);if(row){row.classList.toggle('floor-active',name===key);row.setAttribute('aria-pressed',String(name===key));}});
+      byId('selected-floor').textContent=floor.n+'º';byId('room-floor').textContent=floor.n+'º andar · '+floor.sub;byId('room-title').textContent=floor.name;byId('room-desc').textContent=floor.description;
+      byId('room-list').replaceChildren(...floor.items.map(([emoji,title,body])=>{const row=document.createElement('li'),icon=document.createElement('span'),content=document.createElement('div'),heading=document.createElement('b'),text=document.createElement('p');icon.className='icon';icon.setAttribute('aria-hidden','true');icon.textContent=emoji;heading.textContent=title;text.textContent=body;content.append(heading,text);row.append(icon,content);return row;}));
+      byId('room-access').textContent=floor.access;byId('room-route').textContent=floor.route;byId('room-note').textContent=floor.note;
+      if(writeHash&&location.hash!=='#'+key)history.replaceState(null,'','#'+key);
+    }
+    document.querySelectorAll('.floor-tab').forEach(button=>button.addEventListener('click',()=>selectFloor(button.dataset.floor)));
+    Object.keys(floors).forEach(key=>{const row=byId('floor-'+key);if(!row)return;row.addEventListener('click',()=>selectFloor(key));row.addEventListener('keydown',event=>{if(event.code==='Enter'||event.code==='Space'){event.preventDefault();selectFloor(key);}});});
+    byId('print-map').addEventListener('click',()=>window.print());
+    addEventListener('hashchange',()=>selectFloor(location.hash.slice(1),false));
+    selectFloor(floors[location.hash.slice(1)]?location.hash.slice(1):'office',false);
+  </script>
+</body>
+</html>

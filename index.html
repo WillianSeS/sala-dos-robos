@@ -158,6 +158,56 @@ body.touch .disco-shortcuts{top:calc(66px + env(safe-area-inset-top,0px))}body.t
 body.touch .disco-panel{max-height:calc(100dvh - 150px);overflow:auto}body.touch .host-offer{z-index:5}
 body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:190px}
 @media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}body.touch .show-bar{top:calc(86px + env(safe-area-inset-top,0px))}}
+/* Entrada: fachada à esquerda, recepção à direita. Estilos isolados do HUD da sala. */
+body.at-entrance .hud,body.at-entrance .labels,body.at-entrance .ctrl,body.at-entrance .mp,
+body.at-entrance .disco-shortcuts,body.at-entrance .cross,body.at-entrance .help,
+body.at-entrance .prompt,body.at-entrance .act,body.at-entrance .joy,
+body.at-entrance .held-bar,body.at-entrance .service-note,body.at-entrance .show-bar,
+body.at-entrance .mbtn,body.at-entrance .host-offer,body.at-entrance .talk,
+body.at-entrance .disco-panel,body.at-entrance .poolhud,body.at-entrance .elev-ride,
+body.at-entrance .spotify-dock,body.at-entrance #welcome,body.at-entrance #hostOffer,
+body.at-entrance #elevator,body.at-entrance #elevRide{display:none!important}
+#intro{inset:0;z-index:4;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,490px);align-items:center;gap:30px;padding:94px clamp(28px,5vw,96px) 64px;overflow:auto;pointer-events:auto;background:linear-gradient(90deg,rgba(4,8,15,.06) 24%,rgba(4,8,15,.38) 47%,rgba(4,8,15,.9) 75%),linear-gradient(180deg,rgba(4,8,15,.58),transparent 26%,transparent 70%,rgba(4,8,15,.65))}
+#intro .entrance-brand{position:absolute;top:calc(30px + env(safe-area-inset-top,0px));left:clamp(28px,5vw,96px);display:flex;align-items:center;gap:12px;color:#f2f5ff;letter-spacing:.1em;font:700 13px/1.5 var(--mono)}
+#intro .entrance-brand small{display:block;color:#a5b3c9;font:500 9px/1.7 var(--mono);letter-spacing:.18em}
+#intro .entrance-mark{display:grid;grid-template-columns:repeat(2,10px);gap:4px;padding:8px;border:1px solid #76e2eb4d;border-radius:10px;background:#0a152078;box-shadow:0 0 22px #63eaff12}
+#intro .entrance-mark i{width:10px;height:10px;border-radius:2px;background:#91e9ed;box-shadow:0 0 9px #52e9ec30}
+#intro .entrance-mark i:last-child{background:#d794ef}
+#intro .entrance-scene-note{position:absolute;left:clamp(28px,5vw,96px);bottom:34px;display:flex;align-items:center;gap:10px;font:500 10px/1.6 var(--mono);letter-spacing:.14em;color:#b9cbd9;text-shadow:0 1px 5px #000}
+#intro .entrance-scene-note i{width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#99e9de;box-shadow:0 0 12px #79e9db60}
+#intro .card{grid-column:2;box-sizing:border-box;width:100%;max-width:none;padding:30px;gap:18px;border-radius:20px;border:1px solid #b9cafa2b;background:linear-gradient(140deg,rgba(17,29,45,.85),rgba(14,17,32,.9));box-shadow:0 18px 70px #0005,inset 0 1px 0 #e4f4ff0a;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#intro .entrance-eyebrow{font:500 10px/1.5 var(--mono);letter-spacing:.18em;color:#abdfe5;display:flex;align-items:center;gap:8px}
+#intro .entrance-eyebrow::before{content:"";width:18px;height:1px;background:#9be3e8}
+#intro h1{font:700 clamp(36px,3.4vw,52px)/1.08 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.055em;text-wrap:balance;color:#f3f6ff}
+#intro h1 span{display:block}
+#intro h1 em{font:inherit;font-style:normal;color:#caa3f3;background:linear-gradient(100deg,#96e8ee,#d1a6f4 76%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#intro .entrance-copy{color:#b9c4d5;font:400 15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:360px}
+#intro .entrance-experiences{display:flex;gap:7px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+#intro .entrance-experiences li{display:flex;align-items:center;gap:6px;border:1px solid #b3c0e025;border-radius:7px;padding:7px 9px;background:#e1ecff05;color:#d1ddeb;font:500 10px/1.3 var(--mono)}
+#intro .entrance-experiences span{font-size:13px;line-height:1}
+#intro .entrance-divider{height:1px;background:linear-gradient(90deg,#9fe7ed3b,#b792ee26,transparent)}
+#intro .nick{display:grid;gap:8px}
+#intro .nick label{color:#d0dbea;font:500 11px/1.5 var(--mono)}
+#intro .nick input{box-sizing:border-box;width:100%;min-height:48px;padding:12px 14px;border-radius:9px;background:#070f1bd9;border:1px solid #a4bed846;font:400 15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f3f8ff;-webkit-user-select:text;user-select:text}
+#intro .nick input::placeholder{color:#7f94aa;opacity:1}
+#intro .nick input:focus-visible{outline:2px solid #93e0e6;outline-offset:3px;border-color:#83dae5}
+#intro .row{display:grid;gap:9px}
+#intro #btnEnter{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:52px;padding:13px 17px;border-radius:9px;border:1px solid #b8eff8;background:linear-gradient(110deg,#a1e8ed,#b7d9f7);color:#132335;font:700 14px var(--mono);box-shadow:0 0 23px #7edbe915;transition:background .2s,box-shadow .2s}
+#intro #btnEnter::after{content:"→";font:500 23px/1 Arial,sans-serif}
+#intro #btnEnter:hover{background:#c4f3f7;box-shadow:0 0 25px #a4eefa2b}
+#intro #btnEnter:focus-visible{outline:2px solid #e7efff;outline-offset:4px}
+#intro #btnEnter:disabled{opacity:.55;cursor:wait}
+#intro #status{display:block;min-height:15px;font:500 10px/1.6 var(--mono);color:#a7bdd0;letter-spacing:0;text-align:center}
+#intro #status.err{color:#ffb4b4}
+#intro .entrance-credit{grid-column:2;margin:0;align-self:start;color:#8ea0b5;font:400 9px/1.6 var(--mono);letter-spacing:0}
+@media(min-width:901px){#intro .card{align-self:end}#intro{row-gap:12px;grid-template-rows:1fr minmax(15px,.6fr)}}
+@media(max-width:1100px) and (min-width:901px){#intro{grid-template-columns:minmax(0,1fr) minmax(370px,430px);padding-left:28px;padding-right:28px;gap:24px}#intro .entrance-brand,#intro .entrance-scene-note{left:28px}#intro .card{padding:25px}#intro h1{font-size:38px}}
+@media(max-width:900px){#intro{display:block;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(4,8,15,.35),transparent 16%,rgba(4,8,15,.08) 26%,rgba(4,8,15,.78) 42%,#050a13 70%)}#intro .entrance-brand{top:calc(20px + env(safe-area-inset-top,0px));left:22px;font-size:11px;gap:10px}#intro .entrance-brand small{font-size:8px}#intro .entrance-mark{grid-template-columns:repeat(2,8px);gap:3px;padding:7px;border-radius:9px}#intro .entrance-mark i{width:8px;height:8px}#intro .entrance-scene-note{left:24px;top:calc(clamp(180px,31svh,280px) - 8px);bottom:auto;font-size:9px}#intro .card{margin:clamp(180px,31svh,280px) auto 0;width:min(100%,490px);padding:22px;gap:14px;border-radius:16px;background:linear-gradient(145deg,#101d2bef,#131527f5)}#intro h1{font-size:clamp(30px,8.2vw,38px);letter-spacing:-.05em}#intro .entrance-copy{font-size:14px;line-height:1.5;max-width:none}#intro .entrance-eyebrow{font-size:9px;letter-spacing:.15em}#intro .entrance-experiences li{font-size:9px;padding:7px 6px;gap:5px}#intro .entrance-experiences span{font-size:12px}#intro .entrance-credit{width:min(100%,490px);margin:11px auto 0;font-size:8px;line-height:1.6}#intro #btnEnter{min-height:49px}#intro .nick input{min-height:46px}}
+@media(max-height:620px) and (min-width:901px){#intro{grid-template-rows:auto auto;padding-top:90px;padding-bottom:22px;align-items:start}#intro .card{align-self:start;padding:20px;gap:12px}#intro h1{font-size:36px}#intro .entrance-copy{font-size:13px}#intro .entrance-credit{align-self:start}}
+@media(max-height:540px) and (max-width:900px){#intro .card{margin-top:80px;padding:20px}#intro .entrance-scene-note{display:none}#intro h1{font-size:30px}#intro .entrance-copy{font-size:13px}}
+@media(prefers-reduced-motion:reduce){#intro #btnEnter{transition:none}}
+
+#intro::before{content:'';position:fixed;top:0;left:0;right:0;height:95px;background:linear-gradient(#04080fdd,#04080f00);pointer-events:none}#intro .entrance-brand{z-index:1}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -250,16 +300,20 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
     <div class="pool-tip" id="poolTip"></div>
   </div>
 </div>
-<div class="intro" id="intro">
-  <div class="card welcome-card">
-    <h1>Bem-<em>vindo</em></h1>
-    <p class="welcome-sub">ao hotel Las Vegas Night</p>
-    <label for="nick" class="welcome-ask">Como deseja ser chamado?</label>
-    <input id="nick" maxlength="24" autocomplete="nickname" placeholder="Seu nome">
-    <button id="btnEnter" class="btn" disabled>Entrar</button>
-    <span class="small" id="status">Carregando o hotel…</span>
+<section class="intro" id="intro" aria-labelledby="entranceTitle">
+  <div class="entrance-brand"><span class="entrance-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div>LAS VEGAS NIGHT<small>SALA DOS ROBÔS · IA + CLUB</small></div></div>
+  <div class="entrance-scene-note"><i aria-hidden="true"></i>LAS VEGAS NIGHT · NOITE</div>
+  <div class="card">
+    <div class="entrance-eyebrow">BEM-VINDO AO LAS VEGAS NIGHT</div>
+    <h1 id="entranceTitle"><span>Robôs no pregão.</span><span><em>Você na pista.</em></span></h1>
+    <p class="entrance-copy">Entre no escritório e suba de elevador para jogar, dançar e relaxar com os robôs.</p>
+    <ul class="entrance-experiences" aria-label="Ambientes da sala"><li><span aria-hidden="true">⌘</span> Escritório IA</li><li><span aria-hidden="true">◈</span> Jogos e lounge</li><li><span aria-hidden="true">♫</span> Discoteca</li></ul>
+    <div class="entrance-divider" aria-hidden="true"></div>
+    <div class="nick"><label for="nick">Como vamos chamar você?</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Seu nome na sala" aria-describedby="status"></div>
+    <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status" role="status">Carregando o hotel…</span></div>
   </div>
-</div>
+  <p class="entrance-credit">Pessoas 3D: Microsoft Rocketbox · licença MIT. Nomes fictícios. Cidade desenhada.</p>
+</section>
 <script>
 window.addEventListener('error',function(e){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='Erro ao carregar: '+(e.message||'desconhecido');}});
 setTimeout(function(){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='O motor 3D não carregou. Verifique a conexão e recarregue a página.';}},20000);
@@ -1157,6 +1211,67 @@ linearLamp(8, 7.2, 2.5); linearLamp(8, 12.1, 2.5);
 spot(8, 3.12, 12.1, 8, 0, 12.1, 24, 1.05, 0xffe0b8, false);
 spot(5.5, 3.12, 7.4, 5.5, 0, 7.4, 18, 1.05, 0xffe0b8, false);
 
+/* ================= dardos: alvo e vitrine na sala de jogos ================= */
+const DARTS_LAYOUT = { x: 11.91, y: 1.72, z: 11, radius: .5, scoreRadius: .42, stand: { x: 9.6, z: 11 } };
+const DARTS_NUMBERS = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+const DARTS_VISUAL = { darts: new THREE.Group(), board: null, pick: null, aim: null, awards: [] };
+GROUPS.gamesRight.add(DARTS_VISUAL.darts);
+const dartBack = MC('#101b23', .87), dartRim = MC('#5f7280', .33, .7);
+B(dartBack, 11.955, 1.72, 11, .038, 1.35, 1.25, { group: 'gamesRight', cast: false });
+S(new THREE.TorusGeometry(.504, .012, 8, 80), dartRim, 11.921, 1.72, 11, 0, -Math.PI / 2, 0, 1, 1, 1, { group: 'gamesRight', cast: false });
+const dartTex = canvasTex(1024, 1024, (g, w, h) => {
+  const c = w / 2, r = w * .42, full = w * .5;
+  g.fillStyle = '#121b20'; g.fillRect(0, 0, w, h);
+  g.save(); g.translate(c, c);
+  for (let i = 0; i < 20; i++) {
+    const a = -Math.PI / 2 + (i - .5) * Math.PI / 10, b = a + Math.PI / 10;
+    g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, r, a, b); g.closePath();
+    g.fillStyle = i % 2 ? '#ebe1c8' : '#18232a'; g.fill();
+    for (const [inner, outer] of [[.582, .629], [.953, 1]]) {
+      g.beginPath(); g.arc(0, 0, r * outer, a, b); g.arc(0, 0, r * inner, b, a, true); g.closePath();
+      g.fillStyle = i % 2 ? '#236d55' : '#b13835'; g.fill();
+    }
+    const t = -Math.PI / 2 + i * Math.PI / 10;
+    g.fillStyle = '#f5f0df'; g.font = '600 45px ' + FONT; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(DARTS_NUMBERS[i], Math.cos(t) * full * .935, Math.sin(t) * full * .935);
+  }
+  g.strokeStyle = '#aeb5ac'; g.lineWidth = 1.7;
+  for (const scale of [.0935, .582, .629, .953, 1]) { g.beginPath(); g.arc(0, 0, r * scale, 0, Math.PI * 2); g.stroke(); }
+  for (let i = 0; i < 20; i++) {
+    const a = -Math.PI / 2 + (i - .5) * Math.PI / 10;
+    g.beginPath(); g.moveTo(Math.cos(a) * r * .0935, Math.sin(a) * r * .0935); g.lineTo(Math.cos(a) * r, Math.sin(a) * r); g.stroke();
+  }
+  for (const [scale, color] of [[.0935, '#236d55'], [.0374, '#b13835']]) {
+    g.beginPath(); g.arc(0, 0, r * scale, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.stroke();
+  }
+  g.restore();
+});
+DARTS_VISUAL.board = mesh(new THREE.CircleGeometry(.5, 80), new THREE.MeshBasicMaterial({ map: dartTex, toneMapped: false }), GROUPS.gamesRight, DARTS_LAYOUT.x, DARTS_LAYOUT.y, DARTS_LAYOUT.z, 0, -Math.PI / 2, 0, 1, 1, 1, false);
+// Painel real: o Raycaster alcança também a borda para contabilizar erros.
+DARTS_VISUAL.pick = mesh(new THREE.PlaneGeometry(1.2, 1.2), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }), GROUPS.gamesRight, DARTS_LAYOUT.x - .004, DARTS_LAYOUT.y, DARTS_LAYOUT.z, 0, -Math.PI / 2, 0, 1, 1, 1, false);
+DARTS_VISUAL.aim = new THREE.Group(); GROUPS.gamesRight.add(DARTS_VISUAL.aim);
+const dartAimMat = new THREE.MeshBasicMaterial({ color: '#8bfcdf', transparent: true, opacity: .95, depthTest: false, toneMapped: false });
+mesh(new THREE.RingGeometry(.011, .014, 24), dartAimMat, DARTS_VISUAL.aim, 0, 0, 0, 0, -Math.PI / 2, 0, 1, 1, 1, false);
+for (const [dy, dz, h, d] of [[0, -.023, .003, .012], [0, .023, .003, .012], [-.023, 0, .012, .003], [.023, 0, .012, .003]]) mesh(G.box, dartAimMat, DARTS_VISUAL.aim, 0, dy, dz, 0, 0, 0, .002, h, d, false);
+DARTS_VISUAL.aim.visible = false;
+clubSign('DARDOS', '9 LANÇAMENTOS • PRÊMIOS VIRTUAIS', 11.89, 2.58, 11, 1.48, .42, 'gamesRight', -Math.PI / 2);
+B(M({ color: '#163d36', emissive: '#35dcb2', emissiveIntensity: .8, roughness: .8 }), 9.6, .014, 11, .028, .02, 1.25, { cast: false });
+spot(10.95, 3.08, 11, 11.91, 1.72, 11, 10, .53, 0xffefd5, false);
+/* Vitrine de troféus: encostada à parede, fora do caminho do lounge. */
+B(mat.walnut, 11.74, .78, 12.97, .35, .10, 1.35, { group: 'gamesRight' });
+B(dartBack, 11.91, 1.17, 12.97, .08, .7, 1.40, { group: 'gamesRight', cast: false });
+C(11.53, 12, 12.26, 13.68);
+for (const [i, color] of ['#cb8b55', '#ccdbe0', '#eec552'].entries()) {
+  const z = 12.52 + i * .45, metal = M({ color, roughness: .23, metalness: .85 });
+  S(G.cyl, dartBack, 11.66, .87, z, 0, 0, 0, .085, .07, .085, { group: 'gamesRight' });
+  S(G.cyl, metal, 11.66, .96, z, 0, 0, 0, .023, .13, .023, { group: 'gamesRight' });
+  S(new THREE.CylinderGeometry(.098, .043, .14, 24), metal, 11.66, 1.09, z, 0, 0, 0, 1, 1, 1, { group: 'gamesRight' });
+  for (const dz of [-.095, .095]) S(new THREE.TorusGeometry(.049, .01, 8, 18), metal, 11.66, 1.085, z + dz, 0, Math.PI / 2, 0, 1, 1, 1, { group: 'gamesRight' });
+  const glow = mesh(new THREE.CircleGeometry(.044, 20), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .2, toneMapped: false }), GROUPS.gamesRight, 11.555, .87, z, 0, -Math.PI / 2, 0, 1, 1, 1, false);
+  DARTS_VISUAL.awards.push(glow);
+}
+clubSign('GALERIA DE PRÊMIOS', 'BRONZE 80 • PRATA 160 • OURO 240', 11.89, 1.58, 12.97, 1.8, .42, 'gamesRight', -Math.PI / 2);
+
 /* ================= lounge separado: bebidas, petiscos e smoking virtual ================= */
 const LOUNGE_LAYOUT = {
   hooks: [
@@ -1604,6 +1719,115 @@ function extBulbs(points, size = 0.35) {
     const beam = new THREE.Mesh(new THREE.ConeGeometry(4, 120, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#bfe3ff', transparent: true, opacity: 0.07, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
     beam.geometry.translate(0, -60, 0); const pivot = new THREE.Group(); pivot.position.set(EXT.o.x + (i % 2 ? 9 : -9), 14 + h + 8, EXT.o.z + (i < 2 ? 6 : -6));
     beam.rotation.x = Math.PI; pivot.add(beam); EXT.group.add(pivot); EXT.beams.push(pivot);
+  }
+}
+/* Pódio Sala dos Robôs: escritório de IA e club compartilham a chegada.
+   Tudo fica no exterior remoto; não modifica as salas nem o elevador. */
+{
+  const front = EXT.o.z + (EXT.d + 14) / 2 + 0.1;
+  const facade = new THREE.Group(); facade.name = 'Fachada Sala dos Robôs — IA & Club'; EXT.group.add(facade);
+  EXT.clubFacade = facade; EXT.entryTarget = new THREE.Vector3(EXT.o.x, 7, front);
+  const materials = {
+    metal: new THREE.MeshBasicMaterial({ color: '#1a2939' }),
+    frame: new THREE.MeshBasicMaterial({ color: '#607587' }),
+    cyan: new THREE.MeshBasicMaterial({ color: '#6ce5ec', toneMapped: false }),
+    purple: new THREE.MeshBasicMaterial({ color: '#d885e5', toneMapped: false }),
+  };
+  const box = (mat, x, y, z, w, h, d) => {
+    const m = new THREE.Mesh(G.box, mat); m.position.set(EXT.o.x + x, y, z); m.scale.set(w, h, d); facade.add(m); return m;
+  };
+  const panel = (tex, x, y, z, w, h, opacity = 1) => {
+    const mat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, transparent: opacity < 1, opacity, depthWrite: opacity === 1 });
+    const m = new THREE.Mesh(G.plane, mat); m.position.set(EXT.o.x + x, y, z); m.scale.set(w, h, 1); facade.add(m); return m;
+  };
+  /* Vidros refletindo as luzes, com a leitura dos ambientes atrás da fachada. */
+  for (const club of [false, true]) {
+    const center = club ? 20 : -20;
+    const glass = canvasTex(1024, 384, (g, w, h) => {
+      const background = g.createLinearGradient(0, 0, w, h);
+      background.addColorStop(0, club ? '#20132e' : '#163345'); background.addColorStop(1, '#0b141e');
+      g.fillStyle = background; g.fillRect(0, 0, w, h);
+      /* Perspectiva do teto e do piso, sem texturas ou modelos externos. */
+      g.strokeStyle = club ? '#503466' : '#355a68'; g.lineWidth = 3;
+      for (let i = 0; i < 7; i++) {
+        g.beginPath(); g.moveTo(i * w / 6, h); g.lineTo(w / 2 + (i - 3) * 45, h * .54); g.stroke();
+      }
+      g.fillStyle = club ? '#c282d4' : '#9fcad2';
+      for (const x of [105, 355, 605, 855]) g.fillRect(x, 48, 138, 4);
+      if (club) {
+        /* Cabine de DJ, globo e barras discretas de um equalizador. */
+        g.fillStyle = '#192030'; g.fillRect(335, 218, 365, 66);
+        g.fillStyle = '#9764ad'; g.fillRect(350, 229, 335, 3);
+        g.strokeStyle = '#d6b7e7'; g.lineWidth = 2; g.beginPath(); g.moveTo(514, 0); g.lineTo(514, 105); g.stroke();
+        g.fillStyle = '#9bacd1'; g.beginPath(); g.arc(514, 119, 22, 0, Math.PI * 2); g.fill();
+        for (let i = 0; i < 12; i++) {
+          g.fillStyle = i < 6 ? '#5fbed0' : '#b372c3'; const bh = 15 + (i % 4) * 9;
+          g.fillRect(393 + i * 21, 211 - bh, 12, bh);
+        }
+        g.fillStyle = '#d7a5e6'; g.font = '700 38px Arial, sans-serif'; g.textAlign = 'center'; g.fillText('CLUB • MÚSICA • DANÇA', w / 2, h - 32);
+      } else {
+        /* Mesas, monitores de IA e linhas de mercado sugerem o escritório. */
+        for (const x of [65, 310, 555, 800]) {
+          g.fillStyle = '#1a2839'; g.fillRect(x, 170, 157, 75);
+          g.fillStyle = '#60c9d7'; g.fillRect(x + 8, 179, 141, 4);
+          g.strokeStyle = '#65d9ce'; g.lineWidth = 3; g.beginPath();
+          for (let i = 0; i < 9; i++) { const px = x + 16 + i * 16, py = 219 - i * 2 + Math.sin(i * 1.6) * 9; if (i) g.lineTo(px, py); else g.moveTo(px, py); } g.stroke();
+          g.fillStyle = '#43516a'; g.fillRect(x - 15, 249, 185, 7); g.fillRect(x + 75, 245, 8, 49);
+        }
+        g.fillStyle = '#8cdfe7'; g.font = '700 38px Arial, sans-serif'; g.textAlign = 'center'; g.fillText('ESCRITÓRIO • INTELIGÊNCIA ARTIFICIAL', w / 2, h - 32);
+      }
+      /* Reflexo diagonal comum aos vidros dos dois ambientes. */
+      g.fillStyle = 'rgba(158,206,237,.08)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(w * .66, 0); g.lineTo(w * .4, h); g.lineTo(0, h); g.closePath(); g.fill();
+    });
+    panel(glass, center, 4.35, front + .035, 18, 6.05, .94);
+    box(materials.metal, center, 1.23, front + .06, 18.35, .15, .12);
+    box(materials.metal, center, 7.47, front + .06, 18.35, .15, .12);
+    for (const dx of [-9.1, -4.55, 0, 4.55, 9.1]) box(materials.frame, center + dx, 4.35, front + .07, .12, 6.35, .15);
+    box(club ? materials.purple : materials.cyan, center, 7.57, front + .145, 18.35, .045, .025);
+  }
+  /* Marca do complexo acima da marquise dourada existente. */
+  box(materials.metal, 0, 10.94, front + .025, 44.4, 3.68, .18);
+  const brand = canvasTex(2048, 180, (g, w, h) => {
+    g.fillStyle = '#0d1a29'; g.fillRect(0, 0, w, h);
+    const gradient = g.createLinearGradient(0, 0, w, 0); gradient.addColorStop(0, '#69e5ed'); gradient.addColorStop(1, '#d684df');
+    g.strokeStyle = gradient; g.lineWidth = 3; g.strokeRect(4, 4, w - 8, h - 8);
+    /* Pequeno robô liga a identidade do escritório à iluminação do club. */
+    g.fillStyle = '#72e4e7'; g.beginPath(); g.roundRect(88, 37, 118, 92, 17); g.fill();
+    g.fillStyle = '#102937'; g.beginPath(); g.roundRect(99, 50, 96, 61, 12); g.fill();
+    g.fillStyle = '#e3fbff'; for (const x of [124, 170]) { g.beginPath(); g.arc(x, 72, 7, 0, Math.PI * 2); g.fill(); }
+    g.strokeStyle = '#e899e5'; g.lineWidth = 4; g.beginPath(); g.moveTo(125, 96); g.lineTo(168, 96); g.stroke();
+    g.strokeStyle = '#72e4e7'; g.beginPath(); g.moveTo(148, 37); g.lineTo(148, 21); g.stroke();
+    g.fillStyle = '#d783de'; g.beginPath(); g.arc(148, 18, 6, 0, Math.PI * 2); g.fill();
+    g.textAlign = 'center'; g.fillStyle = '#f1faff'; g.font = '700 108px Arial, sans-serif'; g.fillText('SALA DOS ROBÔS', w / 2 + 50, 104);
+    g.fillStyle = '#a9d6e7'; g.font = '500 29px Arial, sans-serif'; g.fillText('ESCRITÓRIO IA  ·  JOGOS  ·  DISCOTECA  ·  LOUNGE', w / 2 + 50, 151);
+    /* Circuitos simétricos acendem as pontas da faixa sem flashes. */
+    g.strokeStyle = '#436f86'; g.lineWidth = 2;
+    for (const side of [-1, 1]) for (let i = 0; i < 4; i++) {
+      const x = side < 0 ? 22 : w - 22, dx = side < 0 ? 28 : -28, y = 35 + i * 34;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + dx, y); g.lineTo(x + dx * 1.25, y + 8); g.stroke();
+    }
+  });
+  EXT.podiumBrand = panel(brand, 0, 10.94, front + .135, 44, 3.6);
+  /* Portal de chegada: batentes cyan/purple, maçanetas e vidro fumê. */
+  const doors = canvasTex(512, 384, (g, w, h) => {
+    const gradient = g.createLinearGradient(0, 0, w, h); gradient.addColorStop(0, '#224959'); gradient.addColorStop(1, '#15223e');
+    g.fillStyle = gradient; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(142,203,221,.14)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(w, 0); g.lineTo(w, h * .38); g.lineTo(0, h * .82); g.closePath(); g.fill();
+    g.strokeStyle = '#a0c7d6'; g.lineWidth = 3; g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke();
+    g.fillStyle = '#e4f4fa'; g.fillRect(w / 2 - 19, h * .49, 4, h * .16); g.fillRect(w / 2 + 15, h * .49, 4, h * .16);
+    g.textAlign = 'center'; g.font = '700 31px Arial, sans-serif'; g.fillText('BEM-VINDO', w / 2, h * .38);
+    g.fillStyle = '#b3d5e6'; g.font = '500 14px Arial, sans-serif'; g.fillText('ENTRE • ENCONTRE • DIVIRTA-SE', w / 2, h * .44);
+  });
+  panel(doors, 0, 4, front + .1, 13.8, 6);
+  for (const side of [-1, 1]) {
+    box(materials.metal, side * 7.17, 4, front + .1, .34, 6.35, .24);
+    box(side < 0 ? materials.cyan : materials.purple, side * 7.13, 4, front + .235, .06, 6.2, .035);
+  }
+  box(materials.frame, 0, .95, front + .16, 14.3, .08, .28);
+  /* Circuitos no friso superior desenham uma ponte entre a torre e o pódio. */
+  for (const side of [-1, 1]) {
+    box(side < 0 ? materials.cyan : materials.purple, side * 25, 12.3, front + .12, 10.6, .045, .035);
+    box(side < 0 ? materials.cyan : materials.purple, side * 30.3, 11.15, front + .12, .045, 2.35, .035);
   }
 }
 /* Vistas do hotel por fora e do corte por dentro (vista aérea). */
@@ -2587,6 +2811,7 @@ const _tmpV = new THREE.Vector3();
 function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0: camera.position.clone(), q0: camera.quaternion.clone(), p1: toPos, q1: toQ, t: 0, dur, done }; mode = 'tween'; }
 
 function enterRoom() {
+  camera.clearViewOffset(); EXT.entranceViewport=''; document.body.classList.remove('at-entrance');
   if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
   STACK.keep = mode === 'orbit';
   inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; setLabel(btnView, '🗺️', 'Vista aérea');
@@ -2602,6 +2827,7 @@ function enterRoom() {
 }
 function leaveRoom() {
   const leavingFloor = playerFloor();
+  if(DARTS.active) exitDarts();
   closeWelcome();
   if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
@@ -2628,8 +2854,9 @@ $('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoo
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'elevator') { closeElevator(); return; } if (mode === 'menu') { closeHospitality(); return; } if (HOSP.smokingUntil > performance.now()/1000) { stopSmoking(); return; } if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (e.code === 'Escape') { if(mode==='darts') { exitDarts(); return; } if (mode === 'elevator') { closeElevator(); return; } if (mode === 'menu') { closeHospitality(); return; } if (HOSP.smokingUntil > performance.now()/1000) { stopSmoking(); return; } if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
   if (typing || e.target?.tagName === 'SELECT') return;
+  if(mode==='darts') { if(e.code==='Space'&&!e.repeat) { e.preventDefault(); throwDart(); } return; }
   if (e.code === 'KeyF' && !e.repeat) { consumeHeld(); return; }
   if (e.code === 'KeyV' && !e.repeat && inRoom) { setThirdPerson(!VIEW.third); return; }
   if (mode === 'dance') { if (e.code === 'KeyE' && !e.repeat) stopDance(); return; }
@@ -2647,6 +2874,7 @@ addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const ptr = new Map(); let joy = null, pinch = null;
 canvas.addEventListener('pointerdown', e => {
   canvas.focus({ preventScroll: true });
+  if(mode==='darts') { dartsPointer('down',e); try { canvas.setPointerCapture(e.pointerId); } catch {} return; }
   if (mode === 'pool') { poolPointer('down', e); ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); return; }
   if (mode === 'seat' && e.pointerType === 'mouse' && !locked) lockMouse();
   if (mode === 'fp' && e.pointerType === 'mouse' && !locked) lockMouse();
@@ -2662,6 +2890,7 @@ canvas.addEventListener('pointerdown', e => {
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
 });
 canvas.addEventListener('pointermove', e => {
+  if(mode==='darts') { dartsPointer('move',e); return; }
   if (mode === 'pool') { if (e.pointerType === 'mouse' || ptr.has(e.pointerId)) poolPointer('move', e); return; }
   if (joy && e.pointerId === joy.id) {
     let dx = e.clientX - joy.x0, dy = e.clientY - joy.y0; const d = Math.hypot(dx, dy), m = 46;
@@ -2676,7 +2905,7 @@ canvas.addEventListener('pointermove', e => {
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
 });
-const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
+const ptrUp = e => { if(mode==='darts') dartsPointer(e.type==='pointercancel'?'cancel':'up',e); if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
 canvas.addEventListener('wheel', e => {
   if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), orbit.min, orbit.max); orbit.idle = 0; }
@@ -2795,6 +3024,7 @@ function findAct() {
   }
   for (const member of STAFF.members) consider(member.P.root.position.x, member.P.root.position.z, 2.1, .65, 'Pedir ao ' + member.role + ' ' + member.name, () => openHospitality());
   if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
+  if(playerFloor()==='games') consider(DARTS_LAYOUT.x,DARTS_LAYOUT.z,3.4,.45,'Jogar dardos e ganhar prêmios',startDarts);
   consider(8, 12.1, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
@@ -2835,7 +3065,8 @@ function updateActUI() {
   const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
   $('discoPanel').hidden = !club || !DISCO.panelOpen;
   $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
-  $('viewToggle').hidden = !inRoom;
+  $('viewToggle').hidden = !inRoom || mode==='darts';
+  $('dartsGo').hidden=!inRoom||!['fp','seat'].includes(mode)||playerFloor()!=='games';
   $('btnOutside').hidden = inRoom || mode !== 'orbit';
   /* Celular: joystick fixo e botão de correr aparecem enquanto o visitante anda. */
   const walking = isTouch && inRoom && mode === 'fp';
@@ -3456,6 +3687,194 @@ try { $('spotifyUrl').value = localStorage.getItem('sala-spotify') || ''; } catc
 $('spotifyLoad').onclick = spotifyLoad; $('spotifyClose').onclick = spotifyClose;
 $('spotifyMin').onclick = () => { const min = $('spotifyDock').classList.toggle('min'); $('spotifyMin').textContent = min ? 'Mostrar' : 'Minimizar'; };
 $('spotifyUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); spotifyLoad(); } });
+
+/* ================= jogo de dardos: mira, voo e conquistas locais ================= */
+const DARTS_PRIZES = [
+  { id: 'bronze', at: 80, icon: '🥉', name: 'Troféu de bronze' },
+  { id: 'silver', at: 160, icon: '🥈', name: 'Troféu de prata' },
+  { id: 'gold', at: 240, icon: '🏆', name: 'Troféu de ouro' },
+  { id: 'bull', at: null, icon: '🎯', name: 'Mestre do centro' },
+];
+const DARTS_STORE = 'sala-dos-robos:darts:v1';
+const DARTS = { active: false, phase: 'idle', throws: 0, total: 9, score: 0, hits: [], best: 0, awards: [], newAwards: [], aim: { x: 0, y: 0 }, actual: { x: 0, y: 0 }, flight: null, back: null, msg: '', swayT: 0 };
+try {
+  const saved = JSON.parse(localStorage.getItem(DARTS_STORE) || 'null');
+  if (saved && saved.v === 1) {
+    DARTS.best = Number.isInteger(saved.best) ? clamp(saved.best, 0, 540) : 0;
+    if (Array.isArray(saved.awards)) DARTS.awards = [...new Set(saved.awards.filter(id => DARTS_PRIZES.some(p => p.id === id)))];
+  }
+} catch (_) { /* Navegadores com armazenamento bloqueado continuam jogando. */ }
+const dartsStyle = document.createElement('style');
+dartsStyle.textContent = `
+#dartsHud{position:fixed;inset:0;z-index:5;pointer-events:none;font-family:var(--mono);color:#edf8f4}
+.darts-top{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:16px;right:16px;max-width:590px;margin:auto;padding:13px 16px;border:1px solid #8df4d740;border-radius:14px;background:#09171ded;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 16px 45px #0005}
+.darts-top b{font-size:16px;letter-spacing:.035em}.darts-top small{display:block;margin-top:5px;font-size:11px;color:#9bb9b9}.darts-counter{text-align:right;font-size:11px;color:#b5d4cb}.darts-counter strong{display:block;color:#8bfcdf;font-size:24px}
+.darts-bottom{pointer-events:auto;position:absolute;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:12px;right:12px;margin:auto;max-width:590px;padding:12px 16px;border:1px solid #8df4d738;border-radius:16px;background:#09171df2;box-shadow:0 16px 45px #0005}
+.darts-bottom p{margin:0 0 8px;font-size:12px;line-height:1.5;color:#cee6dd}.darts-actions{display:flex;align-items:center;gap:8px}.darts-actions .btn{min-height:42px;flex:1}.darts-actions .btn:first-child{border-color:#66e2b3;background:#205744}.darts-actions .btn:disabled{opacity:.45;cursor:default}.darts-prizes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 9px;font-size:10px;color:#a4bab7}.darts-prizes span{border:1px solid #789b9b35;padding:5px 7px;border-radius:7px}.darts-prizes .earned{color:#f6d78b;border-color:#ddb85980;background:#8f6a2425}.darts-history{display:flex;gap:5px;align-items:center;font-size:10px;color:#b2c9c1;margin-bottom:8px}.darts-history span{min-width:23px;padding:3px;border-radius:5px;text-align:center;background:#ffffff0b}.darts-history .last{color:#8bfcdf;background:#43bd9330}#dartsProgress{display:block;width:100%;height:4px;accent-color:#6bebc4;margin:0 0 9px}
+@media(max-width:600px){.darts-top{padding:11px 12px}.darts-top b{font-size:14px}.darts-counter strong{font-size:21px}.darts-bottom{padding:10px 12px}.darts-bottom p{font-size:11px}.darts-prizes{gap:4px}.darts-prizes span{padding:4px 5px;font-size:9px}.darts-actions .btn{font-size:11px;padding:9px 8px}}
+@media(max-height:500px){.darts-top{left:12px;right:auto;width:210px;padding:9px 11px;top:12px}.darts-top small{display:none}.darts-top b{font-size:13px}.darts-counter strong{font-size:19px}.darts-bottom{max-width:560px;padding:9px 12px;bottom:8px}.darts-prizes,.darts-history,#dartsProgress{display:none}.darts-bottom p{font-size:11px;margin-bottom:5px}.darts-actions .btn{min-height:34px}}
+`;
+document.head.appendChild(dartsStyle);
+const dartsHud = document.createElement('section'); dartsHud.id = 'dartsHud'; dartsHud.hidden = true; dartsHud.setAttribute('aria-label', 'Jogo de dardos');
+dartsHud.innerHTML = `<div class="darts-top"><div><b>🎯 DARDOS DO CLUBE</b><small id="dartsRound"></small></div><div class="darts-counter"><strong id="dartsScore">0</strong>pontos</div></div><div class="darts-bottom"><p id="dartsMsg" aria-live="polite"></p><div class="darts-history" id="dartsHistory" aria-label="Pontuação de cada dardo"></div><progress id="dartsProgress" max="240" value="0" aria-label="Progresso até o troféu de ouro"></progress><div id="dartsPrizes" class="darts-prizes" aria-label="Sua coleção de prêmios digitais"></div><div class="darts-actions"><button id="dartsThrow" class="btn">Lançar dardo</button><button id="dartsAgain" class="btn" hidden>Jogar novamente</button><button id="dartsExit" class="btn sm">Sair dos dardos</button></div></div>`;
+document.body.appendChild(dartsHud);
+const dartsGo = document.createElement('button'); dartsGo.id = 'dartsGo'; dartsGo.className = 'btn sm'; dartsGo.hidden = true; dartsGo.textContent = '🎯 Dardos';
+setLabel(dartsGo,'🎯','Dardos'); document.querySelector('.disco-shortcuts').appendChild(dartsGo); dartsGo.onclick = startDarts;
+$('dartsThrow').onclick = () => throwDart(); $('dartsAgain').onclick = resetDarts; $('dartsExit').onclick = exitDarts;
+const dartRay = new THREE.Raycaster(), dartNdc = new THREE.Vector2();
+const dartAimPoint = new THREE.Vector3(), dartTipForward = new THREE.Vector3(0, 0, 1);
+const dartGeo = { tip: new THREE.ConeGeometry(.004, .035, 8), shaft: new THREE.CylinderGeometry(.003, .003, .14, 8), barrel: new THREE.CylinderGeometry(.008, .006, .06, 12), fin: new THREE.BoxGeometry(.038, .002, .048) };
+const dartSteel = M({ color: '#d9e4e6', metalness: .82, roughness: .26 });
+const dartColors = ['#74ecd3', '#ffcc68', '#ef8ab9'].map(color => M({ color, roughness: .55, metalness: .2 }));
+function dartScore(x, y) {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return { points: 0, base: 0, multiplier: 0, label: 'Fora do alvo' };
+  const r = Math.hypot(x, y);
+  if (r > 1) return { points: 0, base: 0, multiplier: 0, label: 'Fora do alvo' };
+  if (r < .0374) return { points: 50, base: 25, multiplier: 2, label: 'Centro! 50 pontos', bull: true };
+  if (r < .0935) return { points: 25, base: 25, multiplier: 1, label: 'Anel central · 25 pontos' };
+  const angle = (Math.atan2(x, y) + Math.PI * 2 + Math.PI / 20) % (Math.PI * 2);
+  const base = DARTS_NUMBERS[Math.floor(angle / (Math.PI / 10)) % 20];
+  const multiplier = r >= .953 ? 2 : r >= .582 && r <= .629 ? 3 : 1;
+  return { points: base * multiplier, base, multiplier, label: (multiplier === 3 ? 'Triplo ' : multiplier === 2 ? 'Duplo ' : '') + base + ' · ' + base * multiplier + ' pontos' };
+}
+function createThrownDart() {
+  const dart = new THREE.Group(), color = dartColors[Math.floor(DARTS.throws / 3) % 3];
+  mesh(dartGeo.tip, dartSteel, dart, 0, 0, -.0175, Math.PI / 2, 0, 0, 1, 1, 1, false);
+  mesh(dartGeo.barrel, color, dart, 0, 0, -.062, Math.PI / 2, 0, 0, 1, 1, 1, false);
+  mesh(dartGeo.shaft, dartSteel, dart, 0, 0, -.144, Math.PI / 2, 0, 0, 1, 1, 1, false);
+  for (const angle of [0, Math.PI / 2]) mesh(dartGeo.fin, color, dart, 0, 0, -.21, 0, 0, angle, 1, 1, 1, false);
+  DARTS_VISUAL.darts.add(dart); return dart;
+}
+function dartsPrizeView() {
+  $('dartsPrizes').replaceChildren();
+  for (const [i, prize] of DARTS_PRIZES.entries()) {
+    const earned = DARTS.awards.includes(prize.id), el = document.createElement('span');
+    el.className = earned ? 'earned' : ''; el.textContent = prize.icon + ' ' + (prize.at === null ? 'Centro 50' : prize.at + ' pts') + (earned ? ' ✓' : '');
+    el.title = prize.name + (earned ? ' conquistado' : ' — conclua a partida para ganhar');
+    $('dartsPrizes').appendChild(el);
+    if (i < 3) DARTS_VISUAL.awards[i].material.opacity = earned ? .95 : .2;
+  }
+}
+dartsPrizeView();
+function dartsRender() {
+  const done = DARTS.phase === 'done', flight = DARTS.phase === 'flight';
+  $('dartsScore').textContent = DARTS.score;
+  $('dartsRound').textContent = (done ? 'Partida concluída' : 'Rodada ' + Math.min(3, Math.floor(DARTS.throws / 3) + 1) + '/3 · ' + DARTS.throws + '/9 dardos') + ' · recorde ' + DARTS.best;
+  $('dartsMsg').textContent = DARTS.msg;
+  $('dartsThrow').hidden = done; $('dartsThrow').disabled = flight; $('dartsAgain').hidden = !done;
+  $('dartsProgress').value = Math.min(240, DARTS.score);
+  $('dartsHistory').replaceChildren();
+  for (let i = 0; i < 9; i++) {
+    const el = document.createElement('span'); el.textContent = DARTS.hits[i] ? DARTS.hits[i].points : '·';
+    el.className = i === DARTS.hits.length - 1 ? 'last' : ''; el.title = 'Dardo ' + (i + 1) + (DARTS.hits[i] ? ': ' + DARTS.hits[i].label : ''); $('dartsHistory').appendChild(el);
+  }
+  dartsPrizeView();
+}
+function resetDarts() {
+  if (!DARTS.active || !['idle', 'done'].includes(DARTS.phase)) return;
+  DARTS_VISUAL.darts.clear(); DARTS.phase = 'aim'; DARTS.throws = DARTS.score = 0; DARTS.hits = []; DARTS.newAwards = []; DARTS.flight = null;
+  DARTS.aim.x = DARTS.aim.y = 0; DARTS.swayT = 0;
+  DARTS.msg = isTouch ? 'Toque no alvo para mirar. Depois toque em Lançar dardo.' : 'Mova a mira e clique no alvo, ou use Espaço para lançar. 9 dardos valem prêmios digitais!';
+  DARTS_VISUAL.aim.visible = true; dartsRender();
+}
+function startDarts() {
+  if (!inRoom || DARTS.active || !['fp', 'seat'].includes(mode) || playerFloor()!=='games') return;
+  if (seatState.s) { standUp(startDarts); return; }
+  closeWelcome(); stopSmoking();
+  DARTS.back = { pos: fp.pos.clone(), yaw: fp.yaw, pitch: fp.pitch, hudHidden: $('hud').hidden, mpOff: $('mp').classList.contains('off') };
+  if (document.pointerLockElement) document.exitPointerLock();
+  for (const k in keys) keys[k] = false; ptr.clear(); joy = pinch = null; joyEl.hidden = true; fp.vel.set(0, 0, 0);
+  fp.pos.set(DARTS_LAYOUT.stand.x, 0, DARTS_LAYOUT.stand.z); fp.yaw = -Math.PI / 2; fp.pitch = 0;
+  DARTS.active = true; DARTS.phase = 'idle'; mode = 'darts';
+  cross.hidden = help.hidden = true; $('hud').hidden = true; $('mp').classList.add('off'); dartsHud.hidden = false;
+  resetDarts(); stepDarts(0); stepDartsCamera(0); $('dartsThrow').focus({ preventScroll: true });
+}
+function exitDarts() {
+  if (!DARTS.active) return;
+  DARTS.active = false; DARTS.phase = 'idle'; DARTS.flight = null; DARTS_VISUAL.aim.visible = false; dartsHud.hidden = true;
+  // Uma rodada interrompida não concede conquistas nem muda o recorde.
+  DARTS_VISUAL.darts.clear();
+  const back = DARTS.back;
+  if (back) {
+    const p = back.pos;
+    if (!roomBlocked(p.x, p.z)) fp.pos.copy(p); else fp.pos.set(DARTS_LAYOUT.stand.x,0,DARTS_LAYOUT.stand.z);
+    fp.yaw = back.yaw; fp.pitch = back.pitch; $('hud').hidden = back.hudHidden; $('mp').classList.toggle('off', back.mpOff);
+  }
+  fp.vel.set(0, 0, 0); DARTS.back = null;
+  camera.fov = portrait() ? 80 : 66; camera.updateProjectionMatrix();
+  if (mode === 'darts') { mode = 'fp'; cross.hidden = isTouch; camera.position.set(fp.pos.x, EYE, fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); }
+  for (const k in keys) keys[k] = false;
+}
+function stepDartsCamera() {
+  if (!DARTS.active) return;
+  const diameter = Math.max(115, Math.min(innerWidth - 55, innerHeight - (innerHeight < 500 ? 180 : 310), 380));
+  const desiredFov = clamp(2 * Math.atan(innerHeight * DARTS_LAYOUT.radius / ((DARTS_LAYOUT.x - DARTS_LAYOUT.stand.x) * diameter)) * 180 / Math.PI, 34, 85);
+  if (Math.abs(camera.fov - desiredFov) > .05) { camera.fov = desiredFov; camera.updateProjectionMatrix(); }
+  camera.position.set(DARTS_LAYOUT.stand.x, DARTS_LAYOUT.y + .04, DARTS_LAYOUT.stand.z);
+  camera.lookAt(DARTS_LAYOUT.x, DARTS_LAYOUT.y - .035, DARTS_LAYOUT.z);
+}
+function setDartsAim(e) {
+  if (!DARTS.active || DARTS.phase !== 'aim') return false;
+  const rect = canvas.getBoundingClientRect();
+  dartNdc.set((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  camera.updateMatrixWorld(); DARTS_VISUAL.pick.updateWorldMatrix(true, false); dartRay.setFromCamera(dartNdc, camera);
+  const hit = dartRay.intersectObject(DARTS_VISUAL.pick, false)[0]; if (!hit) return false;
+  const local = DARTS_VISUAL.pick.worldToLocal(hit.point.clone());
+  DARTS.aim.x = clamp(local.x / DARTS_LAYOUT.scoreRadius, -1.3, 1.3); DARTS.aim.y = clamp(local.y / DARTS_LAYOUT.scoreRadius, -1.3, 1.3);
+  return true;
+}
+function dartsPointer(type, e) {
+  if (!DARTS.active) return;
+  if (type === 'move' || type === 'down') {
+    const aimed = setDartsAim(e);
+    if (type === 'down' && aimed && e.pointerType !== 'touch' && e.button === 0) throwDart();
+  }
+}
+function throwDart(x, y) {
+  if (!DARTS.active || DARTS.phase !== 'aim' || DARTS.throws >= DARTS.total) return false;
+  const precise = Number.isFinite(x) && Number.isFinite(y);
+  const nx = precise ? clamp(x, -1.3, 1.3) : DARTS.aim.x + (reduceMotion ? 0 : Math.sin(DARTS.swayT * 2.1) * .036);
+  const ny = precise ? clamp(y, -1.3, 1.3) : DARTS.aim.y + (reduceMotion ? 0 : Math.cos(DARTS.swayT * 1.7) * .027);
+  const result = { ...dartScore(nx, ny), x: nx, y: ny };
+  const start = new THREE.Vector3(DARTS_LAYOUT.stand.x + .17, DARTS_LAYOUT.y - .19, DARTS_LAYOUT.stand.z + .12);
+  const end = new THREE.Vector3(DARTS_LAYOUT.x + (result.points ? .004 : .028), DARTS_LAYOUT.y + ny * DARTS_LAYOUT.scoreRadius, DARTS_LAYOUT.z + nx * DARTS_LAYOUT.scoreRadius);
+  const object = createThrownDart(); object.position.copy(start);
+  DARTS.flight = { object, start, end, elapsed: 0, duration: reduceMotion ? .18 : .5, result };
+  DARTS.phase = 'flight'; DARTS_VISUAL.aim.visible = false; DARTS.msg = 'Dardo a caminho…'; dartsRender(); return true;
+}
+function finishDarts() {
+  DARTS.phase = 'done'; DARTS.best = Math.max(DARTS.best, DARTS.score);
+  const unlocked = DARTS_PRIZES.filter(p => p.at === null ? DARTS.hits.some(h => h.bull) : DARTS.score >= p.at);
+  DARTS.newAwards = unlocked.filter(p => !DARTS.awards.includes(p.id)).map(p => p.id);
+  DARTS.awards = [...new Set([...DARTS.awards, ...unlocked.map(p => p.id)])];
+  try { localStorage.setItem(DARTS_STORE, JSON.stringify({ v: 1, best: DARTS.best, awards: DARTS.awards })); } catch (_) { }
+  const names = unlocked.map(p => p.icon + ' ' + p.name).join(' · ');
+  DARTS.msg = 'Partida concluída: ' + DARTS.score + ' pontos. ' + (names ? 'Seus prêmios digitais: ' + names + '.' : 'Mais uma? Com 80 pontos você conquista bronze!');
+}
+function stepDarts(dt) {
+  if (!DARTS.active) return;
+  DARTS.swayT += dt;
+  if (DARTS.phase === 'aim') {
+    DARTS.actual.x = DARTS.aim.x + (reduceMotion ? 0 : Math.sin(DARTS.swayT * 2.1) * .036);
+    DARTS.actual.y = DARTS.aim.y + (reduceMotion ? 0 : Math.cos(DARTS.swayT * 1.7) * .027);
+    DARTS_VISUAL.aim.position.set(DARTS_LAYOUT.x - .026, DARTS_LAYOUT.y + DARTS.actual.y * DARTS_LAYOUT.scoreRadius, DARTS_LAYOUT.z + DARTS.actual.x * DARTS_LAYOUT.scoreRadius);
+    return;
+  }
+  if (DARTS.phase !== 'flight' || !DARTS.flight) return;
+  const f = DARTS.flight; f.elapsed += dt; const u = Math.min(1, f.elapsed / f.duration);
+  f.object.position.lerpVectors(f.start, f.end, u); f.object.position.y += Math.sin(u * Math.PI) * .13;
+  dartAimPoint.subVectors(f.end, f.start); dartAimPoint.y += Math.cos(u * Math.PI) * .13 * Math.PI;
+  f.object.quaternion.setFromUnitVectors(dartTipForward, dartAimPoint.normalize());
+  if (u < 1) return;
+  f.object.position.copy(f.end); DARTS.hits.push(f.result); DARTS.score += f.result.points; DARTS.throws++;
+  DARTS.flight = null;
+  if (DARTS.throws >= DARTS.total) finishDarts();
+  else {
+    DARTS.phase = 'aim'; DARTS_VISUAL.aim.visible = true;
+    DARTS.msg = f.result.label + '. ' + (DARTS.throws % 3 === 0 ? 'Próxima rodada! ' : '') + (DARTS.total - DARTS.throws) + ' dardos restantes.';
+  }
+  dartsRender();
+}
 
 /* ================= clima de festa: fumaça leve e luzes piscando (discoteca e Las Vegas Night) ================= */
 /* Fumaça baixa e discreta, tingida pela luz da sala, com um jato da máquina de fumaça de tempos em tempos.
@@ -5189,11 +5608,18 @@ function frame(now) {
   moveRobots(dt);
   for (const r of robots) { r.P.smokingUntil = r.smokingUntil || 0; r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t); }
   /* câmera */
-  if (mode === 'dance' || (mode === 'menu' && HOSP.returnMode === 'dance')) stepDanceCamera(dt);
+  if (mode === 'darts') stepDartsCamera(dt);
+  else if (mode === 'dance' || (mode === 'menu' && HOSP.returnMode === 'dance')) stepDanceCamera(dt);
   else if (['menu', 'casino', 'music', 'elevator', 'ride'].includes(mode)) { if (VIEW.third) stepThirdCam(dt); else { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } if (mode === 'ride') camera.position.y += ELEV.shake; }
   else if (mode === 'fp') { stepFP(dt); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') { stepSeat(); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
-  setWalls(['menu', 'dance', 'casino', 'music', 'elevator', 'ride', 'fp', 'seat', 'talk', 'pool'].includes(mode) || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepElevator(dt, t); stepRadio(); stepExterior(dt, t); stepShow(dt, t); stepWelcome(dt, t); stepPartyFx(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  const entranceVisible=!$('intro').hidden;
+  document.body.classList.toggle('at-entrance',entranceVisible);
+  if(entranceVisible&&mode==='orbit'&&orbit.view==='outside') {
+    const tag=innerWidth+'x'+innerHeight;
+    if(EXT.entranceViewport!==tag) { EXT.entranceViewport=tag; camera.setViewOffset(innerWidth,innerHeight,portrait()?0:innerWidth*.22,innerHeight*(portrait()?.23:-.08),innerWidth,innerHeight); }
+  }
+  setWalls(['darts', 'menu', 'dance', 'casino', 'music', 'elevator', 'ride', 'fp', 'seat', 'talk', 'pool'].includes(mode) || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
+  stepDarts(dt,t); stepElevator(dt, t); stepRadio(); stepExterior(dt, t); stepShow(dt, t); stepWelcome(dt, t); stepPartyFx(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -5213,6 +5639,9 @@ function frame(now) {
   if (ftAcc > 2.5) { const fps = frames / ftAcc; ftAcc = 0; frames = 0; if (fps < 26 && pixelRatio > 0.75 && frameN > 200) { pixelRatio = Math.max(0.75, pixelRatio - 0.2); resize(); } }
 }
 
+// A recepção aproxima a fachada IA + Club; a vista completa do hotel continua disponível.
+orbit.target.copy(EXT.entryTarget); orbit.r=80; orbit.th=.28; orbit.ph=1.48;
+document.body.classList.add('at-entrance');
 initStaff();
 await setupPost();
 resize();
@@ -5223,7 +5652,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { STACK, stackActive, assignLayers, renderStacked, dressShowgirl, confettiBurst, dancePose, WELCOME, greetGuest, closeWelcome, welcomeDrink, PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { STACK, stackActive, assignLayers, renderStacked, dressShowgirl, confettiBurst, dancePose, DARTS, DARTS_LAYOUT, DARTS_VISUAL, dartScore, startDarts, exitDarts, throwDart, stepDarts, dartsPointer, WELCOME, greetGuest, closeWelcome, welcomeDrink, PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { camera.clearViewOffset(); document.body.classList.remove('at-entrance'); inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>
