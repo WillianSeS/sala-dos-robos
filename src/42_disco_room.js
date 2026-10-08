@@ -64,7 +64,7 @@ CLUB.ball = mesh(new THREE.SphereGeometry(0.31, 20, 12), M({ color: '#d8e3f8', m
 S(G.cyl8, mat.chrome, 0, 3.02, 9.8, 0, 0, 0, 0.012, 0.35, 0.012, { cast: false });
 for (const [x, color] of [[-2.7, 0xef48df], [2.7, 0x487dff]]) {
   const light = new THREE.PointLight(color, 9, 7, 2); light.position.set(x, 2.5, 9.8); scene.add(light); CLUB.lights.push(light);
-  const cone = mesh(new THREE.ConeGeometry(0.85, 2.5, 24, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.05, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.6, 9.8, 0, 0, 0, 1, 1, 1, false);
+  const cone = mesh(new THREE.ConeGeometry(0.85, 2.5, 24, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.07, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.6, 9.8, 0, 0, 0, 1, 1, 1, false);
   CLUB.beams.push(cone);
 }
 /* pequenos reflexos do globo no chão */

@@ -71,6 +71,7 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias); rádio da sala compartilhada (`RADIO`, batida presa ao relógio); arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`), que tocam só para quem escolheu. |
+| `77q_party_fx.js` | Clima de festa na discoteca e no show (`PARTY`): névoa baixa tingida pela luz da sala, jato da máquina de fumaça (`partyBurst`, a cada 22–32 s), lâmpadas nas paredes e refletores de teto piscando. Só roda no andar do visitante; com "reduzir movimento", fica mais lento. |
 | `77s_show.js` | Show do 44º andar: dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
 | `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
 | `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |

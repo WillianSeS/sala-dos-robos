@@ -57,6 +57,19 @@ with sync_playwright() as p:
         assert page.evaluate('__sala.SEATS.filter(s=>s.kind==="show").length===8 && __sala.roomBlocked(0,21) && __sala.roomBlocked(4,18)')
         print(nome + ': show no 44º andar OK', flush=True)
 
+        # Clima de festa: névoa leve só no andar do visitante, jato da máquina de fumaça e lâmpadas trocando de cor.
+        page.wait_for_function('__sala.PARTY.rooms.find(r=>r.key==="show").group.visible && !__sala.PARTY.rooms.find(r=>r.key==="disco").group.visible')
+        assert page.evaluate('__sala.PARTY.rooms.find(r=>r.key==="show").haze.every(h=>h.material.opacity>0.05 && h.material.opacity<0.25)')
+        page.evaluate('__sala.partyBurst(__sala.PARTY.rooms.find(r=>r.key==="show"), performance.now()/1000)')
+        page.wait_for_function('__sala.PARTY.rooms.find(r=>r.key==="show").burst.puffs.some(p=>p.visible && p.material.opacity>0.1)', timeout=30000)
+        bulbs = set()
+        for _ in range(30):
+            if len(bulbs) > 1: break
+            bulbs.add(page.evaluate('(()=>{const r=__sala.PARTY.rooms.find(r=>r.key==="show"),c=new __sala.THREE.Color();r.bulbs.getColorAt(0,c);return c.getHexString()})()'))
+            page.wait_for_timeout(300)
+        assert len(bulbs) > 1, 'As lâmpadas da parede não piscaram'
+        print(nome + ': fumaça e luzes de festa OK', flush=True)
+
         # Uma atendente vem até o visitante, oferece e fala; a bebida chega pela mão dela.
         page.evaluate('__sala.closeOffer(0);__sala.setFP(0,15.6,Math.PI);__sala.SHOW.nextOffer=0')
         wait_offer(page)

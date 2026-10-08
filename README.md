@@ -18,6 +18,7 @@ Hotel **Las Vegas Night** em 3D, com uma sala de trading no 40º andar. Cada rob
 - Ouvir só para você um arquivo do aparelho ou o **Spotify** (cole o link de uma playlist, álbum, artista ou música). O player do Spotify continua tocando com o painel fechado; com a conta do Spotify aberta no navegador toca as músicas inteiras, sem conta só prévias de 30 s.
 - Visitar a **Discoteca dos Robôs**: use o botão 🪩 Discoteca ou o elevador. O painel da pista fica fechado até você tocar em **🪩 Pista**. A pista tem luzes suaves, globo espelhado, DJ, bancos, três danças e emojis. Convide os robôs disponíveis; visitantes veem as danças e reações uns dos outros.
 - Ir ao **show do 44º andar (Las Vegas Night)**: palco com luzes, três dançarinas, mesas para sentar e assistir e balcão de drinques. As atendentes andam pelo bar e vêm oferecer uma bebida (vão ao balcão e trazem), dançar com você ou uma mesa para o show. Dá para dar gorjetas às dançarinas com as fichas de brincadeira do 21. Atendentes e dançarinas falam com a voz do navegador (botão 🔊 para desligar).
+- Clima de festa na discoteca e no Las Vegas Night: fumaça leve no chão, máquina de fumaça que solta um jato de tempos em tempos, lâmpadas coloridas nas paredes e refletores piscando (no máximo 3 vezes por segundo, sem estrobo).
 - Conversar com os traders usando as perguntas prontas.
 - Encontrar outras pessoas que estão na sala e falar com elas:
   - chat de texto;

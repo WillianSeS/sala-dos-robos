@@ -66,7 +66,7 @@ chaseBulbs(Array.from({ length: 29 }, (_, i) => [stage.x0 + 0.1 + i * (stage.x1 
 B(mat.aluDark, 0, 2.95, 20.1, 5.6, 0.08, 0.08, { cast: false });
 for (let i = 0; i < 5; i++) {
   const x = -2.2 + i * 1.1, can = mesh(new THREE.CylinderGeometry(0.07, 0.1, 0.22, 14), new THREE.MeshBasicMaterial({ color: '#ff4fd8', toneMapped: false }), GROUPS.main, x, 2.8, 20.1, 0.5, 0, 0, 1, 1, 1, false);
-  const beam = mesh(new THREE.ConeGeometry(0.55, 2.4, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#ff4fd8', transparent: true, opacity: 0.06, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.65, 20.8, -0.45, 0, 0, 1, 1, 1, false);
+  const beam = mesh(new THREE.ConeGeometry(0.55, 2.4, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#ff4fd8', transparent: true, opacity: 0.09, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.65, 20.8, -0.45, 0, 0, 1, 1, 1, false);
   SHOWFX.fixtures.push({ can, beam, i });
 }
 for (const x of [-3.3, 3.3]) { B(showMat.velvet, x, 1.6, 21.6, 1.1, RH, 0.12, { cast: false }); for (let k = 0; k < 5; k++) B(showMat.velvet, x - 0.44 + k * 0.22, 1.6, 21.5, 0.05, RH, 0.06, { cast: false }); }
