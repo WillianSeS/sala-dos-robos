@@ -61,7 +61,7 @@ Na coluna Situação:
 | Lighthouse | ⏳ | Para a fase de otimização (o jogo é WebGL pesado; as métricas de página tradicional servem só como referência). |
 | Git/GitHub | ✅ | Branch de desenvolvimento `dev/fase-1-movimento`. A `main` e o `gh-pages` (produção) não são alterados sem autorização. |
 | Netlify | ✅ conectado, não usado | O MCP está conectado (11 sites de outros projetos), mas **o responsável pediu para não usar o Netlify**. As prévias vão para o **Vercel**. |
-| Vercel | ✅ (verificado) | MCP conectado (conta pessoal). As prévias são publicadas como *preview*, nunca como produção. |
+| Vercel | ⏳ (verificado; falta um passo do responsável) | MCP conectado (conta pessoal). O projeto **sala-dos-robos-jogo** foi criado (raiz `jogo/`). O deploy a partir do GitHub falhou com `git_info_fail` porque a conta Vercel **não tem conexão de login com o GitHub**. Depois de conectar (Vercel → Account Settings → Authentication → GitHub), cada push num branch de desenvolvimento gera uma prévia automaticamente. A `main` e o `gh-pages` não publicam (`vercel.json`). |
 | PWA | ⏳ | `vite-plugin-pwa` 2.0.0 disponível, para as Fases 8 e 9. |
 
 ## MCPs verificados
