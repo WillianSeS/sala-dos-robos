@@ -207,9 +207,17 @@ body.at-entrance #elevator,body.at-entrance #elevRide{display:none!important}
 @media(prefers-reduced-motion:reduce){#intro #btnEnter{transition:none}}
 
 #intro::before{content:'';position:fixed;top:0;left:0;right:0;height:95px;background:linear-gradient(#04080fdd,#04080f00);pointer-events:none}#intro .entrance-brand{z-index:1}
+
+/* Recuperação clara quando o dispositivo perde o contexto WebGL. */
+#gpuNotice[hidden]{display:none}
+#gpuNotice{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(4,6,10,.94);color:#f5f7ff;font:16px system-ui,sans-serif;text-align:center}
+#gpuNotice .gpu-card{width:min(420px,100%);padding:24px;border:1px solid #6b644c;border-radius:18px;background:#14191e;box-shadow:0 18px 60px #0009}
+#gpuNotice p{line-height:1.5;color:#cdd3d8}
+#gpuReload{min-height:44px;padding:10px 22px;border:1px solid #efbf71;border-radius:10px;background:#efbf71;color:#111;font-weight:700;cursor:pointer}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
+<div id="gpuNotice" role="alert" hidden><div class="gpu-card"><h2>O gráfico 3D foi interrompido</h2><p>O aparelho perdeu a conexão com o motor gráfico. Se a cena não voltar sozinha, recarregue para continuar.</p><button id="gpuReload" type="button">Recarregar jogo</button></div></div>
 <div class="labels" id="labels"></div>
 <div class="hud" id="hud" aria-live="polite">
   <span class="chip"><span class="live"></span><b>SALA DOS ROBÔS</b></span>
@@ -314,6 +322,12 @@ body.at-entrance #elevator,body.at-entrance #elevRide{display:none!important}
   <p class="entrance-credit">Pessoas 3D: Microsoft Rocketbox · licença MIT. Nomes fictícios. Cidade desenhada.</p>
 </section>
 <script>
+(function(){
+  var c=document.getElementById('gl'), notice=document.getElementById('gpuNotice');
+  c.addEventListener('webglcontextlost',function(e){e.preventDefault();notice.hidden=false;});
+  c.addEventListener('webglcontextrestored',function(){notice.hidden=true;});
+  document.getElementById('gpuReload').addEventListener('click',function(){location.reload();});
+})();
 window.addEventListener('error',function(e){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='Erro ao carregar: '+(e.message||'desconhecido');}});
 setTimeout(function(){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='O motor 3D não carregou. Verifique a conexão e recarregue a página.';}},20000);
 </script>

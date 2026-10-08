@@ -1,0 +1,26 @@
+name: Verificar Sala dos Robôs
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar fontes e index gerado
+        run: |
+          bash build.sh
+          git diff --exit-code -- index.html
+          python3 -m py_compile testes/*.py
+      - name: Preparar Chromium
+        run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
+      - name: Testar recuperação gráfica no navegador
+        run: |
+          python3 -m http.server 8766 >/tmp/sala-http.log 2>&1 &
+          python3 testes/teste_render_resiliencia.py
