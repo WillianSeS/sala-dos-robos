@@ -1,4 +1,5 @@
 /* Regras de movimento do jogador (funções puras, testadas no Vitest). */
+import { equivalentes, TECLAS_PADRAO, type MapaTeclas } from './teclas';
 
 /** Velocidades em m/s. A caminhada e a corrida casam com a passada dos clipes (velocidade natural medida na conversão). */
 export const VEL_ANDAR = 1.25;
@@ -10,31 +11,26 @@ export interface Eixo {
   y: number; // frente
 }
 
-const FRENTE = ['KeyW', 'ArrowUp'];
-const TRAS = ['KeyS', 'ArrowDown'];
-const ESQUERDA = ['KeyA', 'ArrowLeft'];
-const DIREITA = ['KeyD', 'ArrowRight'];
-const CORRER = ['ShiftLeft', 'ShiftRight'];
-
 const algum = (teclas: ReadonlySet<string>, lista: string[]) => lista.some((t) => teclas.has(t));
 
-export function eixoTeclado(teclas: ReadonlySet<string>): Eixo {
+/** As setas sempre andam; as letras vêm do mapa de teclas (configurável). */
+export function eixoTeclado(teclas: ReadonlySet<string>, mapa: MapaTeclas = TECLAS_PADRAO): Eixo {
   return {
-    x: (algum(teclas, DIREITA) ? 1 : 0) - (algum(teclas, ESQUERDA) ? 1 : 0),
-    y: (algum(teclas, FRENTE) ? 1 : 0) - (algum(teclas, TRAS) ? 1 : 0),
+    x: (algum(teclas, [mapa.direita, 'ArrowRight']) ? 1 : 0) - (algum(teclas, [mapa.esquerda, 'ArrowLeft']) ? 1 : 0),
+    y: (algum(teclas, [mapa.frente, 'ArrowUp']) ? 1 : 0) - (algum(teclas, [mapa.tras, 'ArrowDown']) ? 1 : 0),
   };
 }
 
-export const corridaTeclado = (teclas: ReadonlySet<string>) => algum(teclas, CORRER);
+export const corridaTeclado = (teclas: ReadonlySet<string>, mapa: MapaTeclas = TECLAS_PADRAO) => algum(teclas, equivalentes(mapa.correr));
 
 /** Junta teclado e joystick. O joystick vence quando está fora da zona morta; a diagonal do teclado é normalizada. */
-export function eixoFinal(teclas: ReadonlySet<string>, joystick: Eixo): Eixo & { forca: number } {
+export function eixoFinal(teclas: ReadonlySet<string>, joystick: Eixo, mapa: MapaTeclas = TECLAS_PADRAO): Eixo & { forca: number } {
   const mj = Math.hypot(joystick.x, joystick.y);
   if (mj > ZONA_MORTA) {
     const forca = Math.min(1, (mj - ZONA_MORTA) / (1 - ZONA_MORTA));
     return { x: joystick.x / mj, y: joystick.y / mj, forca };
   }
-  const t = eixoTeclado(teclas);
+  const t = eixoTeclado(teclas, mapa);
   const mt = Math.hypot(t.x, t.y);
   return mt > 0 ? { x: t.x / mt, y: t.y / mt, forca: 1 } : { x: 0, y: 0, forca: 0 };
 }

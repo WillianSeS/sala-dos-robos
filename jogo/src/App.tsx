@@ -3,10 +3,15 @@ import { useMouse, useTeclado } from './controles/entrada';
 import { detectarToque, useToqueOlhar } from './controles/toque';
 import { useJogo } from './estado/jogo';
 import { Cena } from './motor/Cena';
+import { aplicarInicioDaUrl } from './mundo/inicio';
 import { Carregando } from './ui/Carregando';
 import { ControlesToque } from './ui/ControlesToque';
+import { Cortina } from './ui/Cortina';
+import { Entrada } from './ui/Entrada';
 import { Hud } from './ui/Hud';
 import { Paineis } from './ui/Paineis';
+
+aplicarInicioDaUrl();
 
 export default function App() {
   const palco = useRef<HTMLDivElement | null>(null);
@@ -22,6 +27,8 @@ export default function App() {
       <Hud />
       <ControlesToque />
       <Paineis />
+      <Entrada />
+      <Cortina />
       <Carregando />
     </main>
   );

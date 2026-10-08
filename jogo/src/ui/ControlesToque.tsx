@@ -1,4 +1,4 @@
-/* Controles de celular: joystick virtual (esquerda) e botões de correr, câmera e interagir (direita). */
+/* Controles de celular: joystick virtual (esquerda) e botões de interagir, sentar, correr e câmera (direita). */
 import { useRef, useState } from 'react';
 import { entrada } from '../controles/entrada';
 import { useJogo } from '../estado/jogo';
@@ -61,9 +61,13 @@ export function ControlesToque() {
   const modo = useJogo((s) => s.modoCamera);
   const alternarCamera = useJogo((s) => s.alternarCamera);
   const podeInteragir = useJogo((s) => s.podeInteragir);
+  const podeSentar = useJogo((s) => s.podeSentar);
+  const sentado = useJogo((s) => s.sentado);
   const dica = useJogo((s) => s.dica);
   const painel = useJogo((s) => s.painel);
-  if (!toque || painel) return null;
+  const etapa = useJogo((s) => s.etapa);
+  const vista = useJogo((s) => s.vista);
+  if (!toque || painel || etapa !== 'jogo' || vista === 'externa') return null;
   const parar = (e: React.PointerEvent) => e.stopPropagation();
   return (
     <div className="controles-toque">
@@ -81,7 +85,21 @@ export function ControlesToque() {
           }}
         >
           <span aria-hidden>✋</span>
-          <small>{dica ?? 'Interagir'}</small>
+          <small>{dica && dica !== 'Sentar' && dica !== 'Levantar' ? dica : 'Interagir'}</small>
+        </button>
+        <button
+          type="button"
+          className={`botao-redondo${sentado ? ' ativo' : ''}${podeSentar ? ' pronto' : ''}`}
+          data-testid="botao-sentar"
+          disabled={!podeSentar}
+          aria-label={sentado ? 'Levantar' : 'Sentar'}
+          onPointerDown={parar}
+          onClick={() => {
+            entrada.sentar = true;
+          }}
+        >
+          <span aria-hidden>🪑</span>
+          <small>{sentado ? 'Levantar' : 'Sentar'}</small>
         </button>
         <button
           type="button"

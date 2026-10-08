@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import comum as C  # noqa: E402
 from comum import M, caixa, cilindro, colisor, esfera, plano, vazio  # noqa: E402
+import bpy  # noqa: E402
 
 TEX, OUT = sys.argv[-2], sys.argv[-1]
 FONTES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fontes')
@@ -70,6 +71,7 @@ for i, (x, z) in enumerate([(-2.7, -1.6), (-2.7, 1.6), (0.6, -2.3), (0.6, 1.2), 
 FW, FH, FT = PX1 - PX0 - 0.02, PH - 0.02, 0.045
 folha = caixa('PORTA_folha', (PX0 + 0.01 + FW / 2, FH / 2 + 0.01, Z1 + E / 2), (FW, FH, FT), M['nogueira'], 0.006)
 C.mover_origem(folha, (PX0 + 0.01, 0, Z1 + E / 2))
+bpy.context.view_layer.update()  # sem isso a matriz da folha fica velha e o puxador sai no lugar errado
 for lado in (-1, 1):
     pux = caixa(f'PORTA_puxador_{lado}', (PX0 + 0.01 + FW - 0.1, 1.05, Z1 + E / 2 + lado * (FT / 2 + 0.03)), (0.025, 0.7, 0.025), M['latao'], 0.008)
     pux.parent = folha

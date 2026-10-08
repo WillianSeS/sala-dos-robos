@@ -9,6 +9,7 @@ export const entrada = {
   olharDy: 0,
   zoom: 0,
   interagir: false,
+  sentar: false,
 };
 
 export function consumirOlhar() {
@@ -23,24 +24,49 @@ export function consumirInteracao() {
   return v;
 }
 
+export function consumirSentar() {
+  const v = entrada.sentar;
+  entrada.sentar = false;
+  return v;
+}
+
 const digitando = (e: KeyboardEvent) => {
   const alvo = e.target as HTMLElement | null;
   return !!alvo && (alvo.tagName === 'INPUT' || alvo.tagName === 'TEXTAREA' || alvo.isContentEditable);
 };
 
-/** Atalhos: WASD/setas andam, Shift corre, V troca a câmera, E interage, Esc abre/fecha o menu. */
+/** Captura de tecla para a tela de configuração (a próxima tecla vai para quem pediu, não para o jogo). */
+export const capturaTecla: { ouvinte: ((codigo: string) => void) | null } = { ouvinte: null };
+
+/** Atalhos (configuráveis): WASD/setas andam, Shift corre, V câmera, E interage, C senta, B vista aérea, M mapa; Esc abre/fecha o menu. */
 export function useTeclado() {
   useEffect(() => {
     const baixo = (e: KeyboardEvent) => {
-      if (digitando(e)) return;
-      const jogo = useJogo.getState();
-      if (e.code === 'Escape') {
-        jogo.setPainel(jogo.painel ? null : 'configuracoes');
+      if (capturaTecla.ouvinte) {
+        e.preventDefault();
+        const ouvinte = capturaTecla.ouvinte;
+        capturaTecla.ouvinte = null;
+        ouvinte(e.code);
         return;
       }
-      if (jogo.painel) return;
-      if (e.code === 'KeyV' && !e.repeat) jogo.alternarCamera();
-      if (e.code === 'KeyE' && !e.repeat) entrada.interagir = true;
+      if (digitando(e)) return;
+      const jogo = useJogo.getState();
+      if (jogo.etapa !== 'jogo') return;
+      if (e.code === 'Escape') {
+        if (jogo.vista === 'externa') jogo.setVista('normal');
+        else jogo.setPainel(jogo.painel ? null : 'menu');
+        return;
+      }
+      const t = jogo.teclas;
+      if (e.code === t.mapa && !e.repeat) {
+        jogo.setPainel(jogo.painel === 'mapa' ? null : 'mapa');
+        return;
+      }
+      if (jogo.painel || jogo.vista === 'externa') return;
+      if (e.code === t.camera && !e.repeat) jogo.alternarCamera();
+      if (e.code === t.interagir && !e.repeat) entrada.interagir = true;
+      if (e.code === t.sentar && !e.repeat) entrada.sentar = true;
+      if (e.code === t.aerea && !e.repeat) jogo.setVista(jogo.vista === 'aerea' ? 'normal' : 'aerea');
       if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
       entrada.teclas.add(e.code);
     };

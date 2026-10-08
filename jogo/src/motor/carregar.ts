@@ -13,7 +13,7 @@ export const caminho = (rel: string) => `${BASE}${rel}`;
 let draco: DRACOLoader | null = null;
 let ktx2: KTX2Loader | null = null;
 
-function configurar(loader: GLTFLoader, gl: WebGLRenderer) {
+export function configurar(loader: GLTFLoader, gl: WebGLRenderer) {
   if (!draco) draco = new DRACOLoader().setDecoderPath(caminho('libs/draco/'));
   if (!ktx2) ktx2 = new KTX2Loader().setTranscoderPath(caminho('libs/basis/')).detectSupport(gl);
   loader.setDRACOLoader(draco);
@@ -24,4 +24,9 @@ function configurar(loader: GLTFLoader, gl: WebGLRenderer) {
 export function useModelo(rel: string): GLTF {
   const gl = useThree((s) => s.gl);
   return useLoader(GLTFLoader, caminho(rel), (loader) => configurar(loader, gl));
+}
+
+/** Começa a baixar um modelo antes de ele ser usado (mesmo cache do useModelo). */
+export function precarregar(rel: string, gl: WebGLRenderer) {
+  useLoader.preload(GLTFLoader, caminho(rel), (loader) => configurar(loader as GLTFLoader, gl));
 }

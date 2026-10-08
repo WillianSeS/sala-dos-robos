@@ -1,48 +1,13 @@
 /* 9. Controles de celular (Pixel 7, tela de toque): joystick, olhar arrastando, pinça, correr, câmera e interação. */
-import { expect, test, type CDPSession, type Locator, type Page } from '@playwright/test';
-import { abrir, estado, passos, perto, posicionar, vigiarConsole } from './ajuda';
-
-type Ponto = { x: number; y: number; id: number };
-
-async function toque(cdp: CDPSession, tipo: 'touchStart' | 'touchMove' | 'touchEnd', pontos: Ponto[]) {
-  await cdp.send('Input.dispatchTouchEvent', { type: tipo, touchPoints: pontos.map((p) => ({ x: p.x, y: p.y, id: p.id })) });
-}
-
-async function centro(l: Locator) {
-  const b = (await l.boundingBox())!;
-  return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
-}
-
-async function semSobreposicao(page: Page) {
-  const ids = ['joystick', 'botao-interagir', 'botao-correr', 'botao-camera-toque', 'botao-camera', 'botao-ajuda', 'botao-config'];
-  const caixas = [];
-  for (const id of ids) {
-    const b = await page.getByTestId(id).boundingBox();
-    expect(b, id).not.toBeNull();
-    caixas.push({ id, ...b! });
-  }
-  const vp = page.viewportSize()!;
-  for (const c of caixas) {
-    expect(c.x, c.id).toBeGreaterThanOrEqual(0);
-    expect(c.y, c.id).toBeGreaterThanOrEqual(0);
-    expect(c.x + c.width, c.id).toBeLessThanOrEqual(vp.width + 0.5);
-    expect(c.y + c.height, c.id).toBeLessThanOrEqual(vp.height + 0.5);
-  }
-  for (let i = 0; i < caixas.length; i++)
-    for (let j = i + 1; j < caixas.length; j++) {
-      const a = caixas[i];
-      const b = caixas[j];
-      const sobrepoe = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-      expect(sobrepoe, `${a.id} x ${b.id}`).toBe(false);
-    }
-}
+import { expect, test } from '@playwright/test';
+import { abrir, centro, estado, passos, perto, posicionar, semSobreposicao, toque, vigiarConsole } from './ajuda';
 
 test('9. controles de celular: joystick, olhar, pinça, correr, câmera e interação', async ({ page }) => {
   const msgs = vigiarConsole(page);
   await abrir(page, { quadro: true });
   const cdp = await page.context().newCDPSession(page);
   expect((await estado(page)).ui.toque).toBe(true);
-  for (const id of ['joystick', 'botao-correr', 'botao-camera-toque', 'botao-interagir']) await expect(page.getByTestId(id)).toBeVisible();
+  for (const id of ['joystick', 'botao-correr', 'botao-camera-toque', 'botao-interagir', 'botao-sentar']) await expect(page.getByTestId(id)).toBeVisible();
   await semSobreposicao(page);
   await test.info().attach('celular-retrato', { body: await page.screenshot(), contentType: 'image/png' });
 

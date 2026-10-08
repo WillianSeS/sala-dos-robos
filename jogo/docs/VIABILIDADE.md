@@ -24,7 +24,7 @@ Na coluna Situação:
 
 | Ferramenta | Situação | Observação |
 |---|---|---|
-| Blender | ✅ | **Blender 5.2.2 LTS como módulo Python** (`pip install bpy`, Python 3.13). O site blender.org está bloqueado, mas o PyPI não. A sala é modelada por `ferramentas/blender/sala_fase1.py`, e `previa.py` renderiza uma prévia no Cycles. |
+| Blender | ✅ | **Blender 5.2.2 LTS como módulo Python** (`pip install bpy`, Python 3.13). O site blender.org está bloqueado, mas o PyPI não. Scripts: `sala_fase1.py` (Fase 1), `andar40.py`, `andares.py`, `elevador.py` e `predio.py` (Fase 2), sobre a biblioteca `comum.py`. `previa.py` renderiza prévias no Cycles, também usadas como miniaturas do mapa. |
 | Python no Blender | ✅ | Geração procedural de geometria, UV em escala real, junção por material e exportação GLB. |
 | GLTF/GLB | ✅ | Todos os modelos do jogo. |
 | glTF Transform | ✅ | 4.5.1 (`ferramentas/otimizar.mjs`): dedup, prune, weld, quantize e compressão. |
@@ -34,7 +34,7 @@ Na coluna Situação:
 | Texturas PBR | 🔁 ✅ | Poly Haven e AmbientCG estão bloqueados pela rede do ambiente. As texturas são **geradas por código** (`ferramentas/texturas/gerar.py`): mármore Nero Marquina, nogueira, gesso, couro, veludo, latão, tapete, quadro, livros, folhas e tela. Cada uma tem mapas de cor, ORM e normal. |
 | HDRI | 🔁 ✅ | O CDN do Poly Haven está bloqueado. Os HDRIs CC0 do Poly Haven vêm do pacote npm `@pmndrs/assets`. Os reflexos finais são **capturados da própria sala** (CubeCamera + PMREM). |
 | Pós-processamento | ✅ | @react-three/postprocessing 3.1.3 / postprocessing 6.39.5: Bloom, N8AO, SMAA, ToneMapping AgX e vinheta. |
-| Mixamo | ⛔ 🔁 | Exige conta Adobe, e o domínio está bloqueado. **Substituído pelas animações do Microsoft Rocketbox** (MIT, mais de 400 clipes de captura de movimento): parado, olhar em volta, caminhada e corrida já estão em uso; sentar, digitar, conversar, beber e outros, nas próximas fases. |
+| Mixamo | ⛔ 🔁 | Exige conta Adobe, e o domínio está bloqueado. **Substituído pelas animações do Microsoft Rocketbox** (MIT, mais de 400 clipes de captura de movimento). Em uso: parado, olhar em volta, caminhada, corrida, sentar, sentado e levantar. Já convertidos para as próximas fases: acenar e conversar. |
 | Rigging no Blender | — | Não foi preciso: os personagens Rocketbox já vêm com esqueleto Biped. |
 | AnimationMixer | ✅ | Com máquina de estados (histerese e transições). A velocidade do clipe acompanha a velocidade real, para não haver pé deslizando. |
 | Navmesh e pathfinding | ⏳ | Fase 3 (NPCs). Candidatos: `recast-navigation-js` (WASM) ou `three-pathfinding`. A disponibilidade será verificada antes. |
@@ -81,3 +81,17 @@ Na coluna Situação:
 - **Personagem.** O modelo Rocketbox tem cerca de 7,6 mil triângulos e texturas de 2K. É realista, mas não é um modelo de cinema. Personagens com mais detalhe (rosto, cabelo, roupas) dependem de fontes externas de modelos.
 - **Teste sem GPU.** No ambiente de teste não há GPU: a renderização por software roda a 2–5 FPS. Por isso os vídeos de evidência são gerados quadro a quadro, a 30 FPS de tempo de jogo. Em aparelhos com GPU o jogo roda em tempo real.
 - **Tamanho do JavaScript.** O pacote JS tem cerca de 2,3 MB comprimido (o WASM do Rapier vai embutido). A divisão em partes e o carregamento progressivo ficam para a Fase 8.
+
+## Limitações conhecidas da Fase 2
+
+- **Andares 41–44 ainda vazios de atividades.** A arquitetura, os móveis principais, as luzes e os assentos já existem. As mesas de jogo, o DJ, o narguilé virtual e o show são da Fase 4; os minijogos, da Fase 5.
+- **Menus das fases seguintes.** Música, Cardápio, Conversar e Amigos aparecem no menu só como aviso de fase futura (Fases 6 e 7). Não há botão sem ação.
+- **Elevador de um jogador só.** A cabine está sempre no andar do jogador. Com o multiplayer (Fase 7), a posição da cabine passa a ser compartilhada e validada no servidor.
+- **Atalhos (mapa e menu).** Eles usam uma cortina preta para levar o jogador até a cabine. A viagem em si é sempre feita pelo elevador.
+- **Luzes por andar.** Um andar tem até cerca de 16 luzes dinâmicas no Equilibrado. Luz pré-calculada (lightmaps) e carregamento mais leve no celular ficam para a Fase 8.
+- **Tamanho dos arquivos.**
+  - Cada andar baixa de 2,6 a 3,2 MB, e as texturas repetidas entre os andares ainda não são compartilhadas.
+  - O JavaScript tem cerca de 2,3 MB comprimido.
+  - As duas coisas ficam para a Fase 8.
+- **Sentar.** O colisor do sofá impede a cápsula de chegar exatamente ao ponto inicial do clipe. A diferença (até cerca de 25 cm) é compensada aos poucos no começo do sentar e no fim do levantar.
+- **Sem GPU no ambiente de teste.** Os vídeos são gerados quadro a quadro (30 FPS de tempo de jogo), como na Fase 1.

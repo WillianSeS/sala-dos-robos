@@ -1,11 +1,11 @@
 /* Porta de nogueira: abre e fecha com E (ou o botão de interação no celular). A folha é um corpo cinemático
    com colisor próprio, que gira em torno da dobradiça; fechada, bloqueia a passagem. */
 import { CuboidCollider, RigidBody, useBeforePhysicsStep, type RapierRigidBody } from '@react-three/rapier';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { consumirInteracao } from '../controles/entrada';
 import { aproximar } from '../controles/movimento';
 import { useJogo } from '../estado/jogo';
+import { candidatar, retirar } from '../mundo/interacoes';
 import { telemetria } from '../testes/telemetria';
 
 export const PORTA_ABERTA = -THREE.MathUtils.degToRad(95);
@@ -40,27 +40,24 @@ export function Porta({ objeto }: { objeto: THREE.Object3D }) {
     if (!b) return;
     const dt = Math.min(w.timestep, 0.1);
     const e = estado.current;
-    const jogo = useJogo.getState();
-    // distância do jogador ao meio do vão
+    // meio do vão: ponto da interação
     const cx = dobradica.x + tam.x / 2;
     const cz = dobradica.z;
     const p = telemetria.pos;
-    const perto = Math.hypot(p.x - cx, p.z - cz) < ALCANCE && !jogo.painel;
     // jogador dentro do arco da folha (lado do corredor): não deixa a porta bater nele
     const noArco = p.x > dobradica.x - 0.35 && p.x < dobradica.x + tam.x + 0.35 && p.z > cz - 0.05 && p.z < cz + tam.x + 0.35;
-    if (perto) {
-      if (consumirInteracao()) {
-        if (noArco) jogo.setDica('Saia da frente da porta', true);
-        else {
-          e.aberta = !e.aberta;
-          jogo.setPortaAberta(e.aberta);
-        }
-      } else if (!(noArco && jogo.dica === 'Saia da frente da porta')) {
-        jogo.setDica(e.aberta ? 'Fechar a porta' : 'Abrir a porta', true);
-      }
-    } else if (jogo.dica && jogo.dica.includes('porta')) {
-      jogo.setDica(null, false);
-    }
+    candidatar({
+      id: 'porta',
+      rotulo: noArco ? 'Saia da frente da porta' : e.aberta ? 'Fechar a porta' : 'Abrir a porta',
+      x: cx,
+      z: cz,
+      alcance: ALCANCE,
+      ativo: !noArco,
+      acao: () => {
+        e.aberta = !e.aberta;
+        useJogo.getState().setPortaAberta(e.aberta);
+      },
+    });
     const alvo = e.aberta ? PORTA_ABERTA : 0;
     e.angulo = aproximar(e.angulo, alvo, 5.5, dt);
     if (Math.abs(e.angulo - alvo) < 0.002) e.angulo = alvo;
@@ -68,6 +65,8 @@ export function Porta({ objeto }: { objeto: THREE.Object3D }) {
     b.setNextKinematicRotation(_q);
     telemetria.porta = { aberta: e.aberta, angulo: e.angulo };
   });
+
+  useEffect(() => () => retirar('porta'), []);
 
   return (
     <RigidBody ref={corpo} type="kinematicPosition" colliders={false} position={[dobradica.x, dobradica.y, dobradica.z]}>

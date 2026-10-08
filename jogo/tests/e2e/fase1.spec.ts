@@ -56,6 +56,8 @@ test.describe('tempo real', () => {
     await page.waitForTimeout(800);
     await page.keyboard.press('KeyV');
     await page.keyboard.press('Escape');
+    await expect(page.getByTestId('painel-menu')).toBeVisible();
+    await page.getByTestId('menu-configuracoes').click();
     await expect(page.getByTestId('painel-configuracoes')).toBeVisible();
     const versao = await page.evaluate(() => window.__jogo.loja.getState().versaoCena);
     await page.getByTestId('qualidade-ultra').click();

@@ -18,6 +18,11 @@ Desde 08/10/2026 o projeto segue o "PROMPT MESTRE: Sala dos Robôs · Las Vegas 
   9. testes finais.
 
   Não comece uma fase sem a anterior validada.
+- **Onde parou (08/10/2026):**
+  - Fase 1 validada no branch `dev/fase-1-movimento`.
+  - Fase 2 (entrada, elevador, cinco andares, mapa, menus, sentar, vistas) no branch `dev/fase-2-predio`.
+  - Próximo passo: Fase 3, com a Aurora e os 10 robôs no 40º andar.
+  - Pendência do responsável: conectar o GitHub na conta Vercel para as prévias automáticas (veja `jogo/docs/VIABILIDADE.md`).
 - **Fluxo de trabalho:**
   - trabalhar em branch de desenvolvimento (`dev/...`);
   - **não** publicar na produção (`gh-pages`) e **não** alterar a `main` sem autorização do responsável;

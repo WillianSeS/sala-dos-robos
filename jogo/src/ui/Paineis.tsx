@@ -1,7 +1,78 @@
-/* Painéis: configurações (qualidade gráfica, câmera, sensibilidade, eixo Y, FPS) e ajuda dos controles. */
-import { startTransition } from 'react';
+/* Painéis: menu principal, configurações (qualidade, câmera, sensibilidade, eixo Y, FPS e teclado),
+   ajuda dos controles, mapa do prédio e painel do elevador. */
+import { startTransition, useEffect, useState } from 'react';
+import { capturaTecla } from '../controles/entrada';
+import { NOME_ACAO, RESERVADAS, rotuloTecla, TECLAS_PADRAO, trocarTecla, type Acao } from '../controles/teclas';
 import { useJogo, type Qualidade } from '../estado/jogo';
 import { PRESETS } from '../motor/qualidade';
+import { chamarElevador, voltarAoInicio } from '../mundo/navegacao';
+import { Mapa } from './Mapa';
+import { PainelElevador } from './PainelElevador';
+
+function Menu() {
+  const setPainel = useJogo((s) => s.setPainel);
+  const nome = useJogo((s) => s.nome);
+  const itens: { id: string; icone: string; titulo: string; texto: string; acao: () => void }[] = [
+    { id: 'inicio', icone: '🏠', titulo: 'Início', texto: 'Volta à fachada e à tela de entrada', acao: voltarAoInicio },
+    { id: 'elevador', icone: '🛗', titulo: 'Elevador', texto: 'Leva você à cabine, com o painel aberto', acao: chamarElevador },
+    { id: 'ambientes', icone: '🏢', titulo: 'Ambientes', texto: 'Os cinco andares e como chegar', acao: () => setPainel('mapa') },
+    { id: 'mapa', icone: '🗺️', titulo: 'Mapa', texto: 'Corte do prédio e onde você está', acao: () => setPainel('mapa') },
+    { id: 'configuracoes', icone: '⚙️', titulo: 'Configurações', texto: 'Gráficos, câmera e teclado', acao: () => setPainel('configuracoes') },
+    { id: 'ajuda', icone: '❔', titulo: 'Controles', texto: 'Teclado, mouse e toque', acao: () => setPainel('ajuda') },
+  ];
+  return (
+    <>
+      <h2>Menu</h2>
+      <p className="ola">Olá, {nome || 'visitante'}.</p>
+      <div className="menu-grade">
+        {itens.map((i) => (
+          <button key={i.id} type="button" className="menu-item" data-testid={`menu-${i.id}`} onClick={i.acao}>
+            <span className="menu-icone" aria-hidden>{i.icone}</span>
+            <strong>{i.titulo}</strong>
+            <small>{i.texto}</small>
+          </button>
+        ))}
+      </div>
+      <p className="em-breve">Música, Cardápio, Conversar e Amigos chegam nas próximas fases (6 e 7), junto com as interações e o multiplayer.</p>
+    </>
+  );
+}
+
+function Teclado() {
+  const teclas = useJogo((s) => s.teclas);
+  const setPreferencia = useJogo((s) => s.setPreferencia);
+  const [esperando, setEsperando] = useState<Acao | null>(null);
+  useEffect(() => () => {
+    capturaTecla.ouvinte = null;
+  }, []);
+  const pedir = (a: Acao) => {
+    setEsperando(a);
+    capturaTecla.ouvinte = (codigo) => {
+      setEsperando(null);
+      if (codigo === 'Escape' || RESERVADAS.has(codigo)) return;
+      setPreferencia('teclas', trocarTecla(useJogo.getState().teclas, a, codigo));
+    };
+  };
+  return (
+    <section>
+      <h3>Teclado</h3>
+      <div className="lista-teclas">
+        {(Object.keys(NOME_ACAO) as Acao[]).map((a) => (
+          <div key={a} className="linha-tecla">
+            <span>{NOME_ACAO[a]}</span>
+            <button type="button" className={esperando === a ? 'esperando' : ''} data-testid={`tecla-${a}`} onClick={() => pedir(a)}>
+              {esperando === a ? 'Aperte uma tecla…' : rotuloTecla(teclas[a])}
+            </button>
+          </div>
+        ))}
+      </div>
+      <p className="nota">As setas sempre andam. Esc fica reservado para o menu.</p>
+      <button type="button" className="botao-simples" data-testid="teclas-padrao" onClick={() => setPreferencia('teclas', TECLAS_PADRAO)}>
+        Restaurar teclas padrão
+      </button>
+    </section>
+  );
+}
 
 function Configuracoes() {
   const s = useJogo();
@@ -58,45 +129,72 @@ function Configuracoes() {
           Mostrar FPS
         </label>
       </section>
+      <section>
+        <h3>Privacidade</h3>
+        <label className="linha caixa">
+          <input type="checkbox" checked={s.mostrarNome} data-testid="mostrar-nome" onChange={(e) => s.setPreferencia('mostrarNome', e.target.checked)} />
+          Mostrar meu nome sobre o avatar
+        </label>
+        <p className="nota">Seu nome ({s.nome || 'visitante'}) fica guardado só neste aparelho. Nesta fase nada é enviado a servidores.</p>
+      </section>
+      {!s.toque && <Teclado />}
     </>
   );
 }
 
 function Ajuda() {
+  const t = useJogo((s) => s.teclas);
+  const k = (a: Acao) => <kbd>{rotuloTecla(t[a])}</kbd>;
   return (
     <>
       <h2>Controles</h2>
       <section className="tabela-controles">
         <h3>Computador</h3>
         <ul>
-          <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ou setas: andar</li>
-          <li><kbd>Shift</kbd> segurado: correr</li>
+          <li>
+            {k('frente')}
+            {k('esquerda')}
+            {k('tras')}
+            {k('direita')} ou setas: andar · {k('correr')} segurado: correr
+          </li>
           <li>Arrastar o mouse: girar a câmera · roda: aproximar/afastar</li>
-          <li><kbd>V</kbd>: primeira/terceira pessoa</li>
-          <li><kbd>E</kbd>: interagir (porta)</li>
-          <li><kbd>Esc</kbd>: menu de configurações</li>
+          <li>{k('interagir')}: interagir (porta, elevador, assentos) · {k('sentar')}: sentar/levantar</li>
+          <li>
+            {k('camera')}: primeira/terceira pessoa · {k('aerea')}: vista aérea · {k('mapa')}: mapa
+          </li>
+          <li>
+            <kbd>Esc</kbd>: menu · clique nos botões do elevador para apertá-los
+          </li>
         </ul>
         <h3>Celular e tablet</h3>
         <ul>
           <li>Joystick à esquerda: andar (empurre até a borda para ir mais rápido)</li>
-          <li>Arrastar na tela: girar a câmera · pinça: aproximar/afastar</li>
-          <li>🏃 liga/desliga a corrida · 👁️ troca a câmera · ✋ interage</li>
+          <li>Arrastar na tela: girar a câmera · pinça: aproximar/afastar · toque nos botões 3D do elevador</li>
+          <li>✋ interage · 🪑 senta/levanta · 🏃 liga/desliga a corrida · 👁️ troca a câmera</li>
         </ul>
       </section>
     </>
   );
 }
 
+const TITULO_VOLTAR: Record<string, string> = { elevador: 'Fechar o painel' };
+
 export function Paineis() {
   const painel = useJogo((s) => s.painel);
   const setPainel = useJogo((s) => s.setPainel);
-  if (!painel) return null;
+  const etapa = useJogo((s) => s.etapa);
+  if (!painel || etapa !== 'jogo') return null;
+  const largo = painel === 'mapa';
   return (
     <div className="painel-fundo" onClick={() => setPainel(null)}>
-      <div className="painel" role="dialog" aria-modal="true" data-testid={`painel-${painel}`} onClick={(e) => e.stopPropagation()}>
-        {painel === 'configuracoes' ? <Configuracoes /> : <Ajuda />}
+      <div className={`painel${largo ? ' largo' : ''}${painel === 'elevador' ? ' latao' : ''}`} role="dialog" aria-modal="true" data-testid={`painel-${painel}`} onClick={(e) => e.stopPropagation()}>
+        {painel === 'menu' && <Menu />}
+        {painel === 'configuracoes' && <Configuracoes />}
+        {painel === 'ajuda' && <Ajuda />}
+        {painel === 'mapa' && <Mapa />}
+        {painel === 'elevador' && <PainelElevador />}
         <button type="button" className="botao-ouro" data-testid="fechar-painel" onClick={() => setPainel(null)}>
-          Voltar ao jogo
+          {TITULO_VOLTAR[painel] ?? 'Voltar ao jogo'}
         </button>
       </div>
     </div>

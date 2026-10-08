@@ -13,6 +13,8 @@ export const telemetria = {
   tempos: {} as Record<string, number>,
   escalaTempo: 1,
   yawCorpo: 0,
+  fase: 'livre' as string,
+  grupo: { x: 0, y: 0, z: 0 },
   camera: { modo: 'terceira' as string, yaw: 0, pitch: 0, zoom: 0, dist: 0, pos: { x: 0, y: 0, z: 0 } },
   porta: { aberta: false, angulo: 0 },
   ossos: { cabeca: { x: 0, y: 0, z: 0 }, peEsq: { x: 0, y: 0, z: 0 }, peDir: { x: 0, y: 0, z: 0 } },
@@ -27,6 +29,13 @@ export const acoesTeste: {
   definirCamera?: (yaw: number, pitch: number) => void;
   estatisticas?: () => Record<string, number>;
   avancar?: (quadros: number, dt: number) => void;
+  irPara?: (n: number) => void;
+  chamarElevador?: () => void;
+  vistaExterna?: (ligar: boolean) => void;
+  entrar?: (nome: string) => void;
+  sentarNoMaisProximo?: () => boolean;
+  apertar?: (botao: string) => void;
+  projetar?: (nome: string) => { x: number; y: number; frente: boolean } | null;
 } = {};
 
 /** ?gravar: o jogo só avança quando o teste manda (quadro a quadro, para gerar vídeo fluido sem GPU). */
@@ -42,10 +51,30 @@ if (modoTeste && typeof window !== 'undefined') {
     estatisticas: () => acoesTeste.estatisticas?.(),
     avancar: (quadros: number, dt = 1 / 30) => acoesTeste.avancar?.(quadros, dt),
     loja: useJogo,
+    navegar: acoesTeste,
   };
 }
 
 function pickUi() {
   const s = useJogo.getState();
-  return { carregado: s.carregado, modoCamera: s.modoCamera, qualidade: s.qualidade, dica: s.dica, portaAberta: s.portaAberta, painel: s.painel, toque: s.toque, correndoToque: s.correndoToque };
+  return {
+    carregado: s.carregado,
+    modoCamera: s.modoCamera,
+    qualidade: s.qualidade,
+    dica: s.dica,
+    portaAberta: s.portaAberta,
+    painel: s.painel,
+    toque: s.toque,
+    correndoToque: s.correndoToque,
+    etapa: s.etapa,
+    vista: s.vista,
+    andar: s.andar,
+    andarPronto: s.andarPronto,
+    elevador: s.elevador,
+    sentado: s.sentado,
+    podeSentar: s.podeSentar,
+    cortina: s.cortina,
+    nome: s.nome,
+    aviso: s.aviso,
+  };
 }

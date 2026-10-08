@@ -1,9 +1,11 @@
-/* Cidade noturna vista do 40º andar: prédios instanciados com janelas acesas calculadas no shader
-   (sem textura), ruas com luz âmbar, céu em degradê e estrelas. O piso da sala fica ~150 m acima da rua. */
+/* Cidade noturna: prédios instanciados com janelas acesas calculadas no shader (sem textura), ruas com luz
+   âmbar, céu em degradê e estrelas. Dentro do prédio a rua fica bem abaixo do piso (o 40º andar está a 164 m);
+   na fachada, a frente da torre fica livre para a câmera e a praça. */
 import { useMemo } from 'react';
 import * as THREE from 'three';
 
-const RUA = -150;
+/** Altura das janelas acesas: a grade é calculada a partir da rua (y local 0). */
+const RUA = 0;
 
 function aleatorio(semente: number) {
   let s = semente >>> 0;
@@ -102,7 +104,7 @@ const fragCeu = /* glsl */ `
   }
 `;
 
-export function Cidade({ quantidade, distancia }: { quantidade: number; distancia: number }) {
+export function Cidade({ quantidade, distancia, chao = -164, frenteLivre = false }: { quantidade: number; distancia: number; chao?: number; frenteLivre?: boolean }) {
   const nevoa = useMemo(() => new THREE.Color('#2a1530'), []);
   const densidade = 1.6 / distancia;
 
@@ -136,6 +138,8 @@ export function Cidade({ quantidade, distancia }: { quantidade: number; distanci
       const x = (r() - 0.5) * distancia * 1.6;
       const z = norte ? -60 - r() * distancia : (r() - 0.5) * distancia * 1.6;
       if (Math.hypot(x, z) < 70) continue;
+      // na fachada: rua, praça e o caminho da câmera (frente da torre) sem prédios
+      if (frenteLivre && z > 18 && z < 260 && Math.abs(x) < z * 1.1 + 70) continue;
       const qx = ((x % 80) + 80) % 80;
       const qz = ((z % 80) + 80) % 80;
       if (qx < 14 || qz < 14) continue;
@@ -146,7 +150,7 @@ export function Cidade({ quantidade, distancia }: { quantidade: number; distanci
       lista.push({ x, z, w, d, h });
     }
     return lista;
-  }, [quantidade, distancia]);
+  }, [quantidade, distancia, frenteLivre]);
 
   const instancias = useMemo(() => {
     const mesh = new THREE.InstancedMesh(geo, matPredio, predios.length);
@@ -161,7 +165,7 @@ export function Cidade({ quantidade, distancia }: { quantidade: number; distanci
   }, [geo, matPredio, predios]);
 
   return (
-    <group>
+    <group position={[0, chao, 0]}>
       <mesh material={matCeu} renderOrder={-10}>
         <sphereGeometry args={[2600, 32, 16]} />
       </mesh>

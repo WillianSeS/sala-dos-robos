@@ -7,6 +7,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import comum as C  # noqa: E402
 from comum import M, caixa, cilindro, colisor, plano, texto, vazio  # noqa: E402
+import bpy  # noqa: E402
 
 TEX, OUT = sys.argv[-2], sys.argv[-1]
 FONTES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fontes')
@@ -59,6 +60,7 @@ for lado, sinal in (('esq', -1), ('dir', 1)):
     for onde, z in (('cab', Z0 + 0.07), ('hall', Z0 - 0.07)):
         p = caixa(f'PORTA_{onde}_{lado}', (cx, FH / 2, z), (FW - 0.004, FH - 0.01, FT), M['aco'], 0.003)
         C.mover_origem(p, (cx, 0, z))
+        bpy.context.view_layer.update()  # matriz da folha atualizada antes de prender o friso nela
         caixa(f'PORTA_{onde}_{lado}_friso', (cx + sinal * (FW / 2 - 0.03), FH / 2, z), (0.012, FH - 0.2, FT + 0.004), M['latao']).parent = p
         p.children[0].matrix_parent_inverse = p.matrix_world.inverted()
 vazio('PONTO_cabine', (XM, 0, (Z0 + Z1) / 2 + 0.2), yaw=0.0)

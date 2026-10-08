@@ -5,3 +5,4 @@ playwright-report
 *.local
 public/libs
 evidencias/*.mp4
+evidencias/partes/
