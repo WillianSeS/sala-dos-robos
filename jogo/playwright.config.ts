@@ -23,6 +23,7 @@ export default defineConfig({
     { name: 'video', testMatch: /sessao\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } } },
     { name: 'fase2', testMatch: /fase2\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
     { name: 'celular2', testMatch: /celular2\.spec\.ts/, use: { ...devices['Pixel 7'] } },
+    { name: 'fase3', testMatch: /fase3\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
     { name: 'video2', testMatch: /sessao2\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
   ],
   webServer: URL_JOGO

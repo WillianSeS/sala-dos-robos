@@ -11,6 +11,7 @@ import type { Preset } from '../motor/qualidade';
 import { modeloAndar, type NumeroAndar } from './andares';
 import { aplicarCorte, comandosJogador, type Assento, type Ponto } from './comandos';
 import { Especiais } from './Especiais';
+import { Equipe40 } from './Equipe40';
 import { materialIndicador } from './indicador';
 import { candidatar, retirar } from './interacoes';
 
@@ -166,6 +167,7 @@ export function Andar({ n, preset }: { n: NumeroAndar; preset: Preset }) {
       <Assentos assentos={dados.assentos} />
       <Luzes luzes={dados.luzes} preset={preset} tema={TEMAS[n]} />
       <Especiais n={n} dados={dados} preset={preset} />
+      {n === 40 && <Equipe40 />}
     </>
   );
 }
