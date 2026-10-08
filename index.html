@@ -112,7 +112,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .disco-panel .pool-row{justify-content:flex-start}.disco-panel button{min-height:38px}.disco-panel button[aria-pressed="true"]{border-color:#f285ff;background:#542168}
 .disco-emoji{appearance:none;border:1px solid var(--line);border-radius:10px;background:#ffffff0a;font-size:24px;padding:4px 11px;cursor:pointer}
 .disco-panel label{font-size:11px;display:flex;align-items:center;gap:8px}.disco-panel select{flex:1;min-width:0;background:#21162e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px var(--mono)}
-.disco-shortcuts{position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
+.disco-shortcuts{display:flex;gap:6px;flex-wrap:wrap;max-width:300px;justify-content:flex-end;position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
 @media(max-width:600px){.disco-shortcuts{top:calc(155px + env(safe-area-inset-top,0px))}.disco-panel .btn.sm{padding:8px 9px;font-size:11px}.disco-panel{gap:8px}}
 @media(max-height:500px){.disco-panel{max-height:calc(100dvh - 70px);overflow:auto;left:14px;transform:none;width:330px}.disco-shortcuts{top:110px}}
 </style>
@@ -128,7 +128,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
 <div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
-<div class="disco-shortcuts"><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
+<div class="disco-shortcuts"><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <b>🪩 Discoteca dos Robôs</b><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
   <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>
@@ -647,12 +647,12 @@ skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.ad
 /* parede direita (porta) e parede da frente */
 mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
 B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
-/* passagem central para a discoteca */
-for (const x of [-4.55, 4.55]) {
-  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, 6.9, RH, 1, false);
-  B(mat.base, x, 0.05, 5.99, 6.9, 0.1, 0.02, { group: 'wallFront', cast: false });
+/* passagens separadas para a discoteca e a sala de jogos */
+for (const [x, width] of [[-4.55, 6.9], [2.75, 3.3], [7.3, 1.4]]) {
+  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, width, RH, 1, false);
+  B(mat.base, x, 0.05, 5.99, width, 0.1, 0.02, { group: 'wallFront', cast: false });
 }
-B(mat.plasterLight, 0, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
+for (const x of [0, 5.5]) B(mat.plasterLight, x, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
 /* porta de madeira com batente */
 const doorWood = M({ map: TEX.slat, color: '#8a6a4a', roughness: 0.5 });
 B(doorWood, 7.975, 1.08, -4.8, 0.04, 2.16, 0.94, { group: 'wallRight' });
@@ -690,7 +690,7 @@ deskSpots.forEach(([x, z]) => spot(x, 3.12, z, x, 0, z, HIGH ? 42 : 70, HIGH ? 1
 spot(0, 3.12, -4.9, 0, 0, -4.6, 22, 1.05, 0xfff3e2, false);
 spot(-5.2, 3.12, 4.5, -5.2, 0, 4.5, 22, 1.0, 0xffd6a0, false);             /* sofá */
 spot(6.6, 3.12, 4.0, 6.9, 0, 4.0, 20, 0.95, 0xffe0b8, false);              /* café */
-const poolSpot = spot(2.6, 1.95, 4.3, 2.6, 0, 4.3, 12, 1.0, 0xffd29a, HIGH); /* sinuca */
+const poolSpot = spot(8, 1.95, 9.4, 8, 0, 9.4, 12, 1.0, 0xffd29a, HIGH); /* sinuca */
 const lampLight = new THREE.PointLight(0xffc27a, 3, 6, 2); lampLight.position.set(-2.95, 1.62, 5.45); scene.add(lampLight);
 
 /* colisores das paredes são tratados pelos limites da sala no controle */
@@ -835,10 +835,6 @@ for (const [dx, dz] of [[-0.54, -0.24], [0.54, -0.24], [-0.54, 0.24], [0.54, 0.2
 B(mat.paper, -5.3, 0.425, 4.5, 0.3, 0.01, 0.22, { cast: false }, 0.3);
 S(G.cyl, mat.mugDark, -4.8, 0.47, 4.6, 0, 0, 0, 0.06, 0.12, 0.06);
 C(-5.75, -4.45, 4.2, 4.9);
-/* cartas e fichas do clube do 21 na mesa de centro */
-B(mat.felt, -5.1, 0.431, 4.55, 0.66, 0.008, 0.43, { cast: false });
-for (const dx of [-0.13, 0, 0.13]) B(mat.paper, -5.1 + dx, 0.438, 4.55, 0.095, 0.006, 0.14, { cast: false });
-for (let k = 0; k < 4; k++) S(G.cyl, mat.pillowA, -4.9, 0.439 + k * 0.009, 4.7, 0, 0, 0, 0.027, 0.008, 0.027);
 /* poltrona */
 {
   const m = mtx(-2.75, 0, 4.45, 0, -Math.PI / 2 - 0.25, 0);
@@ -856,9 +852,9 @@ S(G.cyl, mat.frame, -2.95, 0.8, 5.45, 0, 0, 0, 0.012, 1.56, 0.012);
 mesh(new THREE.CylinderGeometry(0.17, 0.22, 0.3, 24, 1, true), mat.shade, GROUPS.main, -2.95, 1.66, 5.45, 0, 0, 0, 1, 1, 1, false);
 C(-3.15, -2.75, 5.25, 5.65);
 
-/* mesa de sinuca (centro 2.6, 4.3) */
+/* mesa de sinuca (centro 8, 9.4) */
 {
-  const cx = 2.6, cz = 4.3;
+  const cx = 8, cz = 9.4;
   SM(rbox(2.6, 0.2, 1.4, 0.03), mat.walnut, mtx(cx, 0.66, cz));
   SM(rbox(2.72, 0.08, 0.14, 0.02), mat.walnut, mtx(cx, 0.79, cz - 0.68));
   SM(rbox(2.72, 0.08, 0.14, 0.02), mat.walnut, mtx(cx, 0.79, cz + 0.68));
@@ -945,11 +941,7 @@ function plant(x, z, s = 1, n = 18) {
   }
   C(x - 0.26 * s, x + 0.26 * s, z - 0.26 * s, z + 0.26 * s);
 }
-/* suporte de tacos na parede da frente, atrás da sinuca */
-B(mat.walnut, 2.6, 1.05, 5.96, 0.9, 0.06, 0.07, { group: 'wallFront' });
-B(mat.walnut, 2.6, 0.22, 5.95, 0.9, 0.05, 0.09, { group: 'wallFront' });
-for (let k = 0; k < 5; k++) S(PG_CUE, cueMat0, 2.24 + k * 0.18, 0.2, 5.9, -Math.PI / 2 + 0.03, 0, 0, 1, 1, 1, { group: 'wallFront' });
-plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
+plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(3.25, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
 
 /* ================= sala anexa: discoteca ================= */
 const CLUB = { tiles: [], lights: [], beams: [], ball: null, particles: new THREE.Group() };
@@ -1027,6 +1019,37 @@ for (let i = 0; i < 16; i++) {
   CLUB.beams.push(reflection);
 }
 GROUPS.main.add(CLUB.particles);
+
+/* ================= sala de jogos, separada do escritório ================= */
+const gameWall = MC('#263334', 0.9);
+for (const [key, p, n] of [
+  ['gamesLeft', [4, 1.6, 10], [1, 0, 0]], ['gamesFront', [10, 1.6, 6], [0, 0, 1]], ['gamesRight', [12, 1.6, 10], [-1, 0, 0]], ['gamesBack', [8, 1.6, 14], [0, 0, -1]],
+]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
+mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
+B(gameWall, 12, 1.6, 10, 0.08, RH, 8, { group: 'gamesRight', cast: false });
+B(gameWall, 8, 1.6, 14, 8, RH, 0.08, { group: 'gamesBack', cast: false });
+B(gameWall, 4.01, 1.6, 10, 0.02, RH, 8, { group: 'gamesLeft', cast: false });
+B(gameWall, 10, 1.6, 6, 4, RH, 0.08, { group: 'gamesFront', cast: false });
+mesh(G.plane, gameWall, GROUPS.main, 8, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
+clubSign('SALA DE JOGOS', 'SINUCA • CLUBE DO 21', 5.5, 2.77, 5.93, 1.9, 0.56, 'wallFront');
+clubSign('ESCRITÓRIO', '← VOLTAR AO PREGÃO', 5.5, 2.77, 6.06, 1.9, 0.56, 'wallFront', 0);
+clubSign('CLUBE DO 21', 'FICHAS DE BRINCADEIRA • DIVIRTA-SE', 8, 2.3, 13.92, 4.4, 1.1, 'gamesBack');
+for (const x of [4.38, 6.62]) B(mat.chrome, x, 1.2, 5.94, 0.04, 2.4, 0.04, { group: 'wallFront', cast: false });
+// Mesa de cartas dedicada: o café e o sofá continuam no escritório.
+B(mat.walnut, 8, 0.72, 12.1, 2.5, 0.16, 1.2);
+B(mat.felt, 8, 0.805, 12.1, 2.3, 0.01, 1.02, { cast: false });
+for (const x of [7, 9]) for (const z of [11.7, 12.5]) B(mat.walnut, x, 0.34, z, 0.12, 0.68, 0.12);
+for (const dx of [-0.18, 0, 0.18]) B(mat.paper, 8 + dx, 0.819, 11.95, 0.12, 0.008, 0.19, { cast: false });
+for (let k = 0; k < 5; k++) S(G.cyl, mat.pillowA, 8.5, 0.827 + k * 0.009, 12.25, 0, 0, 0, 0.045, 0.008, 0.045);
+C(6.7, 9.3, 11.45, 12.75);
+B(mat.walnut, 10.6, 1.05, 13.94, 0.9, 0.06, 0.07, { group: 'gamesBack' });
+B(mat.walnut, 10.6, 0.22, 13.94, 0.9, 0.05, 0.09, { group: 'gamesBack' });
+for (let k = 0; k < 5; k++) S(PG_CUE, cueMat0, 10.24 + k * 0.18, 0.2, 13.9, -Math.PI / 2 + 0.03, 0, 0, 1, 1, 1, { group: 'gamesBack' });
+const gamesLight = new THREE.PointLight(0xffe4b8, 6, 13, 2); gamesLight.position.set(8, 2.8, 12); scene.add(gamesLight);
+
+linearLamp(8, 7.2, 2.5); linearLamp(8, 12.1, 2.5);
+spot(8, 3.12, 12.1, 8, 0, 12.1, 24, 1.05, 0xffe0b8, false);
+spot(5.5, 3.12, 7.4, 5.5, 0, 7.4, 18, 1.05, 0xffe0b8, false);
 
 
 /* ================= itens de parede e sinalização ================= */
@@ -1443,10 +1466,10 @@ const openPnl = () => robots.reduce((s, r) => s + (r.trade ? r.trade.pnl : 0), 0
 const equity = () => BASE + realized + openPnl();
 
 /* ---------- caminhos (grafo de corredores) ---------- */
-const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], poolW: [0.45, 3.15], poolE: [4.6, 3.15], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
+const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], officeFront: [0.45, 3.15], officeRight: [4.6, 3.15], poolW: [5.5, 9.4], poolE: [10, 10.8], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-Object.assign(NODES, { discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
-const EDGES = [['poolW', 'discoGate'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { gamesGate: [5.5, 5.5], gamesDoor: [5.5, 7.1], gamesBack: [5.5, 10.8], discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
+const EDGES = [['officeFront', 'discoGate'], ['officeRight', 'gamesGate'], ['gamesGate', 'gamesDoor'], ['gamesDoor', 'poolW'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
@@ -1463,8 +1486,8 @@ const SPOTS = {
   dance2: { x: 1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   dance3: { x: 0, z: 11.1, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   sofa: { x: -6.1, z: 5.37, yaw: Math.PI, pose: 'sofa', node: 'sofaA', w: 1 },
-  poolShoot: { x: 0.82, z: 4.32, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
-  poolWait: { x: 4.5, z: 4.95, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
+  poolShoot: { x: 6.22, z: 9.42, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
+  poolWait: { x: 9.9, z: 10.05, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
   coffee: { x: 7.0, z: 3.95, yaw: Math.PI / 2, pose: 'standCup', node: 'coffeeA', w: 1.4 },
   window: { x: -7.35, z: 0.95, yaw: -Math.PI / 2, pose: 'pocket', node: 'winA', w: 0.8 },
   watch: { x: -0.9, z: -4.72, yaw: Math.PI, pose: 'cross', node: 'F2', w: 0.8 },
@@ -1785,7 +1808,10 @@ canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault
 /* colisão do visitante com móveis e pessoas */
 function blocked(x, z) {
   if (z > RD - PR) {
-    if (Math.abs(x) > 4 - PR || z > 14 - PR || (z < RD + PR && Math.abs(x) > 1.1 - PR)) return true;
+    const disco = x >= -4 + PR && x <= 4 - PR;
+    const games = x >= 4 + PR && x <= 12 - PR;
+    const door = Math.abs(x) <= 1.1 - PR || Math.abs(x - 5.5) <= 1.1 - PR;
+    if ((!disco && !games) || z > 14 - PR || (z < RD + PR && !door)) return true;
   } else if (x < -RW + PR || x > RW - PR || z < -RD + PR) return true;
   for (const c of COLL) if (x > c.minX - PR && x < c.maxX + PR && z > c.minZ - PR && z < c.maxZ + PR) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
@@ -1844,7 +1870,7 @@ function findAct() {
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
   if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
-  consider(-5.1, 4.55, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
+  consider(8, 12.1, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
   if (Math.hypot(ex, ez) < 1.1) consider(POOL.cx, POOL.cz, 4, 0.3, 'Jogar sinuca', () => startPool(null));
@@ -1881,6 +1907,8 @@ const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').repl
 function updateActUI() {
   const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
   $('discoPanel').hidden = !club;
+  $('gamesGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inGames(fp.pos.x, fp.pos.z);
+  $('gamesBack').hidden = !inRoom || mode !== 'fp' || !inGames(fp.pos.x, fp.pos.z);
   $('discoGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inDisco(fp.pos.x, fp.pos.z);
   $('musicOpen').hidden = !inRoom || !['fp', 'seat', 'music'].includes(mode);
   let label = null;
@@ -1899,7 +1927,7 @@ btnAct.addEventListener('click', doAct);
 
 
 /* ================= sinuca jogável (física 2D sobre a mesa) ================= */
-const POOL = { cx: 2.6, cz: 4.3, R: 0.0286, hx: 1.22, hz: 0.61, y: 0.8, active: false, state: 'idle', turn: 'you', score: { you: 0, bot: 0 },
+const POOL = { cx: 8, cz: 9.4, R: 0.0286, hx: 1.22, hz: 0.61, y: 0.8, active: false, state: 'idle', turn: 'you', score: { you: 0, bot: 0 },
   opp: null, aim: 0, power: 0, charging: false, chargeT: 0, shotPotted: 0, cueFoul: false, botT: 0, botAim: 0, botPow: 0, stroke: 0, side: 1, back: null, solo: false };
 const POCKETS = [[-1.215, -0.6, 0.066], [0, -0.635, 0.058], [1.215, -0.6, 0.066], [-1.215, 0.6, 0.066], [0, 0.635, 0.058], [1.215, 0.6, 0.066]];
 const BALL_COL = [null, '#f2c230', '#1d4fbf', '#d0312d', '#5b2a86', '#ef7d22', '#1f7a3a', '#7a1f2b', '#111111', '#f2c230', '#1d4fbf', '#d0312d', '#5b2a86', '#ef7d22', '#1f7a3a', '#7a1f2b'];
@@ -2288,6 +2316,11 @@ function startCasino(pref) {
   const available = r => !r.trade && !r.inPool && !r.inCasino && !r.talking;
   const r = pref ? (available(pref) ? pref : null) : robots.find(available);
   if (!r) { $('status').textContent = 'Todos estão ocupados. Chame um robô sem operação para jogar 21.'; help.textContent = 'Todos os robôs estão ocupados. Tente novamente em instantes.'; help.hidden = false; help.style.opacity = '1'; return; }
+  // Convites feitos no escritório também levam o visitante à mesa de jogos.
+  if (!inGames(fp.pos.x, fp.pos.z)) {
+    fp.pos.set(8, 0, 10.8); fp.yaw = Math.PI; fp.pitch = -0.12;
+    camera.position.set(8, EYE, 10.8); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch));
+  }
   CASINO.active = true; CASINO.opp = r; r.inCasino = true; r.talking = true;
   CASINO.state = 'idle'; CASINO.you = []; CASINO.bot = [];
   CASINO.msg = 'Bora! Toque em Nova rodada para distribuir as cartas.';
@@ -2412,6 +2445,25 @@ $('musicFile').onchange = () => {
   $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir.';
 };
 MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
+
+/* Acesso à sala de jogos sem interromper a simulação do escritório. */
+const inGames = (x, z) => x > 4.2 && x < 11.8 && z > 6.4 && z < 13.8;
+function goGames() {
+  if (!inRoom || !['fp', 'seat'].includes(mode)) return;
+  if (mode === 'seat') { standUp(goGames); return; }
+  fp.vel.set(0, 0, 0);
+  if (document.pointerLockElement) document.exitPointerLock();
+  fp.pos.set(5.5, 0, 7.1); fp.yaw = -2.25; fp.pitch = 0;
+  startTween(new THREE.Vector3(5.5, EYE, 7.1), fpQuat(fp.yaw, 0), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; });
+}
+function exitGames() {
+  if (mode !== 'fp') return;
+  fp.vel.set(0, 0, 0);
+  fp.pos.set(5.5, 0, 5.5); fp.yaw = 0; fp.pitch = 0;
+  startTween(new THREE.Vector3(5.5, EYE, 5.5), fpQuat(0, 0), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; });
+}
+$('gamesGo').addEventListener('click', goGames);
+$('gamesBack').addEventListener('click', exitGames);
 
 /* ================= dança, reações e acesso à discoteca ================= */
 const DISCO_STYLES = ['groove', 'disco', 'party'];
@@ -2725,7 +2777,7 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
       v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
       if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
         v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
@@ -3081,7 +3133,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>

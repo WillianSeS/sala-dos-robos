@@ -104,7 +104,10 @@ canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault
 /* colisão do visitante com móveis e pessoas */
 function blocked(x, z) {
   if (z > RD - PR) {
-    if (Math.abs(x) > 4 - PR || z > 14 - PR || (z < RD + PR && Math.abs(x) > 1.1 - PR)) return true;
+    const disco = x >= -4 + PR && x <= 4 - PR;
+    const games = x >= 4 + PR && x <= 12 - PR;
+    const door = Math.abs(x) <= 1.1 - PR || Math.abs(x - 5.5) <= 1.1 - PR;
+    if ((!disco && !games) || z > 14 - PR || (z < RD + PR && !door)) return true;
   } else if (x < -RW + PR || x > RW - PR || z < -RD + PR) return true;
   for (const c of COLL) if (x > c.minX - PR && x < c.maxX + PR && z > c.minZ - PR && z < c.maxZ + PR) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }

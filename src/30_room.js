@@ -52,12 +52,12 @@ skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.ad
 /* parede direita (porta) e parede da frente */
 mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
 B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
-/* passagem central para a discoteca */
-for (const x of [-4.55, 4.55]) {
-  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, 6.9, RH, 1, false);
-  B(mat.base, x, 0.05, 5.99, 6.9, 0.1, 0.02, { group: 'wallFront', cast: false });
+/* passagens separadas para a discoteca e a sala de jogos */
+for (const [x, width] of [[-4.55, 6.9], [2.75, 3.3], [7.3, 1.4]]) {
+  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, width, RH, 1, false);
+  B(mat.base, x, 0.05, 5.99, width, 0.1, 0.02, { group: 'wallFront', cast: false });
 }
-B(mat.plasterLight, 0, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
+for (const x of [0, 5.5]) B(mat.plasterLight, x, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
 /* porta de madeira com batente */
 const doorWood = M({ map: TEX.slat, color: '#8a6a4a', roughness: 0.5 });
 B(doorWood, 7.975, 1.08, -4.8, 0.04, 2.16, 0.94, { group: 'wallRight' });
@@ -95,7 +95,7 @@ deskSpots.forEach(([x, z]) => spot(x, 3.12, z, x, 0, z, HIGH ? 42 : 70, HIGH ? 1
 spot(0, 3.12, -4.9, 0, 0, -4.6, 22, 1.05, 0xfff3e2, false);
 spot(-5.2, 3.12, 4.5, -5.2, 0, 4.5, 22, 1.0, 0xffd6a0, false);             /* sofá */
 spot(6.6, 3.12, 4.0, 6.9, 0, 4.0, 20, 0.95, 0xffe0b8, false);              /* café */
-const poolSpot = spot(2.6, 1.95, 4.3, 2.6, 0, 4.3, 12, 1.0, 0xffd29a, HIGH); /* sinuca */
+const poolSpot = spot(8, 1.95, 9.4, 8, 0, 9.4, 12, 1.0, 0xffd29a, HIGH); /* sinuca */
 const lampLight = new THREE.PointLight(0xffc27a, 3, 6, 2); lampLight.position.set(-2.95, 1.62, 5.45); scene.add(lampLight);
 
 /* colisores das paredes são tratados pelos limites da sala no controle */

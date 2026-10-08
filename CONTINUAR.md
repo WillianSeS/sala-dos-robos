@@ -52,9 +52,10 @@ Partes de `src/`:
 | `00_head.html` | Título, fontes, todo o CSS, o HTML da interface, o import map do Three.js e a abertura do `<script type="module">`. |
 | `10_core.js` | Renderizador, utilidades (`rnd`, `clamp`, `damp`, `money`…), materiais, geometrias, junção de malhas estáticas, colisores. |
 | `20_textures.js` | Texturas procedurais e a vista de Nova York (Empire State, Chrysler etc.). |
-| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. |
+| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. A sala de jogos ocupa x de 4 a 12, z de 6 a 14, com porta em x=5,5; a sinuca fica em (8; 9,4) e o 21 em (8; 12,1). |
 | `40_furniture.js` | Mesas (`STATIONS`, `SCREENS`), sofá, mesa de sinuca, café, geladeira (`FRIDGE`). |
 | `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
+| `43_games_room.js` | Sala de jogos: paredes, iluminação, mesa do 21, placas e tacos. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
 | `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
@@ -65,6 +66,7 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias) e música local por Web Audio ou arquivo do aparelho. |
+| `77y_games.js` | Atalhos para entrar na sala de jogos e voltar ao escritório. |
 | `77z_disco.js` | Acesso à discoteca, dança procedural e realista, reações, convites e câmera. |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
 | `78v_voice.js` | Chat de voz (WebRTC + som 3D). Também chama `mpInit()`. |
@@ -98,6 +100,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_sala_jogos.py` valida entradas, paredes, sinuca e 21 na sala separada, caminhos dos robôs, presença fora dos limites antigos e retorno no desktop/celular.
 - `python3 testes/teste_discoteca.py` valida passagem e colisões, danças realistas, robôs andando à pista, emojis e dança entre visitantes, música e saída no desktop/celular.
 - `python3 testes/teste_lazer.py` valida 21 (ás, vitória, derrota, empate, fichas e saída), música (estilos, volume, arquivo e parada) e interface em desktop/celular. Usa Supabase falso.
 - `python3 testes/teste_multiplayer.py` testa duas pessoas na sala com um Supabase falso. Ele confere:

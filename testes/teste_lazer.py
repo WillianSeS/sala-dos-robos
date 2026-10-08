@@ -20,7 +20,7 @@ with sync_playwright() as p:
         page.evaluate('__sala.renderer.setPixelRatio(0.4); __sala.renderer.setSize(innerWidth,innerHeight,false)')
         page.evaluate("__sala.setFP(-5.1,3.4,Math.PI); const r=__sala.robots.find(r=>!r.inPool); if(r.trade) __sala.closeTrade(r,'teste'); window.testRobot=r; __sala.openTalk(r)")
         page.get_by_role('button', name='Bora jogar 21?').click()
-        assert page.evaluate("__sala.mode==='casino' && testRobot.inCasino")
+        assert page.evaluate("__sala.mode==='casino' && testRobot.inCasino && __sala.inGames(__sala.fp.pos.x,__sala.fp.pos.z)")
         print('Distribuindo cartas', flush=True)
         page.click('#casinoDeal')
         assert page.evaluate('__sala.CASINO.deck.length===48 && __sala.CASINO.balance>=90')

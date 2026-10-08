@@ -21,7 +21,7 @@ function findAct() {
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
   if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
-  consider(-5.1, 4.55, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
+  consider(8, 12.1, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
   if (Math.hypot(ex, ez) < 1.1) consider(POOL.cx, POOL.cz, 4, 0.3, 'Jogar sinuca', () => startPool(null));
@@ -58,6 +58,8 @@ const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').repl
 function updateActUI() {
   const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
   $('discoPanel').hidden = !club;
+  $('gamesGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inGames(fp.pos.x, fp.pos.z);
+  $('gamesBack').hidden = !inRoom || mode !== 'fp' || !inGames(fp.pos.x, fp.pos.z);
   $('discoGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inDisco(fp.pos.x, fp.pos.z);
   $('musicOpen').hidden = !inRoom || !['fp', 'seat', 'music'].includes(mode);
   let label = null;

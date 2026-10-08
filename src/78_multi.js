@@ -167,7 +167,7 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 7.8); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 13.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
       v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
       if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
         v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);

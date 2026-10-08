@@ -111,7 +111,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .disco-panel .pool-row{justify-content:flex-start}.disco-panel button{min-height:38px}.disco-panel button[aria-pressed="true"]{border-color:#f285ff;background:#542168}
 .disco-emoji{appearance:none;border:1px solid var(--line);border-radius:10px;background:#ffffff0a;font-size:24px;padding:4px 11px;cursor:pointer}
 .disco-panel label{font-size:11px;display:flex;align-items:center;gap:8px}.disco-panel select{flex:1;min-width:0;background:#21162e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:12px var(--mono)}
-.disco-shortcuts{position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
+.disco-shortcuts{display:flex;gap:6px;flex-wrap:wrap;max-width:300px;justify-content:flex-end;position:fixed;right:16px;top:calc(110px + env(safe-area-inset-top,0px));z-index:2}.disco-shortcuts .btn{border-color:#bd6bff88}
 @media(max-width:600px){.disco-shortcuts{top:calc(155px + env(safe-area-inset-top,0px))}.disco-panel .btn.sm{padding:8px 9px;font-size:11px}.disco-panel{gap:8px}}
 @media(max-height:500px){.disco-panel{max-height:calc(100dvh - 70px);overflow:auto;left:14px;transform:none;width:330px}.disco-shortcuts{top:110px}}
 </style>
@@ -127,7 +127,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
 <div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
-<div class="disco-shortcuts"><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
+<div class="disco-shortcuts"><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <b>🪩 Discoteca dos Robôs</b><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
   <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>

@@ -138,10 +138,6 @@ for (const [dx, dz] of [[-0.54, -0.24], [0.54, -0.24], [-0.54, 0.24], [0.54, 0.2
 B(mat.paper, -5.3, 0.425, 4.5, 0.3, 0.01, 0.22, { cast: false }, 0.3);
 S(G.cyl, mat.mugDark, -4.8, 0.47, 4.6, 0, 0, 0, 0.06, 0.12, 0.06);
 C(-5.75, -4.45, 4.2, 4.9);
-/* cartas e fichas do clube do 21 na mesa de centro */
-B(mat.felt, -5.1, 0.431, 4.55, 0.66, 0.008, 0.43, { cast: false });
-for (const dx of [-0.13, 0, 0.13]) B(mat.paper, -5.1 + dx, 0.438, 4.55, 0.095, 0.006, 0.14, { cast: false });
-for (let k = 0; k < 4; k++) S(G.cyl, mat.pillowA, -4.9, 0.439 + k * 0.009, 4.7, 0, 0, 0, 0.027, 0.008, 0.027);
 /* poltrona */
 {
   const m = mtx(-2.75, 0, 4.45, 0, -Math.PI / 2 - 0.25, 0);
@@ -159,9 +155,9 @@ S(G.cyl, mat.frame, -2.95, 0.8, 5.45, 0, 0, 0, 0.012, 1.56, 0.012);
 mesh(new THREE.CylinderGeometry(0.17, 0.22, 0.3, 24, 1, true), mat.shade, GROUPS.main, -2.95, 1.66, 5.45, 0, 0, 0, 1, 1, 1, false);
 C(-3.15, -2.75, 5.25, 5.65);
 
-/* mesa de sinuca (centro 2.6, 4.3) */
+/* mesa de sinuca (centro 8, 9.4) */
 {
-  const cx = 2.6, cz = 4.3;
+  const cx = 8, cz = 9.4;
   SM(rbox(2.6, 0.2, 1.4, 0.03), mat.walnut, mtx(cx, 0.66, cz));
   SM(rbox(2.72, 0.08, 0.14, 0.02), mat.walnut, mtx(cx, 0.79, cz - 0.68));
   SM(rbox(2.72, 0.08, 0.14, 0.02), mat.walnut, mtx(cx, 0.79, cz + 0.68));
@@ -248,8 +244,4 @@ function plant(x, z, s = 1, n = 18) {
   }
   C(x - 0.26 * s, x + 0.26 * s, z - 0.26 * s, z + 0.26 * s);
 }
-/* suporte de tacos na parede da frente, atrás da sinuca */
-B(mat.walnut, 2.6, 1.05, 5.96, 0.9, 0.06, 0.07, { group: 'wallFront' });
-B(mat.walnut, 2.6, 0.22, 5.95, 0.9, 0.05, 0.09, { group: 'wallFront' });
-for (let k = 0; k < 5; k++) S(PG_CUE, cueMat0, 2.24 + k * 0.18, 0.2, 5.9, -Math.PI / 2 + 0.03, 0, 0, 1, 1, 1, { group: 'wallFront' });
-plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(5.7, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);
+plant(-7.45, -5.45, 1.1); plant(-7.4, -1.55, 1); plant(-7.4, 5.5, 1.15); plant(7.45, -3.75, 1); plant(3.25, 5.55, 1.05); plant(-1.7, 5.55, 0.95); plant(-0.6, 2.55, 0.8, 14);

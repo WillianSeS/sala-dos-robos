@@ -1,6 +1,6 @@
 
 /* ================= sinuca jogável (física 2D sobre a mesa) ================= */
-const POOL = { cx: 2.6, cz: 4.3, R: 0.0286, hx: 1.22, hz: 0.61, y: 0.8, active: false, state: 'idle', turn: 'you', score: { you: 0, bot: 0 },
+const POOL = { cx: 8, cz: 9.4, R: 0.0286, hx: 1.22, hz: 0.61, y: 0.8, active: false, state: 'idle', turn: 'you', score: { you: 0, bot: 0 },
   opp: null, aim: 0, power: 0, charging: false, chargeT: 0, shotPotted: 0, cueFoul: false, botT: 0, botAim: 0, botPow: 0, stroke: 0, side: 1, back: null, solo: false };
 const POCKETS = [[-1.215, -0.6, 0.066], [0, -0.635, 0.058], [1.215, -0.6, 0.066], [-1.215, 0.6, 0.066], [0, 0.635, 0.058], [1.215, 0.6, 0.066]];
 const BALL_COL = [null, '#f2c230', '#1d4fbf', '#d0312d', '#5b2a86', '#ef7d22', '#1f7a3a', '#7a1f2b', '#111111', '#f2c230', '#1d4fbf', '#d0312d', '#5b2a86', '#ef7d22', '#1f7a3a', '#7a1f2b'];

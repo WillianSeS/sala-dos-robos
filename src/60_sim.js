@@ -63,10 +63,10 @@ const openPnl = () => robots.reduce((s, r) => s + (r.trade ? r.trade.pnl : 0), 0
 const equity = () => BASE + realized + openPnl();
 
 /* ---------- caminhos (grafo de corredores) ---------- */
-const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], poolW: [0.45, 3.15], poolE: [4.6, 3.15], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
+const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], officeFront: [0.45, 3.15], officeRight: [4.6, 3.15], poolW: [5.5, 9.4], poolE: [10, 10.8], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-Object.assign(NODES, { discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
-const EDGES = [['poolW', 'discoGate'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'poolW'], ['poolW', 'poolE'], ['poolE', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { gamesGate: [5.5, 5.5], gamesDoor: [5.5, 7.1], gamesBack: [5.5, 10.8], discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
+const EDGES = [['officeFront', 'discoGate'], ['officeRight', 'gamesGate'], ['gamesGate', 'gamesDoor'], ['gamesDoor', 'poolW'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
@@ -83,8 +83,8 @@ const SPOTS = {
   dance2: { x: 1.35, z: 9.6, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   dance3: { x: 0, z: 11.1, yaw: Math.PI, pose: 'dance', node: 'discoFloor', w: 0.45 },
   sofa: { x: -6.1, z: 5.37, yaw: Math.PI, pose: 'sofa', node: 'sofaA', w: 1 },
-  poolShoot: { x: 0.82, z: 4.32, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
-  poolWait: { x: 4.5, z: 4.95, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
+  poolShoot: { x: 6.22, z: 9.42, yaw: Math.PI / 2, pose: 'poolAim', node: 'poolW', w: 1.4 },
+  poolWait: { x: 9.9, z: 10.05, yaw: -Math.PI / 2 - 0.35, pose: 'standCue', node: 'poolE', w: 1 },
   coffee: { x: 7.0, z: 3.95, yaw: Math.PI / 2, pose: 'standCup', node: 'coffeeA', w: 1.4 },
   window: { x: -7.35, z: 0.95, yaw: -Math.PI / 2, pose: 'pocket', node: 'winA', w: 0.8 },
   watch: { x: -0.9, z: -4.72, yaw: Math.PI, pose: 'cross', node: 'F2', w: 0.8 },

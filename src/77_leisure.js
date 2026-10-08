@@ -21,6 +21,11 @@ function startCasino(pref) {
   const available = r => !r.trade && !r.inPool && !r.inCasino && !r.talking;
   const r = pref ? (available(pref) ? pref : null) : robots.find(available);
   if (!r) { $('status').textContent = 'Todos estão ocupados. Chame um robô sem operação para jogar 21.'; help.textContent = 'Todos os robôs estão ocupados. Tente novamente em instantes.'; help.hidden = false; help.style.opacity = '1'; return; }
+  // Convites feitos no escritório também levam o visitante à mesa de jogos.
+  if (!inGames(fp.pos.x, fp.pos.z)) {
+    fp.pos.set(8, 0, 10.8); fp.yaw = Math.PI; fp.pitch = -0.12;
+    camera.position.set(8, EYE, 10.8); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch));
+  }
   CASINO.active = true; CASINO.opp = r; r.inCasino = true; r.talking = true;
   CASINO.state = 'idle'; CASINO.you = []; CASINO.bot = [];
   CASINO.msg = 'Bora! Toque em Nova rodada para distribuir as cartas.';
