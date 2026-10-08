@@ -56,6 +56,7 @@ Partes de `src/`:
 | `40_furniture.js` | Mesas (`STATIONS`, `SCREENS`), sofá, mesa de sinuca, café, geladeira (`FRIDGE`). |
 | `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
 | `43_games_room.js` | Sala de jogos: paredes, iluminação, mesa do 21, placas e tacos. |
+| `43b_darts_board.js` | Alvo de dardos em (11,91; 11), linha de lançamento em (9,6; 11) e expositor de troféus perto de z=13; fica fora do vão do elevador. Antes de flushStatics. |
 | `44_smoking_room.js` | Lounge: sofás, bar, mesas de narguilé, fumaça leve e `LOUNGE_LAYOUT` com posições/assentos. |
 | `44d_show_room.js` | 44º andar, Las Vegas Night (x de -4 a 4, z de 14 a 22): carpete, palco com lâmpadas em sequência e painel, refletores, cortinas, balcão, mesas (`SHOW_LAYOUT`) e `stepShowFx`. Vem antes do `44e_elevator.js`, que usa o grupo da parede `showLeft`. |
 | `44e_elevator.js` | Cabine de cada andar atrás da parede (piso, teto iluminado, corrimão, botoeira e visor do andar), portas de aço e indicador acima da porta. Precisa vir antes do `45_walls.js`, que junta a geometria estática. A tabela `FLOORS`, `floorAt(x, z)`, `CAB` e `wallRuns` (paredes com o vão da porta) ficam no início de `30_room.js`. |
@@ -72,6 +73,7 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias); rádio da sala compartilhada (`RADIO`, batida presa ao relógio); arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`), que tocam só para quem escolheu. |
+| `77d_darts.js` | Mira por raycast, voo 3D, nove dardos/partida, pontuação e medalhas virtuais. Recorde/coleção em localStorage (`sala-dos-robos:darts:v1`), concedidos só após terminar a partida. Suspende câmera em terceira pessoa enquanto joga e restaura ao sair. |
 | `77q_party_fx.js` | Clima de festa na discoteca e no show (`PARTY`): névoa baixa tingida pela luz da sala, jato da máquina de fumaça (`partyBurst`, a cada 22–32 s), lâmpadas nas paredes e refletores de teto piscando. Só roda no andar do visitante; com "reduzir movimento", fica mais lento. |
 | `77r_welcome.js` | Recepção: Aurora, recepcionista cyber (materiais com brilho neon próprio, anel e auréola), dá boas-vindas na primeira chegada (`greetGuest`) e oferece bebida, show ou sala de jogos. |
 | `77s_show.js` | Show do 44º andar: dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
@@ -115,6 +117,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_dardos_entrada.py` valida setores/anéis, clique/toque e Espaço, voo, nove lançamentos, medalhas/recorde persistidos, saída/terceira pessoa e entrada responsiva.
 - `python3 testes/teste_vegas.py` valida a vista de fora (lâmpadas piscando, troca de vista, entrada), o show (dançarinas no palco, atendente que oferece e traz bebida, dançar, mesa, gorjetas, falta de fichas, voz desligável) e o painel do show sem sobreposição no desktop/celular.
 - `python3 testes/teste_predio.py` valida paredes fechadas entre andares, cabine (portas por sensor, passagem só com porta aberta), viagem em etapas, atalhos sentado, garçom atravessando andares, etiquetas por andar, terceira pessoa (corpo virando, zoom), Spotify, rádio compartilhada entre dois visitantes e visitante trocando de andar no desktop/celular.
 - `python3 testes/teste_hospitalidade.py` valida atendimento andando e bandeja, geladeira, itens/gestos, lounge, fumaça, música sentado, presença e limpeza no desktop/celular.
@@ -138,6 +141,7 @@ Testes:
 
 **Modo debug:** abra `index.html#debug`. O objeto `window.__sala` expõe:
 - cena e câmera;
+- dardos: `DARTS`, `DARTS_LAYOUT`, `DARTS_VISUAL`, `dartScore`, `startDarts`, `exitDarts`, `throwDart`;
 - robôs e simulação: `robots`, `fast(seg)`, `openTrade`, `closeTrade`;
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
@@ -226,6 +230,7 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 
 - Pessoas 3D: Microsoft Rocketbox, licença MIT (`people/LICENSE-Rocketbox.txt`).
 - Three.js r160 (MIT).
+- Medalhas de dardos são virtuais: bronze com 80 pontos, prata com 160, ouro com 240 e conquista de centro valendo 50. Salvas no navegador, sem prêmio físico/dinheiro ou tabela nova.
 - As fichas do 21 são fictícias e ficam apenas na sessão aberta. A música toca localmente, sem sincronização entre visitantes.
 - Os nomes dos traders são fictícios e a cidade é desenhada.
 - É uma simulação, não é recomendação de investimento.

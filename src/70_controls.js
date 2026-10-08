@@ -50,6 +50,7 @@ const _tmpV = new THREE.Vector3();
 function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0: camera.position.clone(), q0: camera.quaternion.clone(), p1: toPos, q1: toQ, t: 0, dur, done }; mode = 'tween'; }
 
 function enterRoom() {
+  camera.clearViewOffset(); EXT.entranceViewport=''; document.body.classList.remove('at-entrance');
   if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
   inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; setLabel(btnView, '🗺️', 'Vista aérea');
   /* Chega pelo elevador já olhando para a Aurora, na recepção. */
@@ -63,6 +64,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if(DARTS.active) exitDarts();
   closeWelcome();
   if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
@@ -86,8 +88,9 @@ $('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoo
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'elevator') { closeElevator(); return; } if (mode === 'menu') { closeHospitality(); return; } if (HOSP.smokingUntil > performance.now()/1000) { stopSmoking(); return; } if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (e.code === 'Escape') { if(mode==='darts') { exitDarts(); return; } if (mode === 'elevator') { closeElevator(); return; } if (mode === 'menu') { closeHospitality(); return; } if (HOSP.smokingUntil > performance.now()/1000) { stopSmoking(); return; } if (mode === 'dance') stopDance(); else if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
   if (typing || e.target?.tagName === 'SELECT') return;
+  if(mode==='darts') { if(e.code==='Space'&&!e.repeat) { e.preventDefault(); throwDart(); } return; }
   if (e.code === 'KeyF' && !e.repeat) { consumeHeld(); return; }
   if (e.code === 'KeyV' && !e.repeat && inRoom) { setThirdPerson(!VIEW.third); return; }
   if (mode === 'dance') { if (e.code === 'KeyE' && !e.repeat) stopDance(); return; }
@@ -105,6 +108,7 @@ addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const ptr = new Map(); let joy = null, pinch = null;
 canvas.addEventListener('pointerdown', e => {
   canvas.focus({ preventScroll: true });
+  if(mode==='darts') { dartsPointer('down',e); try { canvas.setPointerCapture(e.pointerId); } catch {} return; }
   if (mode === 'pool') { poolPointer('down', e); ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); return; }
   if (mode === 'seat' && e.pointerType === 'mouse' && !locked) lockMouse();
   if (mode === 'fp' && e.pointerType === 'mouse' && !locked) lockMouse();
@@ -120,6 +124,7 @@ canvas.addEventListener('pointerdown', e => {
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
 });
 canvas.addEventListener('pointermove', e => {
+  if(mode==='darts') { dartsPointer('move',e); return; }
   if (mode === 'pool') { if (e.pointerType === 'mouse' || ptr.has(e.pointerId)) poolPointer('move', e); return; }
   if (joy && e.pointerId === joy.id) {
     let dx = e.clientX - joy.x0, dy = e.clientY - joy.y0; const d = Math.hypot(dx, dy), m = 46;
@@ -134,7 +139,7 @@ canvas.addEventListener('pointermove', e => {
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
 });
-const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
+const ptrUp = e => { if(mode==='darts') dartsPointer(e.type==='pointercancel'?'cancel':'up',e); if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
 canvas.addEventListener('wheel', e => {
   if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), orbit.min, orbit.max); orbit.idle = 0; }

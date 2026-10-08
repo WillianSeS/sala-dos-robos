@@ -38,6 +38,7 @@ function findAct() {
   }
   for (const member of STAFF.members) consider(member.P.root.position.x, member.P.root.position.z, 2.1, .65, 'Pedir ao ' + member.role + ' ' + member.name, () => openHospitality());
   if (inDisco(px, pz) && Math.abs(px) < 2.5 && pz < 12.2) consider(px, pz, 1, -1, 'Dançar na discoteca', startDance);
+  if(playerFloor()==='games') consider(DARTS_LAYOUT.x,DARTS_LAYOUT.z,3.4,.45,'Jogar dardos e ganhar prêmios',startDarts);
   consider(8, 12.1, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
@@ -78,7 +79,8 @@ function updateActUI() {
   const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
   $('discoPanel').hidden = !club || !DISCO.panelOpen;
   $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
-  $('viewToggle').hidden = !inRoom;
+  $('viewToggle').hidden = !inRoom || mode==='darts';
+  $('dartsGo').hidden=!inRoom||!['fp','seat'].includes(mode)||playerFloor()!=='games';
   $('btnOutside').hidden = inRoom || mode !== 'orbit';
   /* Celular: joystick fixo e botão de correr aparecem enquanto o visitante anda. */
   const walking = isTouch && inRoom && mode === 'fp';

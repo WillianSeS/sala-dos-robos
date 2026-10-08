@@ -38,14 +38,14 @@ with sync_playwright() as p:
             patterns.add(tuple(page.evaluate('[...Array(8).keys()].map(i=>{const c=new __sala.THREE.Color();__sala.EXT.chase[0].getColorAt(i,c);return +c.r.toFixed(2)})')))
             page.wait_for_timeout(400)
         assert len(patterns) > 1, 'As lâmpadas do letreiro não piscaram'
-        assert page.locator('#btnOutside').is_visible()
+        assert page.locator('#btnOutside').is_hidden(), 'A entrada exclusiva oculta controles da sala'
         page.evaluate('__drawSala(__sala.scene,__sala.camera)'); page.screenshot(path=AQUI + '/saida/hotel-fora-' + nome + '.png')
-        page.click('#btnOutside')
+        page.evaluate('__sala.setOrbitView("inside")')
         assert page.evaluate('__sala.orbit.view==="inside" && !__sala.EXT.group.visible')
-        page.click('#btnOutside')
+        page.evaluate('__sala.setOrbitView("outside")')
         assert page.evaluate('__sala.orbit.view==="outside"')
         # Entrada simples: boas-vindas, nome e botão Entrar (Enter também entra).
-        assert page.inner_text('#intro h1').replace('\n', '') == 'Bem-vindo' and page.locator('#nick').is_visible() and page.locator('#btnEnter').is_visible()
+        assert 'Robôs no pregão.' in page.inner_text('#intro h1') and page.locator('#nick').is_visible() and page.locator('#btnEnter').is_visible()
         page.fill('#nick', 'Willian')
         page.press('#nick', 'Enter')
         page.wait_for_function('__sala.mode==="fp"', timeout=60000)

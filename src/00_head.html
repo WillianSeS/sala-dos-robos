@@ -156,6 +156,56 @@ body.touch .disco-shortcuts{top:calc(66px + env(safe-area-inset-top,0px))}body.t
 body.touch .disco-panel{max-height:calc(100dvh - 150px);overflow:auto}body.touch .host-offer{z-index:5}
 body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:190px}
 @media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}body.touch .show-bar{top:calc(86px + env(safe-area-inset-top,0px))}}
+/* Entrada: fachada à esquerda, recepção à direita. Estilos isolados do HUD da sala. */
+body.at-entrance .hud,body.at-entrance .labels,body.at-entrance .ctrl,body.at-entrance .mp,
+body.at-entrance .disco-shortcuts,body.at-entrance .cross,body.at-entrance .help,
+body.at-entrance .prompt,body.at-entrance .act,body.at-entrance .joy,
+body.at-entrance .held-bar,body.at-entrance .service-note,body.at-entrance .show-bar,
+body.at-entrance .mbtn,body.at-entrance .host-offer,body.at-entrance .talk,
+body.at-entrance .disco-panel,body.at-entrance .poolhud,body.at-entrance .elev-ride,
+body.at-entrance .spotify-dock,body.at-entrance #welcome,body.at-entrance #hostOffer,
+body.at-entrance #elevator,body.at-entrance #elevRide{display:none!important}
+#intro{inset:0;z-index:4;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,490px);align-items:center;gap:30px;padding:94px clamp(28px,5vw,96px) 64px;overflow:auto;pointer-events:auto;background:linear-gradient(90deg,rgba(4,8,15,.06) 24%,rgba(4,8,15,.38) 47%,rgba(4,8,15,.9) 75%),linear-gradient(180deg,rgba(4,8,15,.58),transparent 26%,transparent 70%,rgba(4,8,15,.65))}
+#intro .entrance-brand{position:absolute;top:calc(30px + env(safe-area-inset-top,0px));left:clamp(28px,5vw,96px);display:flex;align-items:center;gap:12px;color:#f2f5ff;letter-spacing:.1em;font:700 13px/1.5 var(--mono)}
+#intro .entrance-brand small{display:block;color:#a5b3c9;font:500 9px/1.7 var(--mono);letter-spacing:.18em}
+#intro .entrance-mark{display:grid;grid-template-columns:repeat(2,10px);gap:4px;padding:8px;border:1px solid #76e2eb4d;border-radius:10px;background:#0a152078;box-shadow:0 0 22px #63eaff12}
+#intro .entrance-mark i{width:10px;height:10px;border-radius:2px;background:#91e9ed;box-shadow:0 0 9px #52e9ec30}
+#intro .entrance-mark i:last-child{background:#d794ef}
+#intro .entrance-scene-note{position:absolute;left:clamp(28px,5vw,96px);bottom:34px;display:flex;align-items:center;gap:10px;font:500 10px/1.6 var(--mono);letter-spacing:.14em;color:#b9cbd9;text-shadow:0 1px 5px #000}
+#intro .entrance-scene-note i{width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#99e9de;box-shadow:0 0 12px #79e9db60}
+#intro .card{grid-column:2;box-sizing:border-box;width:100%;max-width:none;padding:30px;gap:18px;border-radius:20px;border:1px solid #b9cafa2b;background:linear-gradient(140deg,rgba(17,29,45,.85),rgba(14,17,32,.9));box-shadow:0 18px 70px #0005,inset 0 1px 0 #e4f4ff0a;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#intro .entrance-eyebrow{font:500 10px/1.5 var(--mono);letter-spacing:.18em;color:#abdfe5;display:flex;align-items:center;gap:8px}
+#intro .entrance-eyebrow::before{content:"";width:18px;height:1px;background:#9be3e8}
+#intro h1{font:700 clamp(36px,3.4vw,52px)/1.08 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.055em;text-wrap:balance;color:#f3f6ff}
+#intro h1 span{display:block}
+#intro h1 em{font:inherit;font-style:normal;color:#caa3f3;background:linear-gradient(100deg,#96e8ee,#d1a6f4 76%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#intro .entrance-copy{color:#b9c4d5;font:400 15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:360px}
+#intro .entrance-experiences{display:flex;gap:7px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+#intro .entrance-experiences li{display:flex;align-items:center;gap:6px;border:1px solid #b3c0e025;border-radius:7px;padding:7px 9px;background:#e1ecff05;color:#d1ddeb;font:500 10px/1.3 var(--mono)}
+#intro .entrance-experiences span{font-size:13px;line-height:1}
+#intro .entrance-divider{height:1px;background:linear-gradient(90deg,#9fe7ed3b,#b792ee26,transparent)}
+#intro .nick{display:grid;gap:8px}
+#intro .nick label{color:#d0dbea;font:500 11px/1.5 var(--mono)}
+#intro .nick input{box-sizing:border-box;width:100%;min-height:48px;padding:12px 14px;border-radius:9px;background:#070f1bd9;border:1px solid #a4bed846;font:400 15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f3f8ff;-webkit-user-select:text;user-select:text}
+#intro .nick input::placeholder{color:#7f94aa;opacity:1}
+#intro .nick input:focus-visible{outline:2px solid #93e0e6;outline-offset:3px;border-color:#83dae5}
+#intro .row{display:grid;gap:9px}
+#intro #btnEnter{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:52px;padding:13px 17px;border-radius:9px;border:1px solid #b8eff8;background:linear-gradient(110deg,#a1e8ed,#b7d9f7);color:#132335;font:700 14px var(--mono);box-shadow:0 0 23px #7edbe915;transition:background .2s,box-shadow .2s}
+#intro #btnEnter::after{content:"→";font:500 23px/1 Arial,sans-serif}
+#intro #btnEnter:hover{background:#c4f3f7;box-shadow:0 0 25px #a4eefa2b}
+#intro #btnEnter:focus-visible{outline:2px solid #e7efff;outline-offset:4px}
+#intro #btnEnter:disabled{opacity:.55;cursor:wait}
+#intro #status{display:block;min-height:15px;font:500 10px/1.6 var(--mono);color:#a7bdd0;letter-spacing:0;text-align:center}
+#intro #status.err{color:#ffb4b4}
+#intro .entrance-credit{grid-column:2;margin:0;align-self:start;color:#8ea0b5;font:400 9px/1.6 var(--mono);letter-spacing:0}
+@media(min-width:901px){#intro .card{align-self:end}#intro{row-gap:12px;grid-template-rows:1fr minmax(15px,.6fr)}}
+@media(max-width:1100px) and (min-width:901px){#intro{grid-template-columns:minmax(0,1fr) minmax(370px,430px);padding-left:28px;padding-right:28px;gap:24px}#intro .entrance-brand,#intro .entrance-scene-note{left:28px}#intro .card{padding:25px}#intro h1{font-size:38px}}
+@media(max-width:900px){#intro{display:block;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(4,8,15,.35),transparent 16%,rgba(4,8,15,.08) 26%,rgba(4,8,15,.78) 42%,#050a13 70%)}#intro .entrance-brand{top:calc(20px + env(safe-area-inset-top,0px));left:22px;font-size:11px;gap:10px}#intro .entrance-brand small{font-size:8px}#intro .entrance-mark{grid-template-columns:repeat(2,8px);gap:3px;padding:7px;border-radius:9px}#intro .entrance-mark i{width:8px;height:8px}#intro .entrance-scene-note{left:24px;top:calc(clamp(180px,31svh,280px) - 8px);bottom:auto;font-size:9px}#intro .card{margin:clamp(180px,31svh,280px) auto 0;width:min(100%,490px);padding:22px;gap:14px;border-radius:16px;background:linear-gradient(145deg,#101d2bef,#131527f5)}#intro h1{font-size:clamp(30px,8.2vw,38px);letter-spacing:-.05em}#intro .entrance-copy{font-size:14px;line-height:1.5;max-width:none}#intro .entrance-eyebrow{font-size:9px;letter-spacing:.15em}#intro .entrance-experiences li{font-size:9px;padding:7px 6px;gap:5px}#intro .entrance-experiences span{font-size:12px}#intro .entrance-credit{width:min(100%,490px);margin:11px auto 0;font-size:8px;line-height:1.6}#intro #btnEnter{min-height:49px}#intro .nick input{min-height:46px}}
+@media(max-height:620px) and (min-width:901px){#intro{grid-template-rows:auto auto;padding-top:90px;padding-bottom:22px;align-items:start}#intro .card{align-self:start;padding:20px;gap:12px}#intro h1{font-size:36px}#intro .entrance-copy{font-size:13px}#intro .entrance-credit{align-self:start}}
+@media(max-height:540px) and (max-width:900px){#intro .card{margin-top:80px;padding:20px}#intro .entrance-scene-note{display:none}#intro h1{font-size:30px}#intro .entrance-copy{font-size:13px}}
+@media(prefers-reduced-motion:reduce){#intro #btnEnter{transition:none}}
+
+#intro::before{content:'';position:fixed;top:0;left:0;right:0;height:95px;background:linear-gradient(#04080fdd,#04080f00);pointer-events:none}#intro .entrance-brand{z-index:1}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -248,16 +298,20 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
     <div class="pool-tip" id="poolTip"></div>
   </div>
 </div>
-<div class="intro" id="intro">
-  <div class="card welcome-card">
-    <h1>Bem-<em>vindo</em></h1>
-    <p class="welcome-sub">ao hotel Las Vegas Night</p>
-    <label for="nick" class="welcome-ask">Como deseja ser chamado?</label>
-    <input id="nick" maxlength="24" autocomplete="nickname" placeholder="Seu nome">
-    <button id="btnEnter" class="btn" disabled>Entrar</button>
-    <span class="small" id="status">Carregando o hotel…</span>
+<section class="intro" id="intro" aria-labelledby="entranceTitle">
+  <div class="entrance-brand"><span class="entrance-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div>LAS VEGAS NIGHT<small>SALA DOS ROBÔS · IA + CLUB</small></div></div>
+  <div class="entrance-scene-note"><i aria-hidden="true"></i>LAS VEGAS NIGHT · NOITE</div>
+  <div class="card">
+    <div class="entrance-eyebrow">BEM-VINDO AO LAS VEGAS NIGHT</div>
+    <h1 id="entranceTitle"><span>Robôs no pregão.</span><span><em>Você na pista.</em></span></h1>
+    <p class="entrance-copy">Entre no escritório e suba de elevador para jogar, dançar e relaxar com os robôs.</p>
+    <ul class="entrance-experiences" aria-label="Ambientes da sala"><li><span aria-hidden="true">⌘</span> Escritório IA</li><li><span aria-hidden="true">◈</span> Jogos e lounge</li><li><span aria-hidden="true">♫</span> Discoteca</li></ul>
+    <div class="entrance-divider" aria-hidden="true"></div>
+    <div class="nick"><label for="nick">Como vamos chamar você?</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Seu nome na sala" aria-describedby="status"></div>
+    <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status" role="status">Carregando o hotel…</span></div>
   </div>
-</div>
+  <p class="entrance-credit">Pessoas 3D: Microsoft Rocketbox · licença MIT. Nomes fictícios. Cidade desenhada.</p>
+</section>
 <script>
 window.addEventListener('error',function(e){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='Erro ao carregar: '+(e.message||'desconhecido');}});
 setTimeout(function(){var s=document.getElementById('status');if(s&&!window.__salaOK){s.className='small err';s.textContent='O motor 3D não carregou. Verifique a conexão e recarregue a página.';}},20000);
