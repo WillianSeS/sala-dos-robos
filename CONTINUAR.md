@@ -23,6 +23,16 @@ Desde 08/10/2026 o projeto segue o "PROMPT MESTRE: Sala dos Robôs · Las Vegas 
   - Fase 2 (entrada, elevador, cinco andares, mapa, menus, sentar, vistas) no branch `dev/fase-2-predio`.
   - Próximo passo: Fase 3, com a Aurora e os 10 robôs no 40º andar.
   - Pendência do responsável: conectar o GitHub na conta Vercel para as prévias automáticas (veja `jogo/docs/VIABILIDADE.md`).
+- **A terminar na Fase 2 (antes da Fase 3):**
+  1. Rodar de novo as suítes no build atual (`cd jogo && npm run build`, depois `npx playwright test --project=fase2`, `--project=celular2`, `--project=computador` e `--project=celular`).
+     - Na 1ª rodada da `fase2` passaram 3 de 7 testes: mapa, menu com botão 3D e teclas.
+     - Os testes 1, 2, 4 e 5 já tiveram as causas corrigidas: telemetria da câmera na fachada, passo da física depois do E e posição ao levantar.
+     - A 2ª rodada não foi concluída.
+  2. Gravar o vídeo da Fase 2 (`npx playwright test --project=video2`, retomável; sai em `jogo/evidencias/fase2-sessao-*.mp4`) e entregar ao responsável.
+  3. Publicar uma versão de teste. O deploy em `gh-pages/jogo3d/` (ao lado do jogo antigo) foi bloqueado pela proteção de produção do ambiente. Para liberar, há duas opções:
+     - o responsável autoriza esse deploy explicitamente;
+     - ou conecta o GitHub no Vercel, e as prévias saem sozinhas a cada push.
+  4. Relatório final curto da Fase 2.
 - **Fluxo de trabalho:**
   - trabalhar em branch de desenvolvimento (`dev/...`);
   - **não** publicar na produção (`gh-pages`) e **não** alterar a `main` sem autorização do responsável;
