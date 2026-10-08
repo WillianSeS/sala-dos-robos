@@ -130,6 +130,10 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .spotify-dock.min{width:auto}.spotify-dock.min .spotify-box{position:absolute;left:-10000px;width:300px}
 /* No celular o player aparece junto com o painel de música e segue tocando escondido. */
 @media(max-width:600px){.spotify-dock{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100% - 32px);z-index:6}.spotify-box iframe{height:80px}body:not(.music-open) .spotify-dock{left:-10000px}}
+.host-offer{z-index:4;border-color:#ff4fb488}.host-offer p{margin:0;font-size:13px;line-height:1.5}
+.show-bar{position:fixed;left:16px;top:calc(104px + env(safe-area-inset-top,0px));display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 200px);background:#1a0a1aee;border:1px solid #ff4fb466;border-radius:12px;padding:6px 8px;z-index:3}.show-bar b{font-size:12px;color:#ffd77a;padding:0 4px}.show-bar .btn.sm{padding:7px 10px}
+.fade{position:fixed;inset:0;background:#000;opacity:0;transition:opacity .35s;pointer-events:none;z-index:9}
+body.touch .show-bar{top:calc(120px + env(safe-area-inset-top,0px));max-width:calc(100% - 210px);flex-wrap:nowrap}body.touch .show-bar .lbl{display:none}body.touch .show-bar .btn.sm{width:40px;height:40px;padding:0;font-size:19px;border-radius:50%}
 /* Celular: controles de jogo. Joystick fixo à esquerda, botões redondos à direita, atalhos só com ícone. */
 .mbtn{position:fixed;width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(10,15,13,.72);color:#fff;font-size:26px;display:grid;place-items:center;padding:0;z-index:3;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .mbtn[aria-pressed="true"]{border-color:var(--gain);background:rgba(15,62,36,.9);box-shadow:0 0 12px rgba(61,220,132,.5)}
@@ -141,7 +145,7 @@ body.touch .disco-shortcuts{flex-direction:row-reverse;flex-wrap:wrap;max-width:
 body.touch .disco-shortcuts .btn.sm{width:48px;height:48px;padding:0;border-radius:50%;font-size:22px;display:grid;place-items:center}
 body.touch .disco-shortcuts .lbl{display:none}
 body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:190px}
-@media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}}
+@media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}body.touch .show-bar{top:calc(86px + env(safe-area-inset-top,0px))}}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -154,7 +158,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
   <span class="chip" id="hLoad">Pessoas <b>0%</b></span>
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
-<div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
+<div class="ctrl"><button id="btnOutside" class="btn sm">🔍 Ver por dentro</button> <button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
 <div class="disco-shortcuts"><button id="viewToggle" class="btn sm" hidden aria-pressed="false">👤<span class="lbl"> 3ª pessoa</span></button><button id="loungeGo" class="btn sm" hidden aria-label="Lounge">🛋️<span class="lbl"> Lounge</span></button><button id="menuOpen" class="btn sm" hidden aria-label="Cardápio">🍽️<span class="lbl"> Cardápio</span></button><button id="gamesGo" class="btn sm" hidden aria-label="Sala de jogos">🎮<span class="lbl"> Sala de jogos</span></button><button id="gamesBack" class="btn sm" hidden aria-label="Escritório">🏢<span class="lbl"> Escritório</span></button><button id="discoGo" class="btn sm" hidden aria-label="Discoteca">🪩<span class="lbl"> Discoteca</span></button><button id="discoPanelOpen" class="btn sm" hidden aria-label="Painel da pista">🪩<span class="lbl"> Pista</span></button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <div class="talk-h"><b>🪩 Discoteca dos Robôs</b><button id="discoPanelClose" class="btn sm" aria-label="Minimizar o painel da pista">Minimizar</button></div><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
@@ -214,6 +218,13 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 </section>
 <div id="elevRide" class="elev-ride" hidden aria-live="polite"><b id="elevRideText"></b><span id="elevRideName"></span></div>
 <aside id="spotifyDock" class="spotify-dock" hidden aria-label="Player do Spotify"><div class="spotify-head"><b>🎧 Spotify</b><button id="spotifyMin" class="btn sm">Minimizar</button><button id="spotifyClose" class="btn sm">Fechar</button></div><div id="spotifyBox" class="spotify-box"></div></aside>
+<section id="hostOffer" class="talk host-offer" hidden aria-label="Atendente do Las Vegas Night">
+  <div class="talk-h"><div><b id="hostName"></b><span>Las Vegas Night · 44º andar</span></div></div>
+  <p id="hostLine" role="status"></p>
+  <div class="pool-row"><button id="hostDrink" class="btn sm">🍹 Uma bebida</button><button id="hostDance" class="btn sm">💃 Dançar comigo</button><button id="hostSeat" class="btn sm">🎭 Mesa para o show</button><button id="hostNo" class="btn sm">Agora não</button></div>
+</section>
+<aside id="showBar" class="show-bar" hidden aria-label="Las Vegas Night"><b id="showChips"></b><button id="showTip" class="btn sm" aria-label="Gorjeta de 10 fichas">💵<span class="lbl"> Gorjeta (10)</span></button><button id="showVoice" class="btn sm" aria-label="Voz das atendentes">🔊<span class="lbl"> Voz</span></button></aside>
+<div id="fade" class="fade" hidden></div>
 <div class="poolhud" id="poolHud" hidden>
   <div class="pool-top"><div class="pool-score" id="poolScore"></div><div class="pool-msg" id="poolMsg"></div></div>
   <div class="pool-bottom">
@@ -225,7 +236,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 <div class="intro" id="intro">
   <div class="card">
     <h1>Sala dos <em>Robôs</em></h1>
-    <p>Dez robôs de trading, cada um é um trader na mesa. Entre, converse, visite a sala de jogos, dance na discoteca e descanse no lounge. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
+    <p>Bem-vindo ao hotel <b>Las Vegas Night</b>. Dez robôs de trading, cada um é um trader na mesa. Entre, converse, suba de elevador para a sala de jogos, a discoteca, o lounge e o show no 44º andar. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
     <div class="nick"><label for="nick">Seu nome na sala</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Como os outros vão te ver"></div>
     <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status">Carregando a sala…</span></div>
     <p class="small">Pessoas 3D: Microsoft Rocketbox, licença MIT (people/LICENSE-Rocketbox.txt). Nomes fictícios. Cidade desenhada.</p>
@@ -651,10 +662,11 @@ const FLOORS = [
   { key: 'office', n: 40, name: 'Escritório', sub: 'PREGÃO', wx: 8, dir: -1, z: -4.8, group: 'wallRight' },
   { key: 'games', n: 41, name: 'Sala de jogos', sub: 'SINUCA • 21', wx: 11.96, dir: -1, z: 8, group: 'gamesRight' },
   { key: 'disco', n: 42, name: 'Discoteca', sub: 'PISTA • DJ', wx: -3.96, dir: 1, z: 8, group: 'clubLeft' },
-  { key: 'lounge', n: 43, name: 'Lounge', sub: 'COBERTURA', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+  { key: 'lounge', n: 43, name: 'Lounge', sub: 'BAR • NARGUILÉ', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+  { key: 'show', n: 44, name: 'Las Vegas Night', sub: 'SHOW • BAR', wx: -3.96, dir: 1, z: 18, group: 'showLeft' },
 ];
 for (const f of FLOORS) { f.x = f.wx + f.dir * 0.7; f.yaw = f.dir < 0 ? Math.PI / 2 : -Math.PI / 2; f.open = 0; f.openUntil = 0; }
-const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
+const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : x < 4 ? 'show' : 'lounge';
 const FLOOR = Object.fromEntries(FLOORS.map(f => [f.key, f]));
 const CAB = { depth: 1.59, half: 0.75, door: 0.57, center: 0.84 };
 /* Trechos de parede (centro, comprimento) ao longo de z, com o vão da porta do elevador. */
@@ -1290,6 +1302,129 @@ function stepLoungeVisual(dt, t) {
   }
 }
 
+/* ================= 44º andar: bar Las Vegas Night, com palco, mesas e balcão ================= */
+/* Sala: x de -4 a 4, z de 14 a 22. Palco no fundo (z ≈ 20,3–21,9), balcão na frente, mesas no meio. */
+const SHOW_LAYOUT = {
+  stage: { x0: -2.8, x1: 2.8, z0: 20.3, z1: 21.95, y: 0.4 },
+  dancers: [[-1.7, 21.05], [0, 21.25], [1.7, 21.05]],
+  tables: [[-1.75, 16.4], [1.05, 16.55], [2.75, 18.45], [-0.45, 18.7]],
+  bar: { x: 1.6, z: 15.35 },
+  walk: [[-2.6, 15.4], [-2.7, 19.4], [0.4, 19.8], [1.9, 19.7], [3.3, 17.2], [2.4, 15.6], [-0.4, 15.4], [0.3, 17.6]],
+};
+SHOW_LAYOUT.seats = SHOW_LAYOUT.tables.flatMap(([tx, tz], t) => [-0.32, 0.32].map((dx, i) => ({ id: 'show' + t + i, x: tx + dx, z: tz - 0.55, eye: 1.12, yaw: Math.PI })));
+const SHOWFX = { chase: [], fixtures: [], stars: null, light: null };
+const showMat = {
+  wall: M({ color: '#1a1020', roughness: 0.9 }), lacquer: MC('#120a12', 0.25, 0.3), gold: MC('#c9a24a', 0.28, 0.85),
+  velvet: MC('#5a0f2a', 0.95), cloth: MC('#20151d', 0.8),
+};
+const showCarpet = canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#3a0b25'; g.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y += 32) for (let x = 0; x < w; x += 32) {
+    const k = ((x + y) / 32) % 3;
+    g.fillStyle = ['#c9a24a', '#2b5fae', '#d9417d'][k]; g.beginPath(); g.arc(x + 16, y + 16, 7, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#7a2350'; g.lineWidth = 2; g.strokeRect(x + 3, y + 3, 26, 26);
+  }
+}, { repeat: [4, 4] });
+for (const [key, p, n] of [
+  ['showLeft', [-4, 1.6, 18], [1, 0, 0]], ['showRight', [4, 1.6, 18], [-1, 0, 0]], ['showBack', [0, 1.6, 22], [0, 0, -1]], ['showFront', [0, 1.6, 14], [0, 0, 1]],
+]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
+mesh(G.plane, M({ map: showCarpet, roughness: 1 }), GROUPS.main, 0, 0.001, 18, -Math.PI / 2, 0, 0, 8, 8, 1, false);
+mesh(G.plane, MC('#0d0a10', 0.9), GROUPS.main, 0, RH, 18, Math.PI / 2, 0, 0, 8, 8, 1, false);
+for (const [z, len] of wallRuns(14, 22, 'show')) B(showMat.wall, -4, 1.6, z, 0.08, RH, len, { group: 'showLeft', cast: false });
+B(showMat.wall, -4, 2.75, FLOOR.show.z, 0.08, 0.9, CAB.door * 2, { group: 'showLeft', cast: false });
+B(showMat.wall, 3.95, 1.6, 18, 0.04, RH, 8, { group: 'showRight', cast: false });
+B(showMat.wall, 0, 1.6, 22, 8, RH, 0.08, { group: 'showBack', cast: false });
+B(showMat.wall, 0, 1.6, 14.06, 8, RH, 0.04, { group: 'showFront', cast: false });
+/* Rodapé dourado e faixa de luz no alto das paredes. */
+for (const [x, z, w, d, group] of [[-3.94, 18, 0.02, 8, 'showLeft'], [3.92, 18, 0.02, 8, 'showRight'], [0, 21.94, 8, 0.02, 'showBack'], [0, 14.09, 8, 0.02, 'showFront']]) {
+  B(showMat.gold, x, 0.06, z, w, 0.12, d, { group, cast: false });
+  B(mat.ledWarm, x, 3.0, z, w, 0.03, d, { group, cast: false });
+}
+
+/* Lâmpadas em fila que acendem em sequência (efeito letreiro de cassino). */
+function chaseBulbs(points, size = 0.035) {
+  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(size, 8, 6), new THREE.MeshBasicMaterial({ toneMapped: false }), points.length);
+  const t = new THREE.Object3D();
+  points.forEach((p, i) => { t.position.set(...p); t.updateMatrix(); m.setMatrixAt(i, t.matrix); m.setColorAt(i, new THREE.Color('#ffd27a')); });
+  m.frustumCulled = false; GROUPS.main.add(m); SHOWFX.chase.push(m); return m;
+}
+const showBackdrop = canvasTex(1024, 288, (g, w, h) => {
+  const grad = g.createLinearGradient(0, 0, 0, h); grad.addColorStop(0, '#22052e'); grad.addColorStop(1, '#07020c');
+  g.fillStyle = grad; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 90; i++) { g.fillStyle = `rgba(255,${200 + Math.random() * 55},${150 + Math.random() * 100},${Math.random()})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+  g.textAlign = 'center'; g.shadowColor = '#ff3fb4'; g.shadowBlur = 26;
+  g.fillStyle = '#ffe7f6'; g.font = '700 108px ' + FONT_D; g.fillText('LAS VEGAS NIGHT', w / 2, 150);
+  g.shadowColor = '#ffcf5a'; g.fillStyle = '#ffd884'; g.font = '700 46px ' + FONT; g.fillText('★  SHOW  ★', w / 2, 232);
+});
+const { stage } = SHOW_LAYOUT;
+B(showMat.lacquer, 0, stage.y / 2, (stage.z0 + stage.z1) / 2, stage.x1 - stage.x0, stage.y, stage.z1 - stage.z0);
+B(showMat.gold, 0, stage.y + 0.005, stage.z0 + 0.03, stage.x1 - stage.x0, 0.012, 0.06, { cast: false });
+C(stage.x0, stage.x1, stage.z0, 22);
+mesh(G.plane, new THREE.MeshBasicMaterial({ map: showBackdrop, toneMapped: false }), GROUPS.main, 0, 1.75, 21.93, 0, Math.PI, 0, 5.2, 1.46, 1, false);
+const backdropBulbs = [];
+for (let i = 0; i <= 26; i++) { const x = -2.7 + i * 5.4 / 26; backdropBulbs.push([x, 2.53, 21.9], [x, 0.97, 21.9]); }
+for (let i = 1; i < 8; i++) { const y = 0.97 + i * 1.56 / 8; backdropBulbs.push([-2.7, y, 21.9], [2.7, y, 21.9]); }
+chaseBulbs(backdropBulbs);
+chaseBulbs(Array.from({ length: 29 }, (_, i) => [stage.x0 + 0.1 + i * (stage.x1 - stage.x0 - 0.2) / 28, stage.y - 0.08, stage.z0 - 0.015]), 0.028);
+/* Treliça com refletores coloridos sobre o palco e cortinas de veludo nas laterais. */
+B(mat.aluDark, 0, 2.95, 20.1, 5.6, 0.08, 0.08, { cast: false });
+for (let i = 0; i < 5; i++) {
+  const x = -2.2 + i * 1.1, can = mesh(new THREE.CylinderGeometry(0.07, 0.1, 0.22, 14), new THREE.MeshBasicMaterial({ color: '#ff4fd8', toneMapped: false }), GROUPS.main, x, 2.8, 20.1, 0.5, 0, 0, 1, 1, 1, false);
+  const beam = mesh(new THREE.ConeGeometry(0.55, 2.4, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#ff4fd8', transparent: true, opacity: 0.06, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }), GROUPS.main, x, 1.65, 20.8, -0.45, 0, 0, 1, 1, 1, false);
+  SHOWFX.fixtures.push({ can, beam, i });
+}
+for (const x of [-3.3, 3.3]) { B(showMat.velvet, x, 1.6, 21.6, 1.1, RH, 0.12, { cast: false }); for (let k = 0; k < 5; k++) B(showMat.velvet, x - 0.44 + k * 0.22, 1.6, 21.5, 0.05, RH, 0.06, { cast: false }); }
+SHOWFX.light = new THREE.PointLight(0xff4fd8, 5, 10, 2); SHOWFX.light.position.set(0, 2.7, 19.2); scene.add(SHOWFX.light);
+
+/* Balcão do bar na frente, com prateleiras iluminadas e garrafas. */
+SM(rbox(3.6, 1.0, 0.6, 0.04), mat.walnut, mtx(1.6, 0.5, 14.62), { cast: false });
+SM(rbox(3.7, 0.06, 0.7, 0.025), showMat.gold, mtx(1.6, 1.03, 14.62), { cast: false });
+chaseBulbs(Array.from({ length: 24 }, (_, i) => [-0.15 + i * 3.5 / 23, 0.95, 14.93]), 0.022);
+C(-0.25, 3.45, 14.2, 15.0);
+for (const y of [1.55, 2.05]) {
+  B(mat.walnut, 1.6, y, 14.17, 3.4, 0.04, 0.2, { group: 'showFront', cast: false });
+  B(mat.ledWarm, 1.6, y - 0.03, 14.24, 3.3, 0.01, 0.02, { group: 'showFront', cast: false });
+  for (let i = 0; i < 11; i++) S(G.cyl, i % 3 ? loungeMat.glass : loungeMat.water, 0.2 + i * 0.28, y + 0.14, 14.17, 0, 0, 0, 0.04, 0.24, 0.04, { group: 'showFront', cast: false });
+}
+
+/* Mesas redondas com duas cadeiras viradas para o palco. */
+for (const [tx, tz] of SHOW_LAYOUT.tables) {
+  S(G.cyl, showMat.gold, tx, 0.74, tz, 0, 0, 0, 0.38, 0.03, 0.38);
+  S(G.cyl, showMat.cloth, tx, 0.755, tz, 0, 0, 0, 0.36, 0.01, 0.36, { cast: false });
+  S(G.cyl, mat.aluDark, tx, 0.37, tz, 0, 0, 0, 0.04, 0.72, 0.04);
+  S(G.cyl, mat.aluDark, tx, 0.015, tz, 0, 0, 0, 0.22, 0.03, 0.22, { cast: false });
+  S(new THREE.CylinderGeometry(0.03, 0.03, 0.06, 10), mat.ledWarm, tx, 0.79, tz, 0, 0, 0, 1, 1, 1, { cast: false, recv: false });
+  C(tx - 0.4, tx + 0.4, tz - 0.4, tz + 0.4);
+  for (const dx of [-0.32, 0.32]) {
+    const cx = tx + dx, cz = tz - 0.55;
+    SM(rbox(0.42, 0.08, 0.42, 0.03), showMat.velvet, mtx(cx, 0.46, cz), {});
+    SM(rbox(0.42, 0.5, 0.06, 0.03), showMat.velvet, mtx(cx, 0.74, cz - 0.2), {});
+    for (const ex of [-0.17, 0.17]) for (const ez of [-0.17, 0.17]) S(G.cyl, showMat.gold, cx + ex, 0.21, cz + ez, 0, 0, 0, 0.015, 0.42, 0.015, { cast: false });
+  }
+}
+/* Teto estrelado que pisca devagar. */
+{
+  const n = 60, m = new THREE.InstancedMesh(new THREE.SphereGeometry(0.02, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), n), t = new THREE.Object3D();
+  for (let i = 0; i < n; i++) { t.position.set(srnd(-3.8, 3.8), RH - 0.02, srnd(14.3, 21.7)); t.updateMatrix(); m.setMatrixAt(i, t.matrix); m.setColorAt(i, new THREE.Color('#fff1c4')); }
+  m.frustumCulled = false; GROUPS.main.add(m); SHOWFX.stars = m;
+}
+const _showColor = new THREE.Color();
+function stepShowFx(dt, t) {
+  const blink = reduceMotion ? 0.6 : 7, step = Math.floor(t * blink);
+  for (const m of SHOWFX.chase) {
+    for (let i = 0; i < m.count; i++) m.setColorAt(i, _showColor.set((i + step) % 3 === 0 ? '#fff4c2' : '#5a3a12'));
+    m.instanceColor.needsUpdate = true;
+  }
+  for (const f of SHOWFX.fixtures) {
+    _showColor.setHSL((t * 0.08 + f.i * 0.2) % 1, 0.9, 0.6); f.can.material.color.copy(_showColor); f.beam.material.color.copy(_showColor);
+    f.beam.rotation.z = reduceMotion ? 0 : Math.sin(t * 0.7 + f.i) * 0.35;
+  }
+  SHOWFX.light.color.setHSL((t * 0.05) % 1, 0.8, 0.6);
+  const s = SHOWFX.stars;
+  for (let i = 0; i < s.count; i++) s.setColorAt(i, _showColor.setScalar(0.35 + 0.65 * Math.abs(Math.sin(t * (reduceMotion ? 0.2 : 1.3) + i * 1.7))));
+  s.instanceColor.needsUpdate = true;
+}
+
 /* ================= elevador: portas, cabine e indicadores de andar ================= */
 /* A cabine fica atrás do vão da parede. Materiais com brilho próprio dispensam luzes extras. */
 const elevSteelTex = canvasTex(128, 256, (g, w, h) => {
@@ -1346,6 +1481,111 @@ for (const f of FLOORS) {
     g.fillStyle = '#b8a98c'; g.font = '500 26px ' + FONT; g.fillText('ELEVADOR • ' + f.sub, 170, 120);
   });
   mesh(G.plane, new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }), GROUPS[f.group], at(0.03), 2.62, z, 0, ry, 0, 1.3, 0.4, 1, false);
+}
+
+/* ================= o hotel visto de fora: torre, letreiro LAS VEGAS NIGHT e luzes ================= */
+/* Fica a 700 m das salas: a câmera (alcance de 260 m) nunca vê as duas coisas ao mesmo tempo. */
+const EXT = { o: new THREE.Vector3(0, 0, -700), group: new THREE.Group(), chase: [], neon: [], beams: [], beacon: null, w: 44, d: 26, h: 120 };
+scene.add(EXT.group);
+const extWindows = (lit, cols = 16, rows = 64) => canvasTex(256, 1024, (g, w, h) => {
+  g.fillStyle = '#0a0d14'; g.fillRect(0, 0, w, h);
+  const cw = w / cols, rh = h / rows;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const on = Math.random() < lit, warm = Math.random() < 0.7;
+    g.fillStyle = on ? (warm ? `hsl(${38 + Math.random() * 10},90%,${55 + Math.random() * 20}%)` : `hsl(205,70%,${60 + Math.random() * 15}%)`) : '#141a26';
+    g.fillRect(c * cw + 2, r * rh + 3, cw - 4, rh - 6);
+  }
+});
+const extMat = {
+  tower: new THREE.MeshBasicMaterial({ map: extWindows(0.55) }),
+  side: new THREE.MeshBasicMaterial({ map: extWindows(0.45, 11) }),
+  other: new THREE.MeshBasicMaterial({ map: extWindows(0.25), color: '#8a93a6' }),
+  dark: new THREE.MeshBasicMaterial({ color: '#07090d' }), ground: new THREE.MeshBasicMaterial({ color: '#0c0d10' }),
+  gold: new THREE.MeshBasicMaterial({ color: '#d4a84f' }), glass: new THREE.MeshBasicMaterial({ color: '#ffd9a0' }),
+};
+function extBox(material, x, y, z, w, h, d) {
+  const m = new THREE.Mesh(G.box, material); m.position.set(EXT.o.x + x, y, EXT.o.z + z); m.scale.set(w, h, d); EXT.group.add(m); return m;
+}
+function extBulbs(points, size = 0.35) {
+  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(size, 8, 6), new THREE.MeshBasicMaterial({ toneMapped: false }), points.length), t = new THREE.Object3D();
+  points.forEach((p, i) => { t.position.set(EXT.o.x + p[0], p[1], EXT.o.z + p[2]); t.updateMatrix(); m.setMatrixAt(i, t.matrix); m.setColorAt(i, new THREE.Color('#ffd27a')); });
+  m.frustumCulled = false; EXT.group.add(m); EXT.chase.push(m); return m;
+}
+/* Chão, avenida e prédios vizinhos. */
+{
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(520, 520), extMat.ground); ground.rotation.x = -Math.PI / 2; ground.position.copy(EXT.o); EXT.group.add(ground);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(520, 22), new THREE.MeshBasicMaterial({ color: '#16181d' })); road.rotation.x = -Math.PI / 2; road.position.set(EXT.o.x, 0.02, EXT.o.z + 40); EXT.group.add(road);
+  for (let x = -250; x < 250; x += 8) { const l = new THREE.Mesh(G.plane, new THREE.MeshBasicMaterial({ color: '#c9b46a' })); l.rotation.x = -Math.PI / 2; l.position.set(EXT.o.x + x, 0.03, EXT.o.z + 40); l.scale.set(3, 0.25, 1); EXT.group.add(l); }
+  const rnd2 = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
+  for (let i = 0; i < 26; i++) {
+    const a = i / 26 * Math.PI * 2, r = 95 + rnd2() * 70, w = 14 + rnd2() * 16, h = 22 + rnd2() * 55, x = Math.cos(a) * r, z = Math.sin(a) * r * 0.8;
+    if ((x * 0.43 + z * 0.9) / Math.hypot(x, z) > 0.55) continue;  /* deixa livre a frente vista pela câmera */
+    extBox(extMat.other, x, h / 2, z, w, h, w * 0.8);
+  }
+  const stars = new THREE.BufferGeometry(), pts = [];
+  for (let i = 0; i < 500; i++) { const a = rnd2() * Math.PI * 2, e = 0.15 + rnd2() * 1.2; pts.push(EXT.o.x + Math.cos(a) * 240 * Math.cos(e), 240 * Math.sin(e), EXT.o.z + Math.sin(a) * 240 * Math.cos(e)); }
+  stars.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  EXT.group.add(new THREE.Points(stars, new THREE.PointsMaterial({ color: '#cfd8ff', size: 1.2, sizeAttenuation: false })));
+}
+/* Torre do hotel: pódio, corpo com janelas, coroa com o letreiro. */
+{
+  const { w, d, h } = EXT;
+  extBox(extMat.dark, 0, 7, 0, w + 20, 14, d + 14);
+  extBox(extMat.glass, 0, 4, (d + 14) / 2 + 0.05, 14, 6, 0.1);
+  const tower = extBox([extMat.side, extMat.side, extMat.dark, extMat.dark, extMat.tower, extMat.tower], 0, 14 + h / 2, 0, w, h, d);
+  tower.material.forEach(m => { if (m.map) { m.map.wrapS = m.map.wrapT = THREE.RepeatWrapping; } });
+  extBox(extMat.dark, 0, 14 + h + 4, 0, w + 1, 8, d + 1);
+  /* Marquise da entrada com lâmpadas. */
+  extBox(extMat.gold, 0, 8.5, (d + 14) / 2 + 4, 22, 0.8, 8);
+  const marquee = [];
+  for (let i = 0; i <= 40; i++) { const x = -11 + i * 22 / 40; marquee.push([x, 8.0, (d + 14) / 2 + 8.05], [x, 9.0, (d + 14) / 2 + 8.05]); }
+  extBulbs(marquee, 0.22);
+  /* Faixas de neon nos cantos da torre, mudando de cor. */
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+    const m = extBox(new THREE.MeshBasicMaterial({ color: '#ff3fb4', toneMapped: false }), sx * (w / 2 + 0.25), 14 + h / 2, sz * (d / 2 + 0.25), 0.5, h, 0.5);
+    EXT.neon.push(m);
+  }
+  /* Letreiro nas quatro faces da coroa. */
+  const signTex = canvasTex(2048, 420, (g, tw, th) => {
+    g.fillStyle = '#12020f'; g.fillRect(0, 0, tw, th);
+    g.textAlign = 'center'; g.shadowColor = '#ff2e9a'; g.shadowBlur = 40; g.fillStyle = '#ffe1f2'; g.font = '700 230px ' + FONT_D; g.fillText('LAS VEGAS', tw / 2, 230);
+    g.shadowColor = '#ffc24a'; g.fillStyle = '#ffd77a'; g.font = '700 150px ' + FONT; g.fillText('★ NIGHT ★', tw / 2, 385);
+  });
+  const signMat = new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false }), y = 14 + h + 19, sh = 26;
+  for (const [ry, dist, sw] of [[0, d / 2 + 0.6, w + 10], [Math.PI, d / 2 + 0.6, w + 10], [Math.PI / 2, w / 2 + 0.6, d + 10], [-Math.PI / 2, w / 2 + 0.6, d + 10]]) {
+    const m = new THREE.Mesh(G.plane, signMat); m.scale.set(sw, sh, 1); m.rotation.y = ry;
+    m.position.set(EXT.o.x + Math.sin(ry) * dist, y, EXT.o.z + Math.cos(ry) * dist); EXT.group.add(m);
+    const back = new THREE.Mesh(G.box, extMat.dark); back.scale.set(sw + 1, sh + 1, 0.6); back.rotation.y = ry;
+    back.position.set(EXT.o.x + Math.sin(ry) * (dist - 0.35), y, EXT.o.z + Math.cos(ry) * (dist - 0.35)); EXT.group.add(back);
+    const pts = [], n = Math.round(sw / 1.1);
+    for (let i = 0; i <= n; i++) { const u = -sw / 2 + i * sw / n; for (const v of [-sh / 2 - 0.3, sh / 2 + 0.3]) pts.push([Math.sin(ry) * (dist + 0.3) + Math.cos(ry) * u, y + v, Math.cos(ry) * (dist + 0.3) - Math.sin(ry) * u]); }
+    for (let i = 1; i < 18; i++) { const v = -sh / 2 + i * sh / 18; for (const u of [-sw / 2 - 0.3, sw / 2 + 0.3]) pts.push([Math.sin(ry) * (dist + 0.3) + Math.cos(ry) * u, y + v, Math.cos(ry) * (dist + 0.3) - Math.sin(ry) * u]); }
+    extBulbs(pts);
+  }
+  /* Farol vermelho no topo e holofotes varrendo o céu. */
+  EXT.beacon = extBox(new THREE.MeshBasicMaterial({ color: '#ff2020', toneMapped: false }), 0, 14 + h + 30, 0, 1.2, 1.2, 1.2);
+  for (let i = 0; i < 4; i++) {
+    const beam = new THREE.Mesh(new THREE.ConeGeometry(4, 120, 20, 1, true), new THREE.MeshBasicMaterial({ color: '#bfe3ff', transparent: true, opacity: 0.07, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+    beam.geometry.translate(0, -60, 0); const pivot = new THREE.Group(); pivot.position.set(EXT.o.x + (i % 2 ? 9 : -9), 14 + h + 8, EXT.o.z + (i < 2 ? 6 : -6));
+    beam.rotation.x = Math.PI; pivot.add(beam); EXT.group.add(pivot); EXT.beams.push(pivot);
+  }
+}
+/* Vistas do hotel por fora e do corte por dentro (vista aérea). */
+const ORBIT_VIEWS = {
+  outside: { target: new THREE.Vector3(EXT.o.x, 60, EXT.o.z), r: 215, th: 0.45, ph: 1.5, min: 120, max: 250 },
+  inside: { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, min: 6, max: 22 },
+};
+const _extColor = new THREE.Color();
+function stepExterior(dt, t) {
+  if (!EXT.group.visible) return;
+  const step = Math.floor(t * (reduceMotion ? 0.8 : 8));
+  for (const m of EXT.chase) {
+    for (let i = 0; i < m.count; i++) m.setColorAt(i, _extColor.set((i + step) % 4 < 2 ? '#fff1b8' : '#4a2a08'));
+    m.instanceColor.needsUpdate = true;
+  }
+  EXT.neon.forEach((m, i) => m.material.color.setHSL((t * 0.07 + i * 0.25) % 1, 1, 0.55));
+  EXT.beacon.visible = (t % 1.6) < 0.25;
+  EXT.beams.forEach((p, i) => { p.rotation.z = Math.sin(t * 0.35 + i * 1.7) * 0.5; p.rotation.x = Math.cos(t * 0.27 + i) * 0.35; });
 }
 
 
@@ -2003,10 +2243,10 @@ const equity = () => BASE + realized + openPnl();
 /* ---------- caminhos (grafo de corredores) ---------- */
 const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], officeFront: [0.45, 3.15], officeRight: [4.6, 3.15], poolW: [5.5, 9.4], poolE: [10, 10.8], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-Object.assign(NODES, { loungeHub: [10.5, 17], loungeSide: [6.5, 16], loungeBack: [10.5, 19], gamesBack: [5.5, 10.8], discoFloor: [0, 10.5] });
+Object.assign(NODES, { showHub: [-1.7, 17.6], loungeHub: [10.5, 17], loungeSide: [6.5, 16], loungeBack: [10.5, 19], gamesBack: [5.5, 10.8], discoFloor: [0, 10.5] });
 /* Elevador: um nó na frente da porta de cada andar; marcado com .elev para o salto entre andares. */
 for (const f of FLOORS) NODES['elev_' + f.key] = Object.assign([f.x, f.z], { elev: f.key });
-const EDGES = [['F_R', 'elev_office'], ['poolE', 'elev_games'], ['discoFloor', 'elev_disco'], ['loungeHub', 'elev_lounge'], ['loungeHub', 'loungeSide'], ['loungeHub', 'loungeBack'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+const EDGES = [['showHub', 'elev_show'], ['F_R', 'elev_office'], ['poolE', 'elev_games'], ['discoFloor', 'elev_disco'], ['loungeHub', 'elev_lounge'], ['loungeHub', 'loungeSide'], ['loungeHub', 'loungeBack'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
 /* A viagem de elevador custa o mesmo que andar uns metros, em qualquer sentido. */
 for (const a of FLOORS) for (const b of FLOORS) if (a !== b) ADJ['elev_' + a.key].push(['elev_' + b.key, 4]);
@@ -2256,8 +2496,24 @@ function updateLabels() {
 /* ================= controles: vista aérea e primeira pessoa ================= */
 let mode = 'orbit';
 const portrait = () => innerWidth < innerHeight;
-const orbit = { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, idle: 0 };
-if (portrait()) { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); }
+/* Vista de fora: o hotel inteiro com o letreiro; vista aérea: o corte por dentro das salas. */
+const orbit = { target: new THREE.Vector3(), r: 14, th: 0.78, ph: 0.92, idle: 0, view: '', min: 6, max: 22 };
+function setOrbitView(name) {
+  const v = ORBIT_VIEWS[name]; Object.assign(orbit, { view: name, r: v.r, th: v.th, ph: v.ph, min: v.min, max: v.max }); orbit.target.copy(v.target);
+  if (portrait()) { if (name === 'inside') { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); } else orbit.r = 250; }
+  EXT.group.visible = name === 'outside';
+  $('btnOutside').textContent = name === 'outside' ? '🔍 Ver por dentro' : '🏨 Hotel por fora';
+}
+setOrbitView('outside');
+/* Corte com escurecimento rápido entre a vista de fora e a de dentro. */
+let cutting = false;
+function cut(fn) {
+  const f = $('fade');
+  if (DEBUG || reduceMotion) { fn(); return; }
+  if (cutting) return; cutting = true;
+  f.hidden = false; requestAnimationFrame(() => { f.style.opacity = '1'; });
+  setTimeout(() => { fn(); f.style.opacity = '0'; setTimeout(() => { f.hidden = true; cutting = false; }, 380); }, 380);
+}
 /* body: para onde o corpo do personagem está virado (convenção dos avatares); segue a direção em que ele anda. */
 const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0, body: 1.78 + Math.PI };
 const EYE = 1.62, PR = 0.28;
@@ -2288,6 +2544,7 @@ const _tmpV = new THREE.Vector3();
 function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0: camera.position.clone(), q0: camera.quaternion.clone(), p1: toPos, q1: toQ, t: 0, dur, done }; mode = 'tween'; }
 
 function enterRoom() {
+  if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
   inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
   fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
@@ -2299,6 +2556,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
   if (mode === 'menu') closeHospitality(); cancelService(true); stopSmoking(); putAwayConsumable();
   if (DISCO.dancing) stopDance();
@@ -2314,6 +2572,7 @@ function lockMouse() { try { const p = canvas.requestPointerLock(); if (p && p.c
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
 btnEnter.addEventListener('click', enterRoom);
 btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); });
+$('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoom) cut(() => setOrbitView(orbit.view === 'outside' ? 'inside' : 'outside')); });
 
 /* teclado */
 addEventListener('keydown', e => {
@@ -2361,7 +2620,7 @@ canvas.addEventListener('pointermove', e => {
   if ((mode === 'fp' || mode === 'seat') && locked) { fp.yaw -= e.movementX * 0.0022; fp.pitch = clamp(fp.pitch - e.movementY * 0.0022, -1.3, 1.3); return; }
   const p = ptr.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
-  if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 6, 22); return; }
+  if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), orbit.min, orbit.max); return; }
   if (ptr.size === 2 && pinch && VIEW.third && inRoom) { const [a, b] = [...ptr.values()]; VIEW.zoom = clamp(pinch.z * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 1.4, 4.5); return; }
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
@@ -2369,7 +2628,7 @@ canvas.addEventListener('pointermove', e => {
 const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
 canvas.addEventListener('wheel', e => {
-  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; }
+  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), orbit.min, orbit.max); orbit.idle = 0; }
   else if (VIEW.third && inRoom) { e.preventDefault(); VIEW.zoom = clamp(VIEW.zoom * Math.exp(e.deltaY * 0.001), 1.4, 4.5); }
 }, { passive: false });
 
@@ -2391,9 +2650,9 @@ function wallBlocked(x, z, radius = PR) {
     const disco = x >= -4 + radius && x <= 4 - radius;
     const annex = x >= 4 + radius && x <= 12 - radius;
     /* Andares separados: sem passagens; só o elevador liga as salas. */
-    if ((!disco && !annex) || (disco && z > 14 - radius) || (annex && z > 22 - radius)) return true;
+    if ((!disco && !annex) || z > 22 - radius) return true;
     if (z < RD + radius) return true;
-    if (annex && z > 14 - radius && z < 14 + radius) return true;
+    if (z > 14 - radius && z < 14 + radius) return true;
   }
   return false;
 }
@@ -2406,6 +2665,7 @@ function blocked(x, z) {
   if (roomBlocked(x, z)) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   for (const m of STAFF.members) { const p = m.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
+  for (const h of SHOW.hosts) { const p = h.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
   return false;
 }
 function stepFP(dt) {
@@ -2454,6 +2714,7 @@ STATIONS.forEach((st, i) => SEATS.push({
 [-6.1, -5.1, -4.1].forEach(x => SEATS.push({ kind: 'sofa', label: 'Sentar no sofá', x, z: 5.36, eye: 1.06, yaw: 0, free: () => !(x === -6.1 && SPOTS.sofa.busy) }));
 SEATS.push({ kind: 'arm', label: 'Sentar na poltrona', x: -2.78, z: 4.45, eye: 1.08, yaw: 1.32, free: () => true });
 for (const x of [-3.45, 3.45]) SEATS.push({ kind: 'club', label: 'Sentar no banco da discoteca', x, z: 10.2, eye: 1.08, yaw: x < 0 ? -Math.PI / 2 : Math.PI / 2, free: () => true });
+for (const s of SHOW_LAYOUT.seats) SEATS.push({ kind: 'show', label: 'Sentar para ver o show', ...s, free: () => true });
 for (const [i, s] of LOUNGE_LAYOUT.seats.entries()) SEATS.push({ kind: 'lounge', label: 'Sentar no sofá do lounge', ...s, free: () => !(i === 0 && SPOTS.lounge1.busy || i === 3 && SPOTS.lounge2.busy) });
 const seatState = { s: null, from: new THREE.Vector3() };
 
@@ -2468,6 +2729,12 @@ function findAct() {
   const elev = FLOOR[floorAt(px, pz)];
   if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
   else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
+  if (inShow(px, pz)) {
+    for (const h of SHOW.hosts) if (['wander', 'approach'].includes(h.state)) consider(h.P.root.position.x, h.P.root.position.z, 2.1, 0.6, 'Falar com a atendente ' + h.name, () => openOffer(h));
+    const st = SHOW_LAYOUT.stage;
+    if (pz > st.z0 - 1.6 && px > st.x0 && px < st.x1) { const d = nearestDancer(); consider(d.x, st.z0, 2, 0.2, 'Dar gorjeta para ' + d.name + ' (10 fichas)', () => tipDancer(d)); }
+    consider(SHOW_LAYOUT.bar.x, SHOW_LAYOUT.bar.z, 1.8, 0.4, 'Pedir um drinque no balcão', () => openHospitality('bar'));
+  }
   if (inLounge(px, pz)) {
     for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
     consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));
@@ -2515,6 +2782,7 @@ function updateActUI() {
   $('discoPanel').hidden = !club || !DISCO.panelOpen;
   $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
   $('viewToggle').hidden = !inRoom;
+  $('btnOutside').hidden = inRoom || mode !== 'orbit';
   /* Celular: joystick fixo e botão de correr aparecem enquanto o visitante anda. */
   const walking = isTouch && inRoom && mode === 'fp';
   if (isTouch && !joy) joyEl.hidden = !walking;
@@ -3135,6 +3403,189 @@ $('spotifyLoad').onclick = spotifyLoad; $('spotifyClose').onclick = spotifyClose
 $('spotifyMin').onclick = () => { const min = $('spotifyDock').classList.toggle('min'); $('spotifyMin').textContent = min ? 'Mostrar' : 'Minimizar'; };
 $('spotifyUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); spotifyLoad(); } });
 
+/* ================= Las Vegas Night: dançarinas no palco, atendentes, gorjetas e vozes ================= */
+/* Personagens locais (como os robôs): cada visitante vê o próprio show. As fichas são as de brincadeira do 21. */
+const SHOW = { dancers: [], hosts: [], offer: null, nextOffer: 0, voice: true, tips: 0, ready: false };
+try { SHOW.voice = localStorage.getItem('sala-voz') !== '0'; } catch (e) { }
+const inShow = (x, z) => x > -3.8 && x < 3.8 && z > 14.4 && z < 21.8;
+const SHOW_DRINKS = ['wine', 'beer', 'juice', 'soda', 'water'];
+const HOST_SPEED = 0.95, HOST_RADIUS = 0.22;
+function showSay(text) {
+  if (!SHOW.voice || !inRoom || playerFloor() !== 'show' || !window.speechSynthesis) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text), voices = speechSynthesis.getVoices().filter(v => /^pt/i.test(v.lang));
+    u.lang = 'pt-BR'; u.pitch = 1.15; u.rate = 1.02; u.voice = voices.find(v => /female|mulher|luciana|francisca|maria|vit[oó]ria|google/i.test(v.name)) || voices[0] || null;
+    speechSynthesis.speak(u);
+  } catch (e) { }
+}
+function showPerson(spec, file, name, role, x, z, yaw) {
+  const P = makePerson(spec); P.pose = 'stand'; P.yaw = yaw; P.root.position.set(x, 0, z);
+  const el = mkLabel('staff'); el.firstChild.textContent = name + ' · ' + role;
+  return { P, el, file, name, role, loading: false, failed: false };
+}
+async function loadShowPerson(n) {
+  if (!AV.clips || n.loading || n.failed || n.P.isAvatar) return;
+  n.loading = true;
+  try {
+    const { g, SU } = await getVisitorModel(n.file), old = n.P;
+    const A = new Avatar({ scene: SU.clone(g.scene) }, AV.clips.f, old, n.file);
+    old.root.visible = false; A.yaw = old.yaw; A.pose = old.pose; A.danceStyle = old.danceStyle; n.P = A;
+  } catch (e) { n.failed = true; }
+  n.loading = false;
+}
+function initShow() {
+  if (SHOW.ready) return; SHOW.ready = true;
+  [['Female_Adult_09', 'Jade'], ['Business_Female_03', 'Lorena'], ['Female_Adult_02', 'Mel']].forEach(([file, name], i) => {
+    const [x, z] = SHOW_LAYOUT.dancers[i], d = showPerson(1 + i * 2, file, name, 'dançarina', x, z, Math.PI);
+    d.style = DISCO_STYLES[i % 3]; d.phase = i * 1.3; d.P.pose = 'dance'; d.P.danceStyle = d.style; d.P.dancePhase = d.phase; d.x = x; d.z = z;
+    SHOW.dancers.push(d);
+  });
+  [['Business_Female_04', 'Bianca', [-2.6, 15.4]], ['Business_Female_01', 'Larissa', [2.4, 19.6]]].forEach(([file, name, [x, z]], i) => {
+    const h = showPerson(3 + i * 2, file, name, 'atendente', x, z, 0);
+    Object.assign(h, { state: 'wander', path: [], wait: 1 + i * 2, stuck: 0, until: 0 });
+    SHOW.hosts.push(h);
+  });
+}
+function hostWalk(h, dt) {
+  const p = h.P.root.position; let budget = HOST_SPEED * dt, speed = 0;
+  while (h.path.length && budget > 0.0001) {
+    const q = h.path[0], dx = q[0] - p.x, dz = q[1] - p.z, d = Math.hypot(dx, dz);
+    if (d < 0.05) { h.path.shift(); continue; }
+    const step = Math.min(d, budget); let x = p.x + dx / d * step, z = p.z + dz / d * step;
+    /* Encostou num móvel: desliza ao longo dele, como o visitante. */
+    if (roomBlocked(x, z, HOST_RADIUS)) {
+      if (!roomBlocked(x, p.z, HOST_RADIUS)) z = p.z; else if (!roomBlocked(p.x, z, HOST_RADIUS)) x = p.x; else { h.stuck += dt; break; }
+    }
+    h.P.yaw = angDamp(h.P.yaw, Math.atan2(dx, dz), 9, dt); p.x = x; p.z = z; budget -= step; speed = HOST_SPEED; h.stuck = 0;
+  }
+  if (h.stuck > 1.2) { h.path = []; h.stuck = 0; }
+  return speed;
+}
+function hostGo(h, x, z) { const p = h.P.root.position; h.path = staffPath([p.x, p.z], [x, z]) || [[x, z]]; }
+/* Ponto a 1 m do visitante, do lado de onde a atendente vem. */
+function besidePlayer(h) {
+  const p = h.P.root.position, a = Math.atan2(p.z - fp.pos.z, p.x - fp.pos.x);
+  for (const da of [0, 0.6, -0.6, 1.2, -1.2, Math.PI]) {
+    const x = fp.pos.x + Math.cos(a + da), z = fp.pos.z + Math.sin(a + da);
+    if (inShow(x, z) && !roomBlocked(x, z, HOST_RADIUS)) return [x, z];
+  }
+  return null;
+}
+function openOffer(h) {
+  if (SHOW.offer && SHOW.offer !== h) closeOffer();
+  SHOW.offer = h; h.state = 'offer'; h.path = [];
+  $('hostName').textContent = h.name + ' · atendente do Las Vegas Night';
+  $('hostLine').textContent = 'Oi! Bem-vindo ao Las Vegas Night. Posso trazer uma bebida, dançar com você ou arrumar uma mesa para o show?';
+  $('hostOffer').hidden = false; showSay('Oi! Bem-vindo ao Las Vegas Night. Posso trazer uma bebida, dançar com você, ou arrumar uma mesa para o show?');
+}
+function closeOffer(cool = 40) {
+  const h = SHOW.offer; $('hostOffer').hidden = true; SHOW.offer = null;
+  if (h && h.state === 'offer') { h.state = 'wander'; h.wait = 2; }
+  SHOW.nextOffer = performance.now() / 1000 + (DEBUG ? 2 : cool);
+}
+function offerDrink() {
+  const h = SHOW.offer; if (!h) return;
+  closeOffer(60); h.state = 'fetch'; h.item = SHOW_DRINKS[Math.floor(Math.random() * SHOW_DRINKS.length)];
+  hostGo(h, SHOW_LAYOUT.bar.x, SHOW_LAYOUT.bar.z); showSay('Já volto com a sua bebida!'); serviceMessage(h.name + ' foi buscar sua bebida no balcão.');
+}
+function offerDance() {
+  const h = SHOW.offer; if (!h) return;
+  closeOffer(60); h.state = 'dance'; h.P.pose = 'dance'; h.until = performance.now() / 1000 + 25; h.P.danceStyle = DISCO_STYLES[Math.floor(Math.random() * 3)];
+  const spot = besidePlayer(h); if (spot) { h.P.root.position.x = spot[0]; h.P.root.position.z = spot[1]; }
+  showSay('Vamos dançar!'); startDance();
+}
+function offerSeat() {
+  const h = SHOW.offer; if (!h) return;
+  closeOffer(90);
+  const seats = SEATS.filter(s => s.kind === 'show' && s.free()).sort((a, b) => Math.hypot(a.x - fp.pos.x, a.z - fp.pos.z) - Math.hypot(b.x - fp.pos.x, b.z - fp.pos.z));
+  if (seats[0]) { showSay('Boa escolha! Aproveite o show.'); sitDown(seats[0]); }
+}
+function nearestDancer() {
+  const x = seatState.s ? seatState.s.x : fp.pos.x, z = seatState.s ? seatState.s.z : fp.pos.z;
+  return SHOW.dancers.reduce((a, d) => Math.hypot(d.x - x, d.z - z) < Math.hypot(a.x - x, a.z - z) ? d : a);
+}
+function tipDancer(d = nearestDancer()) {
+  if (!inRoom || playerFloor() !== 'show') return false;
+  if (CASINO.balance < 10) { serviceMessage('Sem fichas para gorjeta. Ganhe mais no Clube do 21, na sala de jogos.'); return false; }
+  CASINO.balance -= 10; SHOW.tips += 10; d.cheerUntil = performance.now() / 1000 + 3;
+  spawnDiscoEmoji('💵', d.x, d.z, 2.3); spawnDiscoEmoji('💵', d.x + 0.3, d.z, 2.0);
+  serviceMessage('Você deu 10 fichas para ' + d.name + '. Fichas: ' + CASINO.balance + '.'); showSay('Obrigada! Você é demais!');
+  return true;
+}
+function stepShow(dt, t) {
+  initShow(); stepShowFx(dt, t);
+  const here = inRoom && playerFloor() === 'show';
+  for (const d of SHOW.dancers) {
+    if (AV.clips && !d.P.isAvatar) loadShowPerson(d);
+    const P = d.P; P.root.position.set(d.x, 0, d.z); P.yaw = Math.PI; P.pose = 'dance'; P.speed = 0;
+    P.danceStyle = DISCO_STYLES[(Math.floor(t / 12) + SHOW.dancers.indexOf(d)) % 3]; P.dancePhase = d.phase;
+    P.isAvatar ? P.update(dt, t) : animatePerson(P, dt, t);
+    P.root.position.y += SHOW_LAYOUT.stage.y + (d.cheerUntil > t ? Math.abs(Math.sin(t * 9)) * 0.08 : 0);
+  }
+  for (const h of SHOW.hosts) {
+    if (AV.clips && !h.P.isAvatar) loadShowPerson(h);
+    const P = h.P, p = P.root.position; let speed = 0;
+    if (h.state === 'wander') {
+      if (here && mode === 'fp' && !SHOW.offer && t > SHOW.nextOffer && SHOW.hosts.every(o => o.state !== 'approach') && Math.hypot(p.x - fp.pos.x, p.z - fp.pos.z) < 7) {
+        h.state = 'approach'; h.path = [];
+      } else if (!h.path.length && (h.wait -= dt) <= 0) {
+        const w = SHOW_LAYOUT.walk[Math.floor(Math.random() * SHOW_LAYOUT.walk.length)]; hostGo(h, w[0], w[1]); h.wait = 3 + Math.random() * 4;
+      }
+    }
+    if (h.state === 'approach') {
+      if (!here || mode !== 'fp') { h.state = 'wander'; h.path = []; }
+      else if (Math.hypot(p.x - fp.pos.x, p.z - fp.pos.z) < 1.4) openOffer(h);
+      else if (!h.path.length || !h.goal || Math.hypot(h.goal[0] - fp.pos.x, h.goal[1] - fp.pos.z) > 0.8) {
+        const spot = besidePlayer(h); h.goal = [fp.pos.x, fp.pos.z]; if (spot) hostGo(h, spot[0], spot[1]); else h.state = 'wander';
+      }
+    }
+    if (h.state === 'offer') {
+      P.yaw = angDamp(P.yaw, Math.atan2(fp.pos.x - p.x, fp.pos.z - p.z), 6, dt);
+      if (!here || Math.hypot(p.x - fp.pos.x, p.z - fp.pos.z) > 3.2 || !['fp', 'seat'].includes(mode)) closeOffer();
+    }
+    if (h.state === 'fetch' && !h.path.length) { h.state = 'bring'; h.goal = null; }
+    if (h.state === 'bring') {
+      if (!here) { h.state = 'wander'; h.item = null; }
+      else {
+        const tx = seatState.s ? seatState.s.x : fp.pos.x, tz = seatState.s ? seatState.s.z : fp.pos.z;
+        if (Math.hypot(p.x - tx, p.z - tz) < 1.5) { deliverConsumable(h.item, h); showSay('Aqui está! Aproveite o show.'); h.item = null; h.state = 'wander'; h.wait = 3; }
+        else if (!h.path.length || !h.goal || Math.hypot(h.goal[0] - tx, h.goal[1] - tz) > 0.8) {
+          h.goal = [tx, tz]; const s = seatState.s ? null : besidePlayer(h); hostGo(h, s ? s[0] : tx, s ? s[1] : tz - 0.9);
+        }
+      }
+    }
+    if (h.state === 'dance') {
+      P.yaw = angDamp(P.yaw, Math.atan2(fp.pos.x - p.x, fp.pos.z - p.z), 6, dt);
+      if (t > h.until || !here) { h.state = 'wander'; h.wait = 2; }
+    }
+    if (h.path.length && h.state !== 'offer' && h.state !== 'dance') speed = hostWalk(h, dt);
+    P.pose = h.state === 'dance' ? 'dance' : 'stand'; P.speed = speed;
+    setPersonItem(P, h.state === 'bring' && h.item ? h.item : '', 0);
+    P.isAvatar ? P.update(dt, t) : animatePerson(P, dt, t);
+  }
+  const bar = $('showBar'); bar.hidden = !here || !['fp', 'seat'].includes(mode);
+  if (!bar.hidden) { const txt = '🪙 ' + CASINO.balance + (isTouch ? '' : ' fichas'); if ($('showChips').textContent !== txt) $('showChips').textContent = txt; }
+  const icon = SHOW.voice ? '🔊' : '🔇'; if ($('showVoice').firstChild.textContent !== icon) $('showVoice').firstChild.textContent = icon;
+}
+const _showHead = new THREE.Vector3();
+function updateShowLabels(t) {
+  for (const n of [...SHOW.dancers, ...SHOW.hosts]) {
+    const el = n.el, txt = n.cheerUntil > t ? '💵 obrigada!' : n.role === 'dançarina' ? 'no palco' : { offer: 'conversando', fetch: 'buscando bebida', bring: 'levando bebida', dance: 'dançando', approach: 'vindo até você' }[n.state] || 'pode chamar';
+    if (el.lastChild.textContent !== txt) el.lastChild.textContent = txt;
+    if (!n.P.J.head || otherFloor(n.P.root.position.x, n.P.root.position.z) || !inRoom) { el.style.opacity = '0'; continue; }
+    n.P.J.head.getWorldPosition(_showHead); _showHead.y += 0.4;
+    const dist = camera.position.distanceTo(_showHead); _showHead.project(camera);
+    if (_showHead.z > 1 || _showHead.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }
+    el.style.opacity = '1';
+    el.style.transform = `translate(${(_showHead.x * 0.5 + 0.5) * innerWidth}px,${(-_showHead.y * 0.5 + 0.5) * innerHeight}px) translate(-50%,-100%) scale(${clamp(4.2 / dist, 0.42, 1.25).toFixed(3)})`;
+  }
+}
+$('hostDrink').onclick = offerDrink; $('hostDance').onclick = offerDance; $('hostSeat').onclick = offerSeat;
+$('hostNo').onclick = () => { showSay('Tudo bem! Estou por aqui.'); closeOffer(); };
+$('showTip').onclick = () => tipDancer();
+$('showVoice').onclick = () => { SHOW.voice = !SHOW.voice; try { localStorage.setItem('sala-voz', SHOW.voice ? '1' : '0'); } catch (e) { } if (!SHOW.voice && window.speechSynthesis) speechSynthesis.cancel(); };
+
 /* ================= cardápio, geladeira, comida e smoking virtual ================= */
 const HOSP = { item: '', portions: 0, consumeUntil: 0, finishing: false, prop: null, rig: null, hand: null, smokeProp: null, smokingUntil: 0, hookIndex: 0, menuFrom: 'service', returnMode: 'fp', noteUntil: 0, botNext: 0 };
 const inLounge = (x, z) => x > 4.2 && x < 11.8 && z > 14.4 && z < 21.8;
@@ -3169,7 +3620,7 @@ function openHospitality(from = 'service') {
   if (!inRoom || !['fp', 'seat', 'dance'].includes(mode)) return;
   HOSP.returnMode = mode; HOSP.menuFrom = from;
   if (from === 'fridge') FRIDGE.open = true;
-  $('menuTitle').textContent = from === 'fridge' ? '🧊 Geladeira' : from === 'bar' ? '🍽️ Balcão do lounge' : '🍽️ Bebidas e comidas';
+  $('menuTitle').textContent = from === 'fridge' ? '🧊 Geladeira' : from === 'bar' ? (playerFloor() === 'show' ? '🍸 Balcão do Las Vegas Night' : '🍽️ Balcão do lounge') : '🍽️ Bebidas e comidas';
   $('menuHint').textContent = from === 'fridge' ? 'Pegue uma bebida ou um lanche gelado.' : from === 'bar' ? 'Sirva-se no balcão.' : 'Caio e Sofia levam seu pedido até você.';
   $('menuMsg').textContent = ''; $('fridgeClose').hidden = from !== 'fridge'; renderMenu(); leisureOpen('hospitalityMenu', 'menu');
 }
@@ -3759,8 +4210,10 @@ function publishDiscoPresence() {
   if (MP.room && inRoom) MP.room.presence(myPresence()).catch(() => { });
 }
 function startDance() {
-  if (mode !== 'fp' || !inDisco(fp.pos.x, fp.pos.z)) return;
-  const spots = [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
+  const show = inShow(fp.pos.x, fp.pos.z);
+  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return;
+  /* No bar do show, dança onde está; na discoteca, na pista. */
+  const spots = show ? [[fp.pos.x, fp.pos.z]] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
   const free = spots.find(([x, z]) => !blocked(x, z));
   if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return; }
   fp.pos.set(free[0], 0, free[1]);
@@ -3797,7 +4250,7 @@ function inviteDancers(pref = null) {
 }
 const discoEmojiTextures = new Map();
 function spawnDiscoEmoji(emoji, x, z, y = 1.8) {
-  if (!DISCO_EMOJIS.includes(emoji)) return;
+  if (!DISCO_EMOJIS.includes(emoji) && emoji !== '💵') return;
   if (DISCO.emojis.length >= 18) { const old = DISCO.emojis.shift(); CLUB.particles.remove(old.sprite); old.sprite.material.dispose(); }
   if (!discoEmojiTextures.has(emoji)) discoEmojiTextures.set(emoji, canvasTex(128, 128, (g) => { g.font = '86px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(emoji, 64, 68); }));
   const material = new THREE.SpriteMaterial({ map: discoEmojiTextures.get(emoji), transparent: true, depthWrite: false, toneMapped: false });
@@ -4359,7 +4812,7 @@ function frame(now) {
   else if (['menu', 'casino', 'music', 'elevator', 'ride'].includes(mode)) { if (VIEW.third) stepThirdCam(dt); else { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } if (mode === 'ride') camera.position.y += ELEV.shake; }
   else if (mode === 'fp') { stepFP(dt); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') { stepSeat(); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
   setWalls(['menu', 'dance', 'casino', 'music', 'elevator', 'ride', 'fp', 'seat', 'talk', 'pool'].includes(mode) || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepElevator(dt, t); stepRadio(); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  stepElevator(dt, t); stepRadio(); stepExterior(dt, t); stepShow(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -4370,7 +4823,7 @@ function frame(now) {
   /* render (sombras recalculadas em quadros alternados) */
   if (frameN % 2 === 0) renderer.shadowMap.needsUpdate = true;
   if (composer) composer.render(); else renderer.render(scene, camera);
-  updateLabels(); updateVisitorLabels(t); updateStaffLabels(t);
+  updateLabels(); updateVisitorLabels(t); updateStaffLabels(t); updateShowLabels(t);
   frameN++;
   if (!envDone && frameN === 3) { captureEnv(); envDone = true; }
   /* qualidade adaptativa: se ficar lento, reduz a resolução */
@@ -4388,7 +4841,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>

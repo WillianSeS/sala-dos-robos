@@ -129,6 +129,10 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .spotify-dock.min{width:auto}.spotify-dock.min .spotify-box{position:absolute;left:-10000px;width:300px}
 /* No celular o player aparece junto com o painel de música e segue tocando escondido. */
 @media(max-width:600px){.spotify-dock{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100% - 32px);z-index:6}.spotify-box iframe{height:80px}body:not(.music-open) .spotify-dock{left:-10000px}}
+.host-offer{z-index:4;border-color:#ff4fb488}.host-offer p{margin:0;font-size:13px;line-height:1.5}
+.show-bar{position:fixed;left:16px;top:calc(104px + env(safe-area-inset-top,0px));display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 200px);background:#1a0a1aee;border:1px solid #ff4fb466;border-radius:12px;padding:6px 8px;z-index:3}.show-bar b{font-size:12px;color:#ffd77a;padding:0 4px}.show-bar .btn.sm{padding:7px 10px}
+.fade{position:fixed;inset:0;background:#000;opacity:0;transition:opacity .35s;pointer-events:none;z-index:9}
+body.touch .show-bar{top:calc(120px + env(safe-area-inset-top,0px));max-width:calc(100% - 210px);flex-wrap:nowrap}body.touch .show-bar .lbl{display:none}body.touch .show-bar .btn.sm{width:40px;height:40px;padding:0;font-size:19px;border-radius:50%}
 /* Celular: controles de jogo. Joystick fixo à esquerda, botões redondos à direita, atalhos só com ícone. */
 .mbtn{position:fixed;width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(10,15,13,.72);color:#fff;font-size:26px;display:grid;place-items:center;padding:0;z-index:3;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .mbtn[aria-pressed="true"]{border-color:var(--gain);background:rgba(15,62,36,.9);box-shadow:0 0 12px rgba(61,220,132,.5)}
@@ -140,7 +144,7 @@ body.touch .disco-shortcuts{flex-direction:row-reverse;flex-wrap:wrap;max-width:
 body.touch .disco-shortcuts .btn.sm{width:48px;height:48px;padding:0;border-radius:50%;font-size:22px;display:grid;place-items:center}
 body.touch .disco-shortcuts .lbl{display:none}
 body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:190px}
-@media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}}
+@media (orientation:landscape) and (max-height:500px){body.touch .disco-shortcuts{top:auto;bottom:calc(166px + env(safe-area-inset-bottom,0px));right:calc(96px + env(safe-area-inset-right,0px));max-width:none;flex-wrap:nowrap}body.touch .held-bar{bottom:auto;top:calc(56px + env(safe-area-inset-top,0px))}body.touch .mp{left:auto;top:calc(12px + env(safe-area-inset-top,0px));right:calc(240px + env(safe-area-inset-right,0px));justify-items:end}body.touch .mp-row{flex-direction:row}body.touch .hud{max-width:calc(100% - 500px)}body.touch .show-bar{top:calc(86px + env(safe-area-inset-top,0px))}}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -153,7 +157,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
   <span class="chip" id="hLoad">Pessoas <b>0%</b></span>
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
-<div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
+<div class="ctrl"><button id="btnOutside" class="btn sm">🔍 Ver por dentro</button> <button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
 <div class="disco-shortcuts"><button id="viewToggle" class="btn sm" hidden aria-pressed="false">👤<span class="lbl"> 3ª pessoa</span></button><button id="loungeGo" class="btn sm" hidden aria-label="Lounge">🛋️<span class="lbl"> Lounge</span></button><button id="menuOpen" class="btn sm" hidden aria-label="Cardápio">🍽️<span class="lbl"> Cardápio</span></button><button id="gamesGo" class="btn sm" hidden aria-label="Sala de jogos">🎮<span class="lbl"> Sala de jogos</span></button><button id="gamesBack" class="btn sm" hidden aria-label="Escritório">🏢<span class="lbl"> Escritório</span></button><button id="discoGo" class="btn sm" hidden aria-label="Discoteca">🪩<span class="lbl"> Discoteca</span></button><button id="discoPanelOpen" class="btn sm" hidden aria-label="Painel da pista">🪩<span class="lbl"> Pista</span></button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
   <div class="talk-h"><b>🪩 Discoteca dos Robôs</b><button id="discoPanelClose" class="btn sm" aria-label="Minimizar o painel da pista">Minimizar</button></div><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
@@ -213,6 +217,13 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 </section>
 <div id="elevRide" class="elev-ride" hidden aria-live="polite"><b id="elevRideText"></b><span id="elevRideName"></span></div>
 <aside id="spotifyDock" class="spotify-dock" hidden aria-label="Player do Spotify"><div class="spotify-head"><b>🎧 Spotify</b><button id="spotifyMin" class="btn sm">Minimizar</button><button id="spotifyClose" class="btn sm">Fechar</button></div><div id="spotifyBox" class="spotify-box"></div></aside>
+<section id="hostOffer" class="talk host-offer" hidden aria-label="Atendente do Las Vegas Night">
+  <div class="talk-h"><div><b id="hostName"></b><span>Las Vegas Night · 44º andar</span></div></div>
+  <p id="hostLine" role="status"></p>
+  <div class="pool-row"><button id="hostDrink" class="btn sm">🍹 Uma bebida</button><button id="hostDance" class="btn sm">💃 Dançar comigo</button><button id="hostSeat" class="btn sm">🎭 Mesa para o show</button><button id="hostNo" class="btn sm">Agora não</button></div>
+</section>
+<aside id="showBar" class="show-bar" hidden aria-label="Las Vegas Night"><b id="showChips"></b><button id="showTip" class="btn sm" aria-label="Gorjeta de 10 fichas">💵<span class="lbl"> Gorjeta (10)</span></button><button id="showVoice" class="btn sm" aria-label="Voz das atendentes">🔊<span class="lbl"> Voz</span></button></aside>
+<div id="fade" class="fade" hidden></div>
 <div class="poolhud" id="poolHud" hidden>
   <div class="pool-top"><div class="pool-score" id="poolScore"></div><div class="pool-msg" id="poolMsg"></div></div>
   <div class="pool-bottom">
@@ -224,7 +235,7 @@ body.touch .held-bar{bottom:calc(166px + env(safe-area-inset-bottom,0px));width:
 <div class="intro" id="intro">
   <div class="card">
     <h1>Sala dos <em>Robôs</em></h1>
-    <p>Dez robôs de trading, cada um é um trader na mesa. Entre, converse, visite a sala de jogos, dance na discoteca e descanse no lounge. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
+    <p>Bem-vindo ao hotel <b>Las Vegas Night</b>. Dez robôs de trading, cada um é um trader na mesa. Entre, converse, suba de elevador para a sala de jogos, a discoteca, o lounge e o show no 44º andar. Pegue bebidas e comidas na geladeira ou peça ao atendimento. Quem você convidar entra junto e aparece na sala.</p>
     <div class="nick"><label for="nick">Seu nome na sala</label><input id="nick" maxlength="24" autocomplete="nickname" placeholder="Como os outros vão te ver"></div>
     <div class="row"><button id="btnEnter" class="btn" disabled>Entrar na sala</button><span class="small" id="status">Carregando a sala…</span></div>
     <p class="small">Pessoas 3D: Microsoft Rocketbox, licença MIT (people/LICENSE-Rocketbox.txt). Nomes fictícios. Cidade desenhada.</p>

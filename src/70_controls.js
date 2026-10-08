@@ -2,8 +2,24 @@
 /* ================= controles: vista aérea e primeira pessoa ================= */
 let mode = 'orbit';
 const portrait = () => innerWidth < innerHeight;
-const orbit = { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, idle: 0 };
-if (portrait()) { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); }
+/* Vista de fora: o hotel inteiro com o letreiro; vista aérea: o corte por dentro das salas. */
+const orbit = { target: new THREE.Vector3(), r: 14, th: 0.78, ph: 0.92, idle: 0, view: '', min: 6, max: 22 };
+function setOrbitView(name) {
+  const v = ORBIT_VIEWS[name]; Object.assign(orbit, { view: name, r: v.r, th: v.th, ph: v.ph, min: v.min, max: v.max }); orbit.target.copy(v.target);
+  if (portrait()) { if (name === 'inside') { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); } else orbit.r = 250; }
+  EXT.group.visible = name === 'outside';
+  $('btnOutside').textContent = name === 'outside' ? '🔍 Ver por dentro' : '🏨 Hotel por fora';
+}
+setOrbitView('outside');
+/* Corte com escurecimento rápido entre a vista de fora e a de dentro. */
+let cutting = false;
+function cut(fn) {
+  const f = $('fade');
+  if (DEBUG || reduceMotion) { fn(); return; }
+  if (cutting) return; cutting = true;
+  f.hidden = false; requestAnimationFrame(() => { f.style.opacity = '1'; });
+  setTimeout(() => { fn(); f.style.opacity = '0'; setTimeout(() => { f.hidden = true; cutting = false; }, 380); }, 380);
+}
 /* body: para onde o corpo do personagem está virado (convenção dos avatares); segue a direção em que ele anda. */
 const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0, body: 1.78 + Math.PI };
 const EYE = 1.62, PR = 0.28;
@@ -34,6 +50,7 @@ const _tmpV = new THREE.Vector3();
 function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0: camera.position.clone(), q0: camera.quaternion.clone(), p1: toPos, q1: toQ, t: 0, dur, done }; mode = 'tween'; }
 
 function enterRoom() {
+  if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
   inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
   fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
@@ -45,6 +62,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
   if (mode === 'menu') closeHospitality(); cancelService(true); stopSmoking(); putAwayConsumable();
   if (DISCO.dancing) stopDance();
@@ -60,6 +78,7 @@ function lockMouse() { try { const p = canvas.requestPointerLock(); if (p && p.c
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
 btnEnter.addEventListener('click', enterRoom);
 btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); });
+$('btnOutside').addEventListener('click', () => { if (mode === 'orbit' && !inRoom) cut(() => setOrbitView(orbit.view === 'outside' ? 'inside' : 'outside')); });
 
 /* teclado */
 addEventListener('keydown', e => {
@@ -107,7 +126,7 @@ canvas.addEventListener('pointermove', e => {
   if ((mode === 'fp' || mode === 'seat') && locked) { fp.yaw -= e.movementX * 0.0022; fp.pitch = clamp(fp.pitch - e.movementY * 0.0022, -1.3, 1.3); return; }
   const p = ptr.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
-  if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 6, 22); return; }
+  if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), orbit.min, orbit.max); return; }
   if (ptr.size === 2 && pinch && VIEW.third && inRoom) { const [a, b] = [...ptr.values()]; VIEW.zoom = clamp(pinch.z * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 1.4, 4.5); return; }
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
@@ -115,7 +134,7 @@ canvas.addEventListener('pointermove', e => {
 const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
 canvas.addEventListener('wheel', e => {
-  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; }
+  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), orbit.min, orbit.max); orbit.idle = 0; }
   else if (VIEW.third && inRoom) { e.preventDefault(); VIEW.zoom = clamp(VIEW.zoom * Math.exp(e.deltaY * 0.001), 1.4, 4.5); }
 }, { passive: false });
 
@@ -137,9 +156,9 @@ function wallBlocked(x, z, radius = PR) {
     const disco = x >= -4 + radius && x <= 4 - radius;
     const annex = x >= 4 + radius && x <= 12 - radius;
     /* Andares separados: sem passagens; só o elevador liga as salas. */
-    if ((!disco && !annex) || (disco && z > 14 - radius) || (annex && z > 22 - radius)) return true;
+    if ((!disco && !annex) || z > 22 - radius) return true;
     if (z < RD + radius) return true;
-    if (annex && z > 14 - radius && z < 14 + radius) return true;
+    if (z > 14 - radius && z < 14 + radius) return true;
   }
   return false;
 }
@@ -152,6 +171,7 @@ function blocked(x, z) {
   if (roomBlocked(x, z)) return true;
   for (const r of robots) { const p = r.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.24) ** 2) return true; }
   for (const m of STAFF.members) { const p = m.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
+  for (const h of SHOW.hosts) { const p = h.P.root.position; if ((x - p.x) ** 2 + (z - p.z) ** 2 < (PR + 0.22) ** 2) return true; }
   return false;
 }
 function stepFP(dt) {

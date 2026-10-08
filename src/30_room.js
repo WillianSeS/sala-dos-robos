@@ -7,10 +7,11 @@ const FLOORS = [
   { key: 'office', n: 40, name: 'Escritório', sub: 'PREGÃO', wx: 8, dir: -1, z: -4.8, group: 'wallRight' },
   { key: 'games', n: 41, name: 'Sala de jogos', sub: 'SINUCA • 21', wx: 11.96, dir: -1, z: 8, group: 'gamesRight' },
   { key: 'disco', n: 42, name: 'Discoteca', sub: 'PISTA • DJ', wx: -3.96, dir: 1, z: 8, group: 'clubLeft' },
-  { key: 'lounge', n: 43, name: 'Lounge', sub: 'COBERTURA', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+  { key: 'lounge', n: 43, name: 'Lounge', sub: 'BAR • NARGUILÉ', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+  { key: 'show', n: 44, name: 'Las Vegas Night', sub: 'SHOW • BAR', wx: -3.96, dir: 1, z: 18, group: 'showLeft' },
 ];
 for (const f of FLOORS) { f.x = f.wx + f.dir * 0.7; f.yaw = f.dir < 0 ? Math.PI / 2 : -Math.PI / 2; f.open = 0; f.openUntil = 0; }
-const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
+const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : x < 4 ? 'show' : 'lounge';
 const FLOOR = Object.fromEntries(FLOORS.map(f => [f.key, f]));
 const CAB = { depth: 1.59, half: 0.75, door: 0.57, center: 0.84 };
 /* Trechos de parede (centro, comprimento) ao longo de z, com o vão da porta do elevador. */

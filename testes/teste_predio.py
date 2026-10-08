@@ -43,7 +43,7 @@ with sync_playwright() as p:
         page.wait_for_function('__sala.act==="Usar o elevador"')
         page.evaluate('__sala.doAct()')
         assert page.evaluate('__sala.mode==="elevator"') and page.locator('#elevator').is_visible()
-        assert page.locator('#elevFloors button').count() == 4
+        assert page.locator('#elevFloors button').count() == 5
         assert page.locator('#elevFloors [data-floor="office"]').is_disabled()
         page.keyboard.press('Escape')
         assert page.evaluate('__sala.mode==="fp"') and not page.locator('#elevator').is_visible()

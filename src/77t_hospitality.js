@@ -32,7 +32,7 @@ function openHospitality(from = 'service') {
   if (!inRoom || !['fp', 'seat', 'dance'].includes(mode)) return;
   HOSP.returnMode = mode; HOSP.menuFrom = from;
   if (from === 'fridge') FRIDGE.open = true;
-  $('menuTitle').textContent = from === 'fridge' ? '🧊 Geladeira' : from === 'bar' ? '🍽️ Balcão do lounge' : '🍽️ Bebidas e comidas';
+  $('menuTitle').textContent = from === 'fridge' ? '🧊 Geladeira' : from === 'bar' ? (playerFloor() === 'show' ? '🍸 Balcão do Las Vegas Night' : '🍽️ Balcão do lounge') : '🍽️ Bebidas e comidas';
   $('menuHint').textContent = from === 'fridge' ? 'Pegue uma bebida ou um lanche gelado.' : from === 'bar' ? 'Sirva-se no balcão.' : 'Caio e Sofia levam seu pedido até você.';
   $('menuMsg').textContent = ''; $('fridgeClose').hidden = from !== 'fridge'; renderMenu(); leisureOpen('hospitalityMenu', 'menu');
 }

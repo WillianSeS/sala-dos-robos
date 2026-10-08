@@ -41,8 +41,10 @@ function publishDiscoPresence() {
   if (MP.room && inRoom) MP.room.presence(myPresence()).catch(() => { });
 }
 function startDance() {
-  if (mode !== 'fp' || !inDisco(fp.pos.x, fp.pos.z)) return;
-  const spots = [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
+  const show = inShow(fp.pos.x, fp.pos.z);
+  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return;
+  /* No bar do show, dança onde está; na discoteca, na pista. */
+  const spots = show ? [[fp.pos.x, fp.pos.z]] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
   const free = spots.find(([x, z]) => !blocked(x, z));
   if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return; }
   fp.pos.set(free[0], 0, free[1]);
@@ -79,7 +81,7 @@ function inviteDancers(pref = null) {
 }
 const discoEmojiTextures = new Map();
 function spawnDiscoEmoji(emoji, x, z, y = 1.8) {
-  if (!DISCO_EMOJIS.includes(emoji)) return;
+  if (!DISCO_EMOJIS.includes(emoji) && emoji !== '💵') return;
   if (DISCO.emojis.length >= 18) { const old = DISCO.emojis.shift(); CLUB.particles.remove(old.sprite); old.sprite.material.dispose(); }
   if (!discoEmojiTextures.has(emoji)) discoEmojiTextures.set(emoji, canvasTex(128, 128, (g) => { g.font = '86px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(emoji, 64, 68); }));
   const material = new THREE.SpriteMaterial({ map: discoEmojiTextures.get(emoji), transparent: true, depthWrite: false, toneMapped: false });

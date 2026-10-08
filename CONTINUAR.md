@@ -57,7 +57,9 @@ Partes de `src/`:
 | `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
 | `43_games_room.js` | Sala de jogos: paredes, iluminação, mesa do 21, placas e tacos. |
 | `44_smoking_room.js` | Lounge: sofás, bar, mesas de narguilé, fumaça leve e `LOUNGE_LAYOUT` com posições/assentos. |
+| `44d_show_room.js` | 44º andar, Las Vegas Night (x de -4 a 4, z de 14 a 22): carpete, palco com lâmpadas em sequência e painel, refletores, cortinas, balcão, mesas (`SHOW_LAYOUT`) e `stepShowFx`. Vem antes do `44e_elevator.js`, que usa o grupo da parede `showLeft`. |
 | `44e_elevator.js` | Cabine de cada andar atrás da parede (piso, teto iluminado, corrimão, botoeira e visor do andar), portas de aço e indicador acima da porta. Precisa vir antes do `45_walls.js`, que junta a geometria estática. A tabela `FLOORS`, `floorAt(x, z)`, `CAB` e `wallRuns` (paredes com o vão da porta) ficam no início de `30_room.js`. |
+| `44x_exterior.js` | O hotel visto de fora, a 700 m das salas (a câmera alcança 260 m, então nunca vê os dois juntos): torre com janelas, letreiro LAS VEGAS NIGHT nas quatro faces com lâmpadas, neon, holofotes, farol e prédios vizinhos. `ORBIT_VIEWS` tem a vista de fora e a de dentro. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
 | `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
@@ -69,6 +71,7 @@ Partes de `src/`:
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias); rádio da sala compartilhada (`RADIO`, batida presa ao relógio); arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`), que tocam só para quem escolheu. |
+| `77s_show.js` | Show do 44º andar: dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
 | `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
 | `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |
 | `77w_elevator.js` | Elevador do visitante: as portas abrem por sensor; painel de andares (E na porta ou dentro da cabine); viagem em etapas `in`, `close`, `move`, `open`, `out` (entra, fecha, conta os andares com leve balanço, abre e sai). Os atalhos (`goGames`, `goDisco`, `goLounge`…) chamam `rideTo(andar)`. `otherFloor()` esconde etiquetas de outros andares. |
@@ -109,6 +112,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_vegas.py` valida a vista de fora (lâmpadas piscando, troca de vista, entrada), o show (dançarinas no palco, atendente que oferece e traz bebida, dançar, mesa, gorjetas, falta de fichas, voz desligável) e o painel do show sem sobreposição no desktop/celular.
 - `python3 testes/teste_predio.py` valida paredes fechadas entre andares, cabine (portas por sensor, passagem só com porta aberta), viagem em etapas, atalhos sentado, garçom atravessando andares, etiquetas por andar, terceira pessoa (corpo virando, zoom), Spotify, rádio compartilhada entre dois visitantes e visitante trocando de andar no desktop/celular.
 - `python3 testes/teste_hospitalidade.py` valida atendimento andando e bandeja, geladeira, itens/gestos, lounge, fumaça, música sentado, presença e limpeza no desktop/celular.
 - `python3 testes/teste_sala_jogos.py` valida entradas, paredes, sinuca e 21 na sala separada, caminhos dos robôs, presença fora dos limites antigos e retorno no desktop/celular.
@@ -134,6 +138,7 @@ Testes:
 - robôs e simulação: `robots`, `fast(seg)`, `openTrade`, `closeTrade`;
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
+- hotel e show: `EXT`, `ORBIT_VIEWS`, `setOrbitView`, `SHOW`, `SHOW_LAYOUT`, `openOffer`, `offerDrink`, `offerDance`, `offerSeat`, `tipDancer`;
 - prédio e câmera: `FLOORS`, `CAB`, `floorAt`, `playerFloor`, `inCab`, `rideTo`, `openElevator`, `closeElevator`, `ELEV`, `VIEW`, `setThirdPerson`;
 - música: `RADIO`, `setRadio`, `SPOTIFY`, `spotifyEmbedUrl`, `spotifyLoad`, `spotifyClose`;
 - lounge e atendimento: `HOSP`, `STAFF`, `CONSUMABLES`, `goLounge`, `openHospitality`, `requestService`, `consumeHeld`, `startSmoking`, `stopSmoking`;
@@ -211,6 +216,8 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 - Robôs e garçons viajam de elevador entre andares: andam até a porta (que abre), somem por 1,6 a 2,5 s e aparecem na porta do outro andar (nós `elev_*` em `NODES`). Eles não entram na cabine.
 - A rádio da sala depende de o relógio dos aparelhos estar certo (sincronização automática de hora); com o relógio muito errado, a batida sai deslocada. Se todos saírem da sala, a rádio volta desligada para quem chegar depois.
 - O Spotify toca pelo player oficial incorporado. Para tocar as músicas inteiras, a pessoa precisa estar logada no Spotify no mesmo navegador; sem login, só prévias de 30 s. Controle total (tocar sem o player, sincronizar entre visitantes) exigiria o Web Playback SDK, conta Premium e um app registrado no painel de desenvolvedor do Spotify, o que não foi feito.
+- Dançarinas e atendentes do show são locais (como os robôs): cada visitante vê o próprio show. As vozes dependem das vozes em português instaladas no aparelho; sem elas, o navegador usa a voz padrão ou fica em silêncio.
+- Não há atendimento privado pago com as personagens; isso ficou fora do projeto de propósito.
 
 ## 10. Créditos
 

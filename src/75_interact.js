@@ -10,6 +10,7 @@ STATIONS.forEach((st, i) => SEATS.push({
 [-6.1, -5.1, -4.1].forEach(x => SEATS.push({ kind: 'sofa', label: 'Sentar no sofá', x, z: 5.36, eye: 1.06, yaw: 0, free: () => !(x === -6.1 && SPOTS.sofa.busy) }));
 SEATS.push({ kind: 'arm', label: 'Sentar na poltrona', x: -2.78, z: 4.45, eye: 1.08, yaw: 1.32, free: () => true });
 for (const x of [-3.45, 3.45]) SEATS.push({ kind: 'club', label: 'Sentar no banco da discoteca', x, z: 10.2, eye: 1.08, yaw: x < 0 ? -Math.PI / 2 : Math.PI / 2, free: () => true });
+for (const s of SHOW_LAYOUT.seats) SEATS.push({ kind: 'show', label: 'Sentar para ver o show', ...s, free: () => true });
 for (const [i, s] of LOUNGE_LAYOUT.seats.entries()) SEATS.push({ kind: 'lounge', label: 'Sentar no sofá do lounge', ...s, free: () => !(i === 0 && SPOTS.lounge1.busy || i === 3 && SPOTS.lounge2.busy) });
 const seatState = { s: null, from: new THREE.Vector3() };
 
@@ -24,6 +25,12 @@ function findAct() {
   const elev = FLOOR[floorAt(px, pz)];
   if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
   else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
+  if (inShow(px, pz)) {
+    for (const h of SHOW.hosts) if (['wander', 'approach'].includes(h.state)) consider(h.P.root.position.x, h.P.root.position.z, 2.1, 0.6, 'Falar com a atendente ' + h.name, () => openOffer(h));
+    const st = SHOW_LAYOUT.stage;
+    if (pz > st.z0 - 1.6 && px > st.x0 && px < st.x1) { const d = nearestDancer(); consider(d.x, st.z0, 2, 0.2, 'Dar gorjeta para ' + d.name + ' (10 fichas)', () => tipDancer(d)); }
+    consider(SHOW_LAYOUT.bar.x, SHOW_LAYOUT.bar.z, 1.8, 0.4, 'Pedir um drinque no balcão', () => openHospitality('bar'));
+  }
   if (inLounge(px, pz)) {
     for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
     consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));
@@ -71,6 +78,7 @@ function updateActUI() {
   $('discoPanel').hidden = !club || !DISCO.panelOpen;
   $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
   $('viewToggle').hidden = !inRoom;
+  $('btnOutside').hidden = inRoom || mode !== 'orbit';
   /* Celular: joystick fixo e botão de correr aparecem enquanto o visitante anda. */
   const walking = isTouch && inRoom && mode === 'fp';
   if (isTouch && !joy) joyEl.hidden = !walking;
