@@ -24,18 +24,39 @@ function resize() {
 addEventListener('resize', resize);
 
 /* reflexos e luz ambiente vindos da própria sala (captura em cubo) */
+let envCapture = null;
 function captureEnv() {
-  const pm = new THREE.PMREMGenerator(renderer);
-  const vis = Object.keys(WALL_INFO).map(k => GROUPS[k].visible); Object.keys(WALL_INFO).forEach(k => GROUPS[k].visible = true);
-  skyFar.visible = skyMid.visible = false;
-  scene.position.set(0, -1.6, -1.5); scene.updateMatrixWorld(true);
-  const rt = pm.fromScene(scene, 0.04, 0.1, 40);
-  scene.position.set(0, 0, 0); scene.updateMatrixWorld(true);
-  skyFar.visible = skyMid.visible = true;
-  Object.keys(WALL_INFO).forEach((k, i) => GROUPS[k].visible = vis[i]);
-  scene.environment = rt.texture; pm.dispose();
-  for (const m of MATS) m.envMapIntensity = m.roughness < 0.5 ? 0.9 : 0.6;
+  // A captura é um efeito opcional: uma falha de GPU não pode travar o jogo.
+  const beforePos = scene.position.clone();
+  const beforeSky = [skyFar.visible, skyMid.visible];
+  const wallKeys = Object.keys(WALL_INFO);
+  const beforeWalls = wallKeys.map(k => GROUPS[k].visible);
+  let pm = null;
+  try {
+    pm = new THREE.PMREMGenerator(renderer);
+    wallKeys.forEach(k => { GROUPS[k].visible = true; });
+    skyFar.visible = skyMid.visible = false;
+    scene.position.set(0, -1.6, -1.5); scene.updateMatrixWorld(true);
+    const next = pm.fromScene(scene, 0.04, 0.1, 40);
+    const previous = envCapture;
+    envCapture = next;
+    scene.environment = next.texture;
+    if (previous) previous.dispose();
+    for (const m of MATS) m.envMapIntensity = m.roughness < 0.5 ? 0.9 : 0.6;
+  } catch (e) {
+    console.warn('Reflexos indisponíveis, seguindo sem o efeito:', e && e.message);
+  } finally {
+    scene.position.copy(beforePos); scene.updateMatrixWorld(true);
+    skyFar.visible = beforeSky[0]; skyMid.visible = beforeSky[1];
+    wallKeys.forEach((k, i) => { GROUPS[k].visible = beforeWalls[i]; });
+    if (pm) pm.dispose();
+  }
 }
+canvas.addEventListener('webglcontextrestored', () => {
+  if (envCapture) { envCapture.dispose(); envCapture = null; }
+  scene.environment = null;
+  envDone = false; // o renderizador foi restaurado; recriar os reflexos na próxima imagem
+});
 
 /* primeiro desenho de todas as telas */
 SCREENS.forEach(s => { const r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); });
@@ -77,7 +98,7 @@ function frame(now) {
   if (STACK.on) renderStacked(); else if (composer) composer.render(); else renderer.render(scene, camera);
   updateLabels(); updateVisitorLabels(t); updateStaffLabels(t); updateShowLabels(t); updateStackLabels();
   frameN++;
-  if (!envDone && frameN === 3) { captureEnv(); envDone = true; }
+  if (!envDone && frameN >= 3) { envDone = true; captureEnv(); }
   /* qualidade adaptativa: se ficar lento, reduz a resolução */
   ftAcc += dt; frames++;
   if (ftAcc > 2.5) { const fps = frames / ftAcc; ftAcc = 0; frames = 0; if (fps < 26 && pixelRatio > 0.75 && frameN > 200) { pixelRatio = Math.max(0.75, pixelRatio - 0.2); resize(); } }
@@ -96,4 +117,4 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { STACK, stackActive, assignLayers, renderStacked, dressShowgirl, confettiBurst, dancePose, DARTS, DARTS_LAYOUT, DARTS_VISUAL, dartScore, startDarts, exitDarts, throwDart, stepDarts, dartsPointer, WELCOME, greetGuest, closeWelcome, welcomeDrink, PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { camera.clearViewOffset(); document.body.classList.remove('at-entrance'); inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { captureEnv, STACK, stackActive, assignLayers, renderStacked, dressShowgirl, confettiBurst, dancePose, DARTS, DARTS_LAYOUT, DARTS_VISUAL, dartScore, startDarts, exitDarts, throwDart, stepDarts, dartsPointer, WELCOME, greetGuest, closeWelcome, welcomeDrink, PARTY, partyBurst, EXT, ORBIT_VIEWS, setOrbitView, SHOW, SHOW_LAYOUT, inShow, openOffer, closeOffer, offerDrink, offerDance, offerSeat, tipDancer, nearestDancer, stepShow, MOBILE, RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { camera.clearViewOffset(); document.body.classList.remove('at-entrance'); inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
