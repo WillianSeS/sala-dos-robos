@@ -4,6 +4,8 @@ Hotel **Las Vegas Night** em 3D, com uma sala de trading no 40º andar. Cada rob
 
 **Abrir a sala:** https://willianses.github.io/sala-dos-robos/
 
+**Mapa dos andares e recursos atuais:** https://willianses.github.io/sala-dos-robos/mapa.html
+
 ## O que dá para fazer
 
 - Entrar pela nova recepção visual do **Las Vegas Night**, com o hotel em 3D e a fachada **Sala dos Robôs · IA + Club**.
@@ -15,7 +17,7 @@ Hotel **Las Vegas Night** em 3D, com uma sala de trading no 40º andar. Cada rob
 - Andar pelo **prédio**: cada sala fica num andar (40º Escritório, 41º Sala de jogos, 42º Discoteca, 43º Lounge, 44º Las Vegas Night). As portas do elevador abrem quando você chega perto; entre na cabine (ou aperte **E** na porta), escolha o andar e veja o visor contar os andares até as portas abrirem no destino. Os atalhos também usam o elevador, e robôs e garçons viajam nele.
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
 - Jogar 21 contra os traders com fichas fictícias: use a mesa de cartas na **Sala de jogos** ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.
-- Visitar o **Smoking Lounge**, no último andar: sofás, balcão, música e duas mesas de narguilé virtual com bocal na mão e fumaça leve.
+- Visitar o **Smoking Lounge**, no 43º andar: sofás, balcão, música e duas mesas de narguilé virtual com bocal na mão e fumaça leve.
 - Pegar água, latas, suco, vinho, sanduíche ou maçã na geladeira. O **Cardápio** também oferece café e pizza: Caio (garçom) e Sofia (garçonete) caminham até você com bandejas para entregar.
 - Segurar bebidas e comidas, tomar goles e dar mordidas pelo botão ou pela tecla **F**. Outros visitantes veem os objetos e os gestos. Robôs em pausa também comem e bebem.
 - Ouvir a **📻 Rádio da sala** pelo botão **Música**: três estações instrumentais geradas no navegador. Ligar, desligar e trocar a estação vale para todos na sala, e todos ouvem a mesma nota ao mesmo tempo; cada um ajusta o próprio volume ou silencia a rádio só para si.

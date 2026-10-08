@@ -40,6 +40,7 @@ Siga estas regras em toda tarefa:
 | `src/` | Código-fonte em partes. O `build.sh` junta tudo em ordem alfabética (veja a tabela abaixo). |
 | `people/` | Pessoas 3D (glTF em JSON + texturas) e animações (`anim_m.json`, `anim_f.json`). |
 | `build.sh` | Gera o `index.html` a partir de `src/`. |
+| `mapa.html`, `mapa-predio.svg`, `mapa-predio.png` | Mapa dos andares e recursos, independente da sala 3D. Ao alterar ambientes, atualize os detalhes/data, o SVG incorporado entre os marcadores em `mapa.html` e a prévia PNG. Não passam pelo `build.sh`. |
 | `supabase/migrations/` | SQL do banco (tabelas, RLS, função do ranking), já aplicado no projeto. |
 | `testes/` | Testes no navegador com Playwright (item 5). |
 | `ferramentas/avatares/` | Scripts que convertem as pessoas do Rocketbox (veja o `LEIAME.md` da pasta). |
