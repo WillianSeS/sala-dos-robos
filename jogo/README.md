@@ -2,11 +2,11 @@
 
 Nova versão do jogo, em **TypeScript + React + Vite + Three.js + React Three Fiber + Drei + Rapier + Zustand**.
 
-Estado atual: **Fase 2, estrutura do edifício** (sobre a Fase 1, a prova de movimentação, já validada).
+Estado atual: **Fase 3 em validação: Aurora e dez traders 3D no 40º andar.** Fases 1 e 2 estão validadas.
 
 **Abrir a versão de teste:** https://willianses.github.io/sala-dos-robos/jogo3d/
 
-Esta versão está sendo reconstruída por fases. Os robôs, minijogos, interações e multiplayer entram nas fases seguintes; o jogo antigo continua disponível em https://willianses.github.io/sala-dos-robos/.
+Esta versão está sendo reconstruída por fases. A Fase 3 inclui dez traders Rocketbox com gestos sutis, etiquetas e resultados fictícios, além da recepcionista Aurora interativa. Os minijogos e o multiplayer da versão nova entram nas fases seguintes; o jogo antigo continua disponível em https://willianses.github.io/sala-dos-robos/.
 
 O que a Fase 2 traz:
 - **Entrada cinematográfica.**
@@ -197,3 +197,8 @@ As janelas da torre são desenhadas no shader (`src/mundo/fachada.ts`), a partir
 - Fontes usadas nos letreiros 3D: DejaVu Serif (licença livre DejaVu/Bitstream Vera) e Inter (SIL OFL 1.1). Os textos das licenças estão em `ferramentas/fontes/`.
 
 Veja também [`docs/VIABILIDADE.md`](docs/VIABILIDADE.md), com as ferramentas verificadas, as versões, as substituições e as limitações conhecidas.
+
+## Fase 3: recepção e traders (em validação)
+
+No 40º andar, Aurora e dez traders aparecem como modelos Rocketbox. Use **E** ou **✋** perto deles para conversar. Aurora fala pelo sintetizador de voz do navegador quando disponível. O valor em cada crachá é **simulado, não é cotação nem dinheiro real**. Atores respiram e movem cabeça e braços; caminhada autônoma e novas estações de trabalho permanecem pendentes. Teste automático: `npm run check && npm run build`, seguido do teste Playwright de fase 3.
+

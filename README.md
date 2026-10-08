@@ -19,6 +19,8 @@ A pasta [`jogo/`](jogo/) guarda a reconstrução em TypeScript + React + Three.j
 
 A **Fase 2** acrescenta a fachada, a entrada cinematográfica, o elevador entre cinco andares, o mapa, os menus, os assentos e as vistas aérea e externa.
 
+A **Fase 3 (em desenvolvimento)** acrescenta a recepcionista Aurora e dez traders 3D na branch [`dev/fase-3-aurora-traders`](https://github.com/WillianSeS/sala-dos-robos/tree/dev/fase-3-aurora-traders). A compilação, os testes unitários e o teste automatizado de interação passaram. Ainda faltam as dez estações de trabalho, a caminhada dos NPCs e o teste em aparelho físico. A prévia pública `/jogo3d/` continua sendo a Fase 2.
+
 Veja [`jogo/README.md`](jogo/README.md) e [`jogo/docs/VIABILIDADE.md`](jogo/docs/VIABILIDADE.md). O site publicado acima continua sendo a versão oficial até a nova cobrir tudo.
 
 ## O que dá para fazer
