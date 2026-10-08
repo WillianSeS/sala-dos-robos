@@ -74,16 +74,17 @@ Partes de `src/`:
 | `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias); rádio da sala compartilhada (`RADIO`, batida presa ao relógio); arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`), que tocam só para quem escolheu. |
 | `77q_party_fx.js` | Clima de festa na discoteca e no show (`PARTY`): névoa baixa tingida pela luz da sala, jato da máquina de fumaça (`partyBurst`, a cada 22–32 s), lâmpadas nas paredes e refletores de teto piscando. Só roda no andar do visitante; com "reduzir movimento", fica mais lento. |
 | `77r_welcome.js` | Recepção: Aurora, recepcionista cyber (materiais com brilho neon próprio, anel e auréola), dá boas-vindas na primeira chegada (`greetGuest`) e oferece bebida, show ou sala de jogos. |
-| `77s_show.js` | Show do 44º andar: dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
+| `77s_show.js` | Show do 44º andar: figurino de showgirl preso aos ossos (`dressShowgirl`, `attachToBone`), confete (`confettiBurst`), dançarinas no palco, atendentes que andam, vêm oferecer (bebida, dançar, mesa), gorjetas com as fichas do 21 (`CASINO.balance`) e vozes pela `speechSynthesis` (botão 🔊, `localStorage` `sala-voz`). |
 | `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
 | `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |
 | `77w_elevator.js` | Elevador do visitante: as portas abrem por sensor; painel de andares (E na porta ou dentro da cabine); viagem em etapas `in`, `close`, `move`, `open`, `out` (entra, fecha, conta os andares com leve balanço, abre e sai). Os atalhos (`goGames`, `goDisco`, `goLounge`…) chamam `rideTo(andar)`. `otherFloor()` esconde etiquetas de outros andares. |
 | `77x_view.js` | Terceira pessoa: o avatar do visitante (o mesmo da dança) anda, senta, come, bebe e fuma, virado para `fp.body` (a direção em que anda); câmera atrás da cabeça sem atravessar paredes, com zoom (`VIEW.zoom`, roda do mouse ou pinça). Botão 👤 ou tecla V, lembrado no `localStorage`. |
 | `77y_games.js` | Atalhos para a sala de jogos e o escritório (pelo elevador). |
-| `77z_disco.js` | Acesso à discoteca, dança procedural e realista, reações, convites e câmera. |
+| `77z_disco.js` | Acesso à discoteca, reações, convites e câmera. Danças: `dancePose(estilo, batida)` com os passos de `groove`, `disco`, `party` e `showgirl` (cancan), no ritmo da rádio (`danceBeatLen`); `applyAvatarDance` aplica nos ossos (eixos medidos no esqueleto do Rocketbox). |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
 | `78v_voice.js` | Chat de voz (WebRTC + som 3D). Também chama `mpInit()`. |
 | `79_traffic.js` | Avenida e carros lá embaixo. |
+| `79z_stack.js` | Vista do prédio: as salas continuam lado a lado no jogo, mas no corte por dentro cada andar é desenhado na sua altura (`STACK.h`), uma passada por andar com camadas (`layers`) e a câmera deslocada (`stackOffset`). `assignLayers` marca cada objeto pelo andar; `stackShift` acerta as etiquetas. |
 | `80_main.js` | Pós-processamento, laço principal (`frame`), modo debug. |
 | `99_tail.html` | Fecha o `</script>`. |
 

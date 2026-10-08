@@ -141,12 +141,25 @@ function mergeGeos(list) {
   m.computeBoundingSphere(); m.computeBoundingBox();
   return m;
 }
+/* Andar de cada grupo de paredes (pelo prefixo do nome); o resto vai pelo centro da peça. */
+const groupFloorKey = g => /^wall/.test(g) ? 'office' : /^club/.test(g) ? 'disco' : /^games/.test(g) ? 'games' : /^lounge/.test(g) ? 'lounge' : /^show/.test(g) ? 'show' : null;
 function flushStatics() {
+  const _c = new THREE.Vector3();
   for (const b of buckets.values()) {
-    const mesh = new THREE.Mesh(mergeGeos(b.list), b.mat);
-    mesh.castShadow = b.cast; mesh.receiveShadow = b.recv;
-    mesh.matrixAutoUpdate = false; mesh.updateMatrix();
-    GROUPS[b.g].add(mesh);
+    /* Uma malha por andar: a vista do prédio desenha cada andar na sua altura. */
+    const byFloor = new Map();
+    for (const geo of b.list) {
+      geo.computeBoundingBox(); geo.boundingBox.getCenter(_c);
+      const fl = groupFloorKey(b.g) || floorAt(_c.x, _c.z);
+      if (!byFloor.has(fl)) byFloor.set(fl, []); byFloor.get(fl).push(geo);
+    }
+    for (const [fl, list] of byFloor) {
+      const mesh = new THREE.Mesh(mergeGeos(list), b.mat);
+      mesh.castShadow = b.cast; mesh.receiveShadow = b.recv;
+      mesh.matrixAutoUpdate = false; mesh.updateMatrix();
+      mesh.userData.floor = fl; mesh.userData.floorFixed = true; mesh.layers.mask = 1 | (1 << (1 + FLOOR[fl].n - 40));
+      GROUPS[b.g].add(mesh);
+    }
     b.list.forEach(x => x.dispose());
   }
   buckets.clear();

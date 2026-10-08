@@ -224,7 +224,7 @@ with sync_playwright() as p:
             page.set_viewport_size({'width': 390, 'height': 760})
             box = page.locator('#joy').bounding_box()
             cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
-            page.evaluate('__sala.setFP(0,1,0)')
+            page.evaluate('__sala.setFP(0,3.3,-Math.PI/2)')
             page.click('#mRun')
             assert page.evaluate('__sala.MOBILE.run') and page.get_attribute('#mRun', 'aria-pressed') == 'true'
             # Arrasta o joystick para frente: com o botão de correr, o passo é mais rápido.
@@ -232,17 +232,39 @@ with sync_playwright() as p:
                 const c=document.getElementById('gl'), ev=(t,yy)=>c.dispatchEvent(new PointerEvent(t,{pointerId:7,pointerType:'touch',clientX:x,clientY:yy,bubbles:true}));
                 ev('pointerdown',y); ev('pointermove',y-40); window.__joyEnd=()=>ev('pointerup',y-40);
             }''', [cx, cy])
-            page.wait_for_function('Math.hypot(__sala.fp.vel.x,__sala.fp.vel.z)>2', timeout=30000)
+            page.wait_for_function('Math.hypot(__sala.fp.vel.x,__sala.fp.vel.z)>1.6', timeout=30000)
             page.evaluate('__joyEnd()')
             page.click('#mRun')
             assert not page.evaluate('__sala.MOBILE.run')
             assert page.locator('#joy').is_visible()
             print(nome + ': controles de jogo no celular OK', flush=True)
 
+        # Caminhada calma: 1,25 m/s andando.
+        page.evaluate('__sala.setFP(0,1,0)')
+        page.keyboard.down('KeyW') if not mobile else None
+        if not mobile:
+            page.wait_for_function('Math.hypot(__sala.fp.vel.x,__sala.fp.vel.z)>1.1', timeout=30000)
+            assert page.evaluate('Math.hypot(__sala.fp.vel.x,__sala.fp.vel.z)<=1.26')
+            page.keyboard.up('KeyW')
+
         page.evaluate('__sala.openElevator()')
         page.evaluate('__sala.leaveRoom()')
         page.wait_for_function('__sala.mode==="orbit"', timeout=30000)
         assert not page.locator('#elevator').is_visible() and not page.locator('#elevRide').is_visible()
+
+        # Vista do prédio: os cinco andares empilhados (40º embaixo, 44º em cima), cada objeto na camada do seu andar.
+        page.wait_for_function('__sala.STACK.on', timeout=30000)
+        stack = page.evaluate('''(()=>{const s=__sala,c={};s.assignLayers();s.scene.traverse(o=>{if(!o.isMesh)return;for(const f of s.FLOORS)if(o.layers.mask&(1<<f.layer))c[f.key]=(c[f.key]||0)+1});
+            const robot=s.robots.find(r=>r.mode==='seated'),pool=[];s.scene.traverse(o=>{if(o.isMesh&&o.userData.floor==='games'&&o.userData.floorFixed)pool.push(o)});
+            return {c,ys:s.FLOORS.map(f=>f.stackOffset.y),robot:robot.P.root.children[0].getObjectByProperty('isMesh',true).layers.mask&(1<<s.FLOOR.office.layer),games:pool.length,labels:s.FLOORS.every(f=>f.stackLabel.style.opacity==='1')}})()''')
+        assert all(stack['c'].get(k, 0) > 10 for k in ('office', 'games', 'disco', 'lounge', 'show')), stack
+        assert stack['ys'] == sorted(stack['ys']) and stack['ys'][0] == 0 and stack['ys'][-1] > 15 and stack['robot'] and stack['games'] > 0 and stack['labels'], stack
+        page.evaluate('__sala.enterRoom()')
+        page.wait_for_function('__sala.mode==="fp" && !__sala.STACK.on', timeout=60000)
+        assert page.evaluate('__sala.FLOORS.every(f=>f.stackLabel.style.opacity==="0")')
+        page.evaluate('__sala.leaveRoom()')
+        page.wait_for_function('__sala.mode==="orbit"', timeout=30000)
+        print(nome + ': prédio com andares empilhados OK', flush=True)
         assert not errors, errors
         print(nome.upper() + ': TUDO OK', flush=True)
         context.close()

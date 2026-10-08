@@ -195,7 +195,7 @@ function updateVisitorLabels(t) {
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
     if (!v.A || !v.A.J.head || otherFloor(v.x, v.z)) { el.style.opacity = '0'; continue; }
-    v.A.J.head.getWorldPosition(_vh); _vh.y += 0.42;
+    v.A.J.head.getWorldPosition(_vh); _vh.y += 0.42; stackShift(_vh, v.x, v.z);
     const dist = camera.position.distanceTo(_vh); _vh.project(camera);
     if (_vh.z > 1 || _vh.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }
     el.style.opacity = '1';

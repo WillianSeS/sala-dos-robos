@@ -6,7 +6,7 @@ const portrait = () => innerWidth < innerHeight;
 const orbit = { target: new THREE.Vector3(), r: 14, th: 0.78, ph: 0.92, idle: 0, view: '', min: 6, max: 22 };
 function setOrbitView(name) {
   const v = ORBIT_VIEWS[name]; Object.assign(orbit, { view: name, r: v.r, th: v.th, ph: v.ph, min: v.min, max: v.max }); orbit.target.copy(v.target);
-  if (portrait()) { if (name === 'inside') { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); } else orbit.r = 250; }
+  if (portrait()) orbit.r = name === 'inside' ? 48 : 250;
   EXT.group.visible = name === 'outside';
   setLabel($('btnOutside'), name === 'outside' ? '🔍' : '🏨', name === 'outside' ? 'Ver por dentro' : 'Hotel por fora');
 }
@@ -51,11 +51,12 @@ function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0
 
 function enterRoom() {
   if (orbit.view === 'outside') { cut(() => { setOrbitView('inside'); const o = orbitPose({}); camera.position.copy(o.pos); camera.quaternion.copy(o.q); enterRoom(); }); return; }
+  STACK.keep = mode === 'orbit';
   inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; setLabel(btnView, '🗺️', 'Vista aérea');
   /* Chega pelo elevador já olhando para a Aurora, na recepção. */
   fp.pos.set(6.6, 0, -4.6); fp.yaw = 3.0; fp.body = fp.yaw + Math.PI; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
-    mode = 'fp'; cross.hidden = isTouch;
+    mode = 'fp'; STACK.keep = false; cross.hidden = isTouch;
     help.innerHTML = isTouch ? 'Joystick à esquerda anda · arraste à direita para olhar · 🏃 corre · botão verde interage'
       : '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar · mouse olha · <kbd>E</kbd> interage · <kbd>Shift</kbd> corre · <kbd>Esc</kbd> solta o mouse';
     help.hidden = false; help.style.opacity = '1'; setTimeout(() => { help.style.opacity = '0'; }, 7000);
@@ -63,6 +64,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  const leavingFloor = playerFloor();
   closeWelcome();
   if (SHOW.offer) closeOffer(); if (window.speechSynthesis) speechSynthesis.cancel();
   if (ELEV.ride) cancelRide(); if (mode === 'elevator') closeElevator();
@@ -74,7 +76,10 @@ function leaveRoom() {
   for (const spot of [SPOTS.lounge1, SPOTS.lounge2]) if (spot.busy === 'player') spot.busy = null;
   inRoom = false; if (document.pointerLockElement) document.exitPointerLock();
   cross.hidden = true; help.hidden = true; setLabel(btnView, '🚪', 'Entrar na sala');
-  const o = orbitPose({}); startTween(o.pos, o.q, reduceMotion ? 0.01 : 1.8, () => { mode = 'orbit'; });
+  /* Fora do escritório, um corte rápido: na vista do prédio o andar dele aparece em outra altura. */
+  const o = orbitPose({});
+  if (leavingFloor !== 'office') cut(() => { camera.position.copy(o.pos); camera.quaternion.copy(o.q); mode = 'orbit'; });
+  else startTween(o.pos, o.q, reduceMotion ? 0.01 : 1.8, () => { mode = 'orbit'; });
 }
 function lockMouse() { try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } }
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
@@ -184,11 +189,12 @@ function stepFP(dt) {
   if (keys.KeyD || keys.ArrowRight) s += 1; if (keys.KeyA || keys.ArrowLeft) s -= 1;
   if (joy) { f -= joy.dy; s += joy.dx; }
   /* Joystick empurrado até o fim corre, como o Shift no teclado. */
-  const run = keys.ShiftLeft || keys.ShiftRight || MOBILE.run || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
+  const run = keys.ShiftLeft || keys.ShiftRight || MOBILE.run || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 2.5 : 1.25, len = Math.hypot(f, s);
   if (len > 1) { f /= len; s /= len; }
   const sy = Math.sin(fp.yaw), cy = Math.cos(fp.yaw);
   const tx = (-sy * f + cy * s) * sp, tz = (-cy * f - sy * s) * sp;
-  fp.vel.x = damp(fp.vel.x, tx, 10, dt); fp.vel.z = damp(fp.vel.z, tz, 10, dt);
+  /* Arranca e para com suavidade, como uma pessoa andando. */
+  fp.vel.x = damp(fp.vel.x, tx, 7, dt); fp.vel.z = damp(fp.vel.z, tz, 7, dt);
   const nx = fp.pos.x + fp.vel.x * dt, nz = fp.pos.z + fp.vel.z * dt;
   if (!blocked(nx, fp.pos.z)) fp.pos.x = nx; else fp.vel.x = 0;
   if (!blocked(fp.pos.x, nz)) fp.pos.z = nz; else fp.vel.z = 0;

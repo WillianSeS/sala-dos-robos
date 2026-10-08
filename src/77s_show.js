@@ -26,8 +26,87 @@ async function loadShowPerson(n) {
     const { g, SU } = await getVisitorModel(n.file), old = n.P;
     const A = new Avatar({ scene: SU.clone(g.scene) }, AV.clips.f, old, n.file);
     old.root.visible = false; A.yaw = old.yaw; A.pose = old.pose; A.danceStyle = old.danceStyle; n.P = A;
+    if (n.role === 'dançarina') dressShowgirl(A, SHOW.dancers.indexOf(n));
   } catch (e) { n.failed = true; }
   n.loading = false;
+}
+/* ---------- figurino de showgirl: cocar de plumas, estola e saia de paetês presos aos ossos ---------- */
+const featherTex = canvasTex(64, 256, (g, w, h) => {
+  g.clearRect(0, 0, w, h);
+  for (let y = 8; y < h - 4; y += 2) {
+    const r = Math.sin(Math.PI * y / h) * (w / 2 - 3), a = 0.35 + 0.65 * Math.sin(Math.PI * y / h);
+    g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 1.4;
+    g.beginPath(); g.moveTo(w / 2, y); g.lineTo(w / 2 - r, y - 10); g.moveTo(w / 2, y); g.lineTo(w / 2 + r, y - 10); g.stroke();
+  }
+  g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 2; g.beginPath(); g.moveTo(w / 2, h); g.lineTo(w / 2, 6); g.stroke();
+});
+const sequinTex = canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = '#7d7d7d'; g.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y += 6) for (let x = (y / 6) % 2 * 3; x < w; x += 6) { const v = 120 + Math.random() * 135; g.fillStyle = `rgb(${v},${v},${v})`; g.beginPath(); g.arc(x, y, 2.6, 0, Math.PI * 2); g.fill(); }
+}, { repeat: [4, 2] });
+const sparkTex = canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 90; i++) { g.fillStyle = '#fff'; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+}, { repeat: [4, 2] });
+const SHOWGIRL_COLORS = [
+  { feather: '#ffd36b', sequin: '#d9ad55', boa: '#fff0c4' },
+  { feather: '#ff5fb7', sequin: '#e0458f', boa: '#ffc1df' },
+  { feather: '#eef4ff', sequin: '#b4c0d4', boa: '#dce9ff' },
+];
+const _boneM = new THREE.Matrix4(), _wantM = new THREE.Matrix4(), _rootInv = new THREE.Matrix4();
+/* Prende um enfeite a um osso numa posição/rotação dada no espaço do avatar (compensa a escala do osso). */
+function attachToBone(A, boneName, obj, offset, euler = new THREE.Euler()) {
+  const bone = A.root.getObjectByName('Bip01_' + boneName); if (!bone) return null;
+  A.root.updateMatrixWorld(true); _rootInv.copy(A.root.matrixWorld).invert();
+  _boneM.multiplyMatrices(_rootInv, bone.matrixWorld);
+  const at = new THREE.Vector3().setFromMatrixPosition(_boneM).add(offset);
+  _wantM.compose(at, new THREE.Quaternion().setFromEuler(euler), new THREE.Vector3(1, 1, 1));
+  _boneM.invert().multiply(_wantM).decompose(obj.position, obj.quaternion, obj.scale);
+  bone.add(obj); return obj;
+}
+function dressShowgirl(A, i) {
+  if (A.costume) return;
+  const c = SHOWGIRL_COLORS[i % SHOWGIRL_COLORS.length], parts = [];
+  const sequin = new THREE.MeshStandardMaterial({ color: c.sequin, map: sequinTex, metalness: 0.75, roughness: 0.28, emissive: c.sequin, emissiveMap: sparkTex, emissiveIntensity: 0.6, side: THREE.DoubleSide });
+  const gold = new THREE.MeshStandardMaterial({ color: '#e2b65a', metalness: 0.9, roughness: 0.25, emissive: '#3a2a08' });
+  const feather = new THREE.MeshStandardMaterial({ color: c.feather, map: featherTex, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.8, emissive: c.feather, emissiveIntensity: 0.25 });
+  const boa = new THREE.MeshStandardMaterial({ color: c.boa, roughness: 1, emissive: c.boa, emissiveIntensity: 0.15 });
+  /* Cocar: faixa dourada e leque de plumas atrás da cabeça. */
+  const crown = new THREE.Group();
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.013, 8, 28), gold); band.rotation.x = Math.PI / 2; crown.add(band);
+  for (let k = 0; k < 11; k++) {
+    const a = -1.25 + k * 2.5 / 10, f = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 0.38), feather);
+    f.position.set(Math.sin(a) * 0.12, 0.1 + Math.cos(a) * 0.08, -0.07); f.rotation.set(-0.3, 0, -a * 0.9); crown.add(f);
+  }
+  parts.push(attachToBone(A, 'Head', crown, new THREE.Vector3(0, 0.08, -0.01)));
+  /* Estola de plumas nos ombros. */
+  const stole = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.04, 10, 30), boa); stole.scale.set(1.15, 0.85, 1);
+  parts.push(attachToBone(A, 'Neck', stole, new THREE.Vector3(0, -0.06, 0.0), new THREE.Euler(Math.PI / 2 - 0.25, 0, 0)));
+  /* Saia de paetês e cinto dourado na cintura. */
+  parts.push(attachToBone(A, 'Pelvis', new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.37, 0.36, 28, 1, true), sequin), new THREE.Vector3(0, -0.13, 0)));
+  parts.push(attachToBone(A, 'Pelvis', new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.02, 8, 28), gold), new THREE.Vector3(0, 0.05, 0), new THREE.Euler(Math.PI / 2, 0, 0)));
+  for (const part of parts) if (part) part.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+  A.costume = { parts, sequin };
+}
+/* ---------- confete sobre o palco ---------- */
+const CONFETTI_N = 160;
+const confetti = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.04, 0.025), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false }), CONFETTI_N);
+confetti.frustumCulled = false; confetti.userData.floor = 'show'; GROUPS.main.add(confetti);
+const CONF = Array.from({ length: CONFETTI_N }, (_, i) => ({ x: 0, y: -1, z: 0, vy: 0, ph: i, spin: 1 + (i % 5) }));
+{ const colors = ['#ffd36b', '#ff5fb7', '#6be3ff', '#b6ff6b', '#ffffff']; CONF.forEach((c, i) => confetti.setColorAt(i, new THREE.Color(colors[i % colors.length]))); }
+function confettiBurst(n = CONFETTI_N) {
+  const st = SHOW_LAYOUT.stage;
+  for (let i = 0; i < n; i++) Object.assign(CONF[(SHOW.confI = ((SHOW.confI || 0) + 1) % CONFETTI_N)], { x: srnd(st.x0, st.x1), y: 2.9 + Math.random() * 0.4, z: srnd(st.z0 - 1.2, st.z1 - 0.1), vy: 0.35 + Math.random() * 0.35 });
+}
+const _confO = new THREE.Object3D();
+function stepConfetti(dt, t) {
+  for (let i = 0; i < CONFETTI_N; i++) {
+    const c = CONF[i];
+    if (c.y > 0) { c.y -= c.vy * dt; c.x += Math.sin(t * 2 + c.ph) * 0.15 * dt; }
+    _confO.position.set(c.x, Math.max(c.y, -1), c.z); _confO.rotation.set(t * c.spin, t * 0.7 * c.spin, c.ph);
+    _confO.scale.setScalar(c.y > 0 ? 1 : 0); _confO.updateMatrix(); confetti.setMatrixAt(i, _confO.matrix);
+  }
+  confetti.instanceMatrix.needsUpdate = true;
 }
 function initShow() {
   if (SHOW.ready) return; SHOW.ready = true;
@@ -104,17 +183,26 @@ function tipDancer(d = nearestDancer()) {
   if (!inRoom || playerFloor() !== 'show') return false;
   if (CASINO.balance < 10) { serviceMessage('Sem fichas para gorjeta. Ganhe mais no Clube do 21, na sala de jogos.'); return false; }
   CASINO.balance -= 10; SHOW.tips += 10; d.cheerUntil = performance.now() / 1000 + 3;
-  spawnDiscoEmoji('💵', d.x, d.z, 2.3); spawnDiscoEmoji('💵', d.x + 0.3, d.z, 2.0);
+  spawnDiscoEmoji('💵', d.x, d.z, 2.3); spawnDiscoEmoji('💵', d.x + 0.3, d.z, 2.0); confettiBurst(40);
   serviceMessage('Você deu 10 fichas para ' + d.name + '. Fichas: ' + CASINO.balance + '.'); showSay('Obrigada! Você é demais!');
   return true;
 }
 function stepShow(dt, t) {
   initShow(); stepShowFx(dt, t);
+  const here0 = inRoom && playerFloor() === 'show';
+  if (here0) {
+    /* Confete quando as três giram juntas (a cada 16 tempos) e paetês cintilando. */
+    const beat = t / danceBeatLen(), turn = Math.floor(beat / 16);
+    if (beat % 16 >= 14 && SHOW.lastTurn !== turn) { SHOW.lastTurn = turn; confettiBurst(90); }
+    stepConfetti(dt, t);
+    for (const d of SHOW.dancers) if (d.P.costume) d.P.costume.sequin.emissiveIntensity = 0.35 + 0.45 * Math.abs(Math.sin(t * 5 + SHOW.dancers.indexOf(d)));
+  }
   const here = inRoom && playerFloor() === 'show';
   for (const d of SHOW.dancers) {
     if (AV.clips && !d.P.isAvatar) loadShowPerson(d);
     const P = d.P; P.root.position.set(d.x, 0, d.z); P.yaw = Math.PI; P.pose = 'dance'; P.speed = 0;
-    P.danceStyle = DISCO_STYLES[(Math.floor(t / 12) + SHOW.dancers.indexOf(d)) % 3]; P.dancePhase = d.phase;
+    /* As três dançam juntas a fila de cancan, no mesmo tempo. */
+    P.danceStyle = 'showgirl'; P.dancePhase = 0;
     P.isAvatar ? P.update(dt, t) : animatePerson(P, dt, t);
     P.root.position.y += SHOW_LAYOUT.stage.y + (d.cheerUntil > t ? Math.abs(Math.sin(t * 9)) * 0.08 : 0);
   }
@@ -169,7 +257,7 @@ function updateShowLabels(t) {
     const el = n.el, txt = n.cheerUntil > t ? '💵 obrigada!' : n.role === 'dançarina' ? 'no palco' : { offer: 'conversando', fetch: 'buscando bebida', bring: 'levando bebida', dance: 'dançando', approach: 'vindo até você' }[n.state] || 'pode chamar';
     if (el.lastChild.textContent !== txt) el.lastChild.textContent = txt;
     if (!n.P.J.head || otherFloor(n.P.root.position.x, n.P.root.position.z) || !inRoom) { el.style.opacity = '0'; continue; }
-    n.P.J.head.getWorldPosition(_showHead); _showHead.y += 0.4;
+    n.P.J.head.getWorldPosition(_showHead); _showHead.y += 0.4; stackShift(_showHead, n.P.root.position.x, n.P.root.position.z);
     const dist = camera.position.distanceTo(_showHead); _showHead.project(camera);
     if (_showHead.z > 1 || _showHead.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }
     el.style.opacity = '1';

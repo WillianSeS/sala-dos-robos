@@ -88,7 +88,8 @@ function extBulbs(points, size = 0.35) {
 /* Vistas do hotel por fora e do corte por dentro (vista aérea). */
 const ORBIT_VIEWS = {
   outside: { target: new THREE.Vector3(EXT.o.x, 60, EXT.o.z), r: 215, th: 0.45, ph: 1.5, min: 120, max: 250 },
-  inside: { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, min: 6, max: 22 },
+  /* Por dentro: corte do prédio com os cinco andares empilhados (40º embaixo, 44º no alto). */
+  inside: { target: new THREE.Vector3(0, 11.5, 0), r: 30, th: 0.78, ph: 1.24, min: 12, max: 50 },
 };
 const _extColor = new THREE.Color();
 function stepExterior(dt, t) {

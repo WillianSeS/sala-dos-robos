@@ -15,7 +15,7 @@ const PARTY = {
 };
 const _partyColor = new THREE.Color(), _partyWhite = new THREE.Color('#ffffff');
 for (const r of PARTY.rooms) {
-  r.group = new THREE.Group(); r.group.visible = false; GROUPS.main.add(r.group);
+  r.group = new THREE.Group(); r.group.visible = false; r.group.userData.floor = r.key; GROUPS.main.add(r.group);
   /* Névoa baixa: poucas camadas grandes e quase transparentes. */
   r.haze = Array.from({ length: 10 }, (_, i) => {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: hazeTex, transparent: true, depthWrite: false, opacity: 0, toneMapped: false }));

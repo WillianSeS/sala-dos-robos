@@ -128,7 +128,7 @@ function updateLabels() {
     const txt = r.P.consumeUntil > performance.now()/1000 ? (CONSUMABLES[r.P.heldItem]?.kind === 'food' ? '🍽️ comendo' : '🥤 bebendo') : r.smokingUntil > performance.now()/1000 ? '💨 no lounge' : r.P.pose === 'dance' ? '🕺 na pista' : tr || flash ? money(v) : '+$0,00', cls = tr || flash ? (v >= 0 ? 'pl g' : 'pl r') : 'pl n';
     if (txt !== r.txt) { r.elV.textContent = txt; r.txt = txt; }
     if (r.el.className !== cls) r.el.className = cls;
-    r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42;
+    r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42; stackShift(_hv, r.P.root.position.x, r.P.root.position.z);
     const dist = camera.position.distanceTo(_hv);
     _hv.project(camera);
     if (_hv.z > 1 || _hv.z < -1 || dist < 0.55 || !r.P.root.visible || otherFloor(r.P.root.position.x, r.P.root.position.z)) { r.el.style.opacity = '0'; continue; }

@@ -71,7 +71,19 @@ with sync_playwright() as p:
         page.wait_for_function('__sala.SHOW.dancers.every(d=>d.P.isAvatar && d.P.root.position.y>.35) && __sala.SHOW.hosts.every(h=>h.P.isAvatar)', timeout=120000)
         assert page.evaluate('__sala.SHOW.dancers.every(d=>d.P.pose==="dance")') and page.locator('#showBar').is_visible()
         assert page.evaluate('__sala.SEATS.filter(s=>s.kind==="show").length===8 && __sala.roomBlocked(0,21) && __sala.roomBlocked(4,18)')
-        print(nome + ': show no 44º andar OK', flush=True)
+        # Showgirls: figurino preso aos ossos (cocar, estola, saia e cinto), cancan sincronizado com chutes de verdade.
+        page.wait_for_function('__sala.SHOW.dancers.every(d=>d.P.costume)', timeout=60000)
+        girls = page.evaluate('''(()=>{const s=__sala;return {
+            parts:s.SHOW.dancers.every(d=>d.P.costume.parts.length===4 && d.P.costume.parts.every(p=>p && p.parent && p.parent.isBone)),
+            style:s.SHOW.dancers.every(d=>d.P.danceStyle==='showgirl' && d.P.dancePhase===0),
+            colors:new Set(s.SHOW.dancers.map(d=>d.P.costume.sequin.color.getHexString())).size}})()''')
+        assert girls['parts'] and girls['style'] and girls['colors'] == 3, girls
+        kick = page.evaluate('''(()=>{const s=__sala,P=s.SHOW.dancers[0].P,foot=P.root.getObjectByName('Bip01_R_Foot'),v=new s.THREE.Vector3(),ys=[];
+            for(let i=0;i<16;i++){P.update(0.016,i*0.125);P.root.updateMatrixWorld(true);foot.getWorldPosition(v);ys.push(v.y-P.root.position.y)}return Math.max(...ys)-Math.min(...ys)})()''')
+        assert kick > 0.4, kick
+        styles = page.evaluate('''(()=>{const s=__sala;return ['groove','disco','party','showgirl'].map(st=>JSON.stringify(s.dancePose(st,1.3,1)))})()''')
+        assert len(set(styles)) == 4, styles
+        print(nome + ': show no 44º andar e showgirls OK', flush=True)
 
         # Clima de festa: névoa leve só no andar do visitante, jato da máquina de fumaça e lâmpadas trocando de cor.
         page.wait_for_function('__sala.PARTY.rooms.find(r=>r.key==="show").group.visible && !__sala.PARTY.rooms.find(r=>r.key==="disco").group.visible')
@@ -116,6 +128,7 @@ with sync_playwright() as p:
         chips = page.evaluate('__sala.CASINO.balance')
         page.click('#showTip')
         assert page.evaluate('c=>__sala.CASINO.balance===c-10 && __sala.DISCO.emojis.length>0', chips)
+        page.wait_for_function('(()=>{const m=new __sala.THREE.Matrix4(),v=new __sala.THREE.Vector3();const c=__sala.scene.getObjectByProperty("isInstancedMesh",true);let n=0;__sala.scene.traverse(o=>{if(o.isInstancedMesh&&o.userData.floor==="show"&&o.count===160){for(let i=0;i<160;i++){o.getMatrixAt(i,m);v.setFromMatrixScale(m);if(v.x>0.5)n++}}});return n>20})()', timeout=30000)
         assert page.evaluate('__falas.some(f=>f.includes("Obrigada"))')
         page.evaluate('__sala.CASINO.balance=5')
         page.click('#showTip')

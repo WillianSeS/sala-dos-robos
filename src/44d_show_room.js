@@ -42,7 +42,7 @@ function chaseBulbs(points, size = 0.035) {
   const m = new THREE.InstancedMesh(new THREE.SphereGeometry(size, 8, 6), new THREE.MeshBasicMaterial({ toneMapped: false }), points.length);
   const t = new THREE.Object3D();
   points.forEach((p, i) => { t.position.set(...p); t.updateMatrix(); m.setMatrixAt(i, t.matrix); m.setColorAt(i, new THREE.Color('#ffd27a')); });
-  m.frustumCulled = false; GROUPS.main.add(m); SHOWFX.chase.push(m); return m;
+  m.frustumCulled = false; m.userData.floor = 'show'; GROUPS.main.add(m); SHOWFX.chase.push(m); return m;
 }
 const showBackdrop = canvasTex(1024, 288, (g, w, h) => {
   const grad = g.createLinearGradient(0, 0, 0, h); grad.addColorStop(0, '#22052e'); grad.addColorStop(1, '#07020c');
@@ -102,7 +102,7 @@ for (const [tx, tz] of SHOW_LAYOUT.tables) {
 {
   const n = 60, m = new THREE.InstancedMesh(new THREE.SphereGeometry(0.02, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), n), t = new THREE.Object3D();
   for (let i = 0; i < n; i++) { t.position.set(srnd(-3.8, 3.8), RH - 0.02, srnd(14.3, 21.7)); t.updateMatrix(); m.setMatrixAt(i, t.matrix); m.setColorAt(i, new THREE.Color('#fff1c4')); }
-  m.frustumCulled = false; GROUPS.main.add(m); SHOWFX.stars = m;
+  m.frustumCulled = false; m.userData.floor = 'show'; GROUPS.main.add(m); SHOWFX.stars = m;
 }
 const _showColor = new THREE.Color();
 function stepShowFx(dt, t) {

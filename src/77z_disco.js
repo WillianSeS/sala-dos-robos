@@ -1,5 +1,5 @@
 /* ================= dança, reações e acesso à discoteca ================= */
-const DISCO_STYLES = ['groove', 'disco', 'party'];
+const DISCO_STYLES = ['groove', 'disco', 'party', 'showgirl'];
 const DISCO_EMOJIS = ['🔥', '❤️', '😂', '🎉', '🕺'];
 const DISCO = { dancing: false, style: 'groove', lights: !reduceMotion, player: null, loading: false, emojis: [], emoji: '', emojiUntil: 0, emojiId: 0, lastEmoji: -10, lastBotEmoji: 0, panelOpen: false };
 const inDisco = (x, z) => Math.abs(x) < 3.8 && z > 6.4 && z < 13.7;
@@ -10,17 +10,61 @@ function danceWave(t, style, phase = 0) {
     otherArm: (style === 'party' ? 2.3 - s * 0.25 : 0.4 - s * 0.3) * amount,
     knee: Math.max(0, s) * 0.3 * amount, otherKnee: Math.max(0, -s) * 0.3 * amount };
 }
+/* Coreografia por batida: cada estilo é uma sequência de passos que entram e saem suavemente.
+   Eixos medidos no esqueleto do Rocketbox: braço sobe para o lado em Y (esquerdo negativo, direito positivo),
+   para frente em -Z; coxa chuta para frente em +Z; joelho e cotovelo dobram em -Z; quadril balança em Y e gira em X. */
+const DANCE_STYLES = ['groove', 'disco', 'party', 'showgirl'];
+const ease = x => x * x * (3 - 2 * x);
+function danceBeatLen() { return RADIO.on ? clamp(radioBeat(RADIO.station) * 2 / 1000, 0.42, 0.62) : 0.5; }
+function dancePose(style, b, amt) {
+  const p = { sway: 0, twist: 0, bend: 0, lean: 0, chest: 0, nod: 0, tilt: 0, armL: 0.12, armR: 0.12, fwdL: 0, fwdR: 0, elbL: 0.25, elbR: 0.25, kickL: 0, kickR: 0, outL: 0, outR: 0, kneeL: 0, kneeR: 0, bounce: 0, stepX: 0, turn: 0 };
+  const dip = (1 + Math.cos(2 * Math.PI * b)) / 2, side = Math.sin(Math.PI * b / 2), half = Math.sin(Math.PI * b);
+  if (style === 'disco') {
+    /* "Dedo para o alto": braço direito aponta para cima na diagonal e depois cruza para baixo; mão esquerda na cintura. */
+    const up = ease(clamp((Math.cos(Math.PI * b / 2) + 1) / 2 * 1.4 - 0.2, 0, 1));
+    Object.assign(p, { armR: 0.3 + 1.9 * up, fwdR: 0.9 - 0.5 * up, elbR: 0.15, chest: 0.25 * (1 - up) - 0.1, tilt: -0.15 * up, nod: -0.12 * up,
+      armL: 0.6 + 0.1 * half, elbL: 1.7, fwdL: -0.25 + 0.1 * side, sway: 0.16 * half, kneeL: 0.3 * Math.max(0, half), kneeR: 0.3 * Math.max(0, -half), kickL: 0.12 * Math.max(0, half), kickR: 0.12 * Math.max(0, -half), bounce: -0.015 * dip });
+  } else if (style === 'party') {
+    /* Mãos para o alto acenando, pulinhos no tempo e balanço de um lado para o outro. */
+    const wave = Math.sin(2 * Math.PI * b), hop = Math.pow(Math.max(0, Math.sin(2 * Math.PI * (b + 0.25))), 2);
+    Object.assign(p, { armL: 2.55 + 0.15 * wave, armR: 2.55 - 0.15 * wave, fwdL: 0.25, fwdR: 0.25, elbL: 0.35 + 0.25 * wave, elbR: 0.35 - 0.25 * wave,
+      sway: 0.14 * side, lean: -0.05 * side, chest: 0.12 * half, kneeL: 0.25 * (1 - hop), kneeR: 0.25 * (1 - hop), kickL: 0.12 * (1 - hop), kickR: 0.12 * (1 - hop),
+      bounce: 0.07 * hop - 0.015, turn: 0.45 * Math.sin(Math.PI * b / 8), nod: 0.1 * dip });
+  } else if (style === 'showgirl') {
+    /* Fila de cancan: braços abertos, chutes alternados e um giro completo a cada 16 tempos. */
+    const k = b % 2, leg = Math.floor(b / 2) % 2, b16 = b % 16, spinning = b16 >= 14;
+    const kick = spinning ? 0 : Math.sin(Math.PI * Math.min(1, k / 1.2)) * (k < 1.2 ? 1 : 0);
+    Object.assign(p, { armL: 1.15 + 0.15 * half, armR: 1.15 - 0.15 * half, fwdL: 0.35, fwdR: 0.35, elbL: 0.45, elbR: 0.45,
+      kickL: leg ? 1.25 * kick : 0.05, kickR: leg ? 0.05 : 1.25 * kick, kneeL: leg ? 0.05 : 0.12 * kick, kneeR: leg ? 0.12 * kick : 0.05,
+      sway: 0.1 * half, nod: -0.1, tilt: 0.08 * half, bounce: 0.02 * dip, turn: spinning ? Math.PI * 2 * ease((b16 - 14) / 2) : 0 });
+  } else {
+    /* Balanço: passo para o lado e toque, joelhos marcando o tempo, braços soltos e cabeça no ritmo. */
+    Object.assign(p, { stepX: 0.13 * side, sway: 0.12 * side, lean: -0.05 * side, chest: 0.16 * half, nod: 0.12 * dip,
+      kneeL: 0.22 * dip + 0.05, kneeR: 0.22 * dip + 0.05, kickL: 0.1 * dip, kickR: 0.1 * dip, bounce: -0.02 * dip,
+      armL: 0.25, armR: 0.25, fwdL: 0.35 * Math.max(0, half), fwdR: 0.35 * Math.max(0, -half), elbL: 0.7, elbR: 0.7 });
+  }
+  if (amt !== 1) for (const k in p) p[k] *= amt;
+  return p;
+}
+const _danceQ = new THREE.Quaternion(), _danceUp = new THREE.Vector3(0, 1, 0);
 function applyAvatarDance(A, t) {
-  const b = danceWave(t, A.danceStyle || 'groove', A.dancePhase || 0);
+  const [spine, chest, la, ra, le, re, lt, rt, lk, rk, pelvis, neck] = A.danceBones;
   A.danceRest = A.danceBones.map(bone => bone ? bone.quaternion.clone() : null);
-  const [spine, chest, la, ra, le, re, lt, rt, lk, rk] = A.danceBones;
-  if (spine) spine.rotateX(b.sway);
-  if (chest) chest.rotateY(b.sway * 0.6);
-  if (la) la.rotateY(-b.arm); if (ra) ra.rotateY(b.otherArm);
-  if (le) le.rotateZ(-0.65); if (re) re.rotateZ(-0.65);
-  if (lt) lt.rotateY(b.knee * 0.4); if (rt) rt.rotateY(-b.otherKnee * 0.4);
-  if (lk) lk.rotateY(-b.knee); if (rk) rk.rotateY(b.otherKnee);
-  A.root.rotation.y = A.yaw + b.sway * 0.5; A.root.rotation.z = b.sway * 0.12; A.root.position.y = 0.015 + b.bounce * 0.2;
+  const p = dancePose(A.danceStyle || 'groove', t / danceBeatLen() + (A.dancePhase || 0) * 0.37, reduceMotion ? 0.35 : 1);
+  if (pelvis) { pelvis.rotateY(p.sway); pelvis.rotateX(p.twist); }
+  if (spine) { spine.rotateZ(p.bend); spine.rotateY(p.lean); }
+  if (chest) chest.rotateX(p.chest);
+  if (neck) { neck.rotateZ(p.nod); neck.rotateY(p.tilt); }
+  if (la) { la.rotateY(-p.armL); la.rotateZ(-p.fwdL); }
+  if (ra) { ra.rotateY(p.armR); ra.rotateZ(-p.fwdR); }
+  if (le) le.rotateZ(-p.elbL); if (re) re.rotateZ(-p.elbR);
+  if (lt) { lt.rotateZ(p.kickL); lt.rotateY(p.outL); }
+  if (rt) { rt.rotateZ(p.kickR); rt.rotateY(-p.outR); }
+  if (lk) lk.rotateZ(-p.kneeL); if (rk) rk.rotateZ(-p.kneeR);
+  /* Passo lateral e giro no próprio lugar: mexem o modelo dentro do avatar, sem tirá-lo do lugar marcado. */
+  const sc = A.root.children[0], rest = A.sceneRest;
+  sc.position.set(rest.p.x + p.stepX, rest.p.y, rest.p.z); sc.quaternion.copy(rest.q).premultiply(_danceQ.setFromAxisAngle(_danceUp, p.turn));
+  A.root.position.y = 0.015 + p.bounce;
 }
 function goDisco() {
   if (rideTo('disco')) $('discoMsg').textContent = 'Bem-vindo! Escolha seus passos ou chame os robôs para a pista.';
