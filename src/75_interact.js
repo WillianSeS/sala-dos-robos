@@ -21,6 +21,7 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
+  const elev = FLOOR[floorAt(px, pz)]; consider(elev.x, elev.z, 1.7, 0.3, 'Chamar o elevador', openElevator);
   if (inLounge(px, pz)) {
     for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
     consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));
@@ -65,9 +66,11 @@ function stepSeat() {
 const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').replace(' a geladeira', '') : l;
 function updateActUI() {
   const club = inRoom && (mode === 'fp' || mode === 'dance') && inDisco(fp.pos.x, fp.pos.z);
-  $('discoPanel').hidden = !club;
+  $('discoPanel').hidden = !club || !DISCO.panelOpen;
+  $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
+  $('viewToggle').hidden = !inRoom;
   $('gamesGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inGames(fp.pos.x, fp.pos.z);
-  $('gamesBack').hidden = !inRoom || mode !== 'fp' || !inGames(fp.pos.x, fp.pos.z);
+  $('gamesBack').hidden = !inRoom || !['fp', 'seat'].includes(mode) || playerFloor() === 'office';
   $('discoGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inDisco(fp.pos.x, fp.pos.z);
   $('musicOpen').hidden = !inRoom || !['fp', 'seat', 'music'].includes(mode);
   let label = null;

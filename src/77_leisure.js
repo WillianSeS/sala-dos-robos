@@ -99,10 +99,10 @@ const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new
 MUSIC.audio.loop = true; MUSIC.audio.volume = 0.25;
 function openMusic() {
   if (!inRoom || !['fp', 'seat'].includes(mode)) return;
-  MUSIC.returnMode = mode; leisureOpen('music', 'music');
+  MUSIC.returnMode = mode; leisureOpen('music', 'music'); document.body.classList.add('music-open');
 }
 function closeMusic() {
-  $('music').hidden = true;
+  $('music').hidden = true; document.body.classList.remove('music-open');
   if (mode === 'music') { mode = MUSIC.returnMode; cross.hidden = mode !== 'fp' || isTouch; }
   $('musicOpen').focus();
 }
@@ -150,3 +150,34 @@ $('musicFile').onchange = () => {
   $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir.';
 };
 MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
+
+/* Spotify: o visitante cola o link de uma playlist, álbum, artista ou música e ouve pelo player oficial.
+   O player fica num canto da tela e continua tocando com o painel fechado. */
+const SPOTIFY = { url: '' };
+function spotifyEmbedUrl(text) {
+  const m = String(text || '').trim().match(/^(?:https?:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?|spotify:)(playlist|album|track|artist|episode|show)[/:]([A-Za-z0-9]{22})(?:[/?#].*)?$/);
+  return m ? 'https://open.spotify.com/embed/' + m[1] + '/' + m[2] + '?utm_source=generator' : '';
+}
+function spotifyLoad() {
+  const text = $('spotifyUrl').value, url = spotifyEmbedUrl(text);
+  if (!url) { $('musicMsg').textContent = 'Cole um link do Spotify, como https://open.spotify.com/playlist/…'; return false; }
+  musicStop();
+  let frame = $('spotifyBox').querySelector('iframe');
+  if (!frame) {
+    frame = document.createElement('iframe'); frame.title = 'Player do Spotify'; frame.loading = 'lazy';
+    frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    $('spotifyBox').appendChild(frame);
+  }
+  if (frame.src !== url) frame.src = url;
+  SPOTIFY.url = url; $('spotifyDock').hidden = false; $('spotifyDock').classList.remove('min'); $('spotifyMin').textContent = 'Minimizar';
+  try { localStorage.setItem('sala-spotify', text.trim()); } catch (e) { }
+  $('musicMsg').textContent = 'Spotify conectado. Toque no play do player. Entre na sua conta do Spotify neste navegador para ouvir as músicas inteiras.';
+  return true;
+}
+function spotifyClose() {
+  $('spotifyBox').replaceChildren(); SPOTIFY.url = ''; $('spotifyDock').hidden = true;
+}
+try { $('spotifyUrl').value = localStorage.getItem('sala-spotify') || ''; } catch (e) { }
+$('spotifyLoad').onclick = spotifyLoad; $('spotifyClose').onclick = spotifyClose;
+$('spotifyMin').onclick = () => { const min = $('spotifyDock').classList.toggle('min'); $('spotifyMin').textContent = min ? 'Mostrar' : 'Minimizar'; };
+$('spotifyUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); spotifyLoad(); } });

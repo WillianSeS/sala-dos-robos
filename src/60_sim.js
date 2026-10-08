@@ -65,9 +65,13 @@ const equity = () => BASE + realized + openPnl();
 /* ---------- caminhos (grafo de corredores) ---------- */
 const NODES = { A_L: [-5, -1.6], A_R: [5, -1.6], B_L: [-5, 1.5], B_R: [5, 1.5], F_L: [-5, -4.75], F2: [-0.9, -4.75], F_R: [5, -4.75], L3: [-5, 3.1], R3: [5.1, 3.1], sofaA: [-6.1, 3.7], officeFront: [0.45, 3.15], officeRight: [4.6, 3.15], poolW: [5.5, 9.4], poolE: [10, 10.8], coffeeA: [6.55, 3.15], winA: [-6.6, 0.95] };
 COLS.forEach((x, i) => { NODES['A' + i] = [x, -1.6]; NODES['B' + i] = [x, 1.5]; });
-Object.assign(NODES, { loungeGate: [10.5, 13.3], loungeDoor: [10.5, 14.8], loungeHub: [10.5, 17], loungeSide: [6.5, 16], loungeBack: [10.5, 19], gamesGate: [5.5, 5.5], gamesDoor: [5.5, 7.1], gamesBack: [5.5, 10.8], discoGate: [0, 5.5], discoDoor: [0, 6.7], discoFloor: [0, 10.5] });
-const EDGES = [['poolE', 'loungeGate'], ['loungeGate', 'loungeDoor'], ['loungeDoor', 'loungeHub'], ['loungeHub', 'loungeSide'], ['loungeHub', 'loungeBack'], ['officeFront', 'discoGate'], ['officeRight', 'gamesGate'], ['gamesGate', 'gamesDoor'], ['gamesDoor', 'poolW'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['discoGate', 'discoDoor'], ['discoDoor', 'discoFloor'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
+Object.assign(NODES, { loungeHub: [10.5, 17], loungeSide: [6.5, 16], loungeBack: [10.5, 19], gamesBack: [5.5, 10.8], discoFloor: [0, 10.5] });
+/* Elevador: um nó na frente da porta de cada andar; marcado com .elev para o salto entre andares. */
+for (const f of FLOORS) NODES['elev_' + f.key] = Object.assign([f.x, f.z], { elev: f.key });
+const EDGES = [['F_R', 'elev_office'], ['poolE', 'elev_games'], ['discoFloor', 'elev_disco'], ['loungeHub', 'elev_lounge'], ['loungeHub', 'loungeSide'], ['loungeHub', 'loungeBack'], ['poolW', 'gamesBack'], ['gamesBack', 'poolE'], ['A_L', 'A0'], ['A0', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A_R'], ['B_L', 'B0'], ['B0', 'B1'], ['B1', 'B2'], ['B2', 'B3'], ['B3', 'B4'], ['B4', 'B_R'], ['A_L', 'F_L'], ['A_R', 'F_R'], ['F_L', 'F2'], ['F2', 'F_R'], ['A_L', 'B_L'], ['A_R', 'B_R'], ['B_L', 'L3'], ['B_R', 'R3'], ['L3', 'sofaA'], ['L3', 'officeFront'], ['officeFront', 'officeRight'], ['officeRight', 'R3'], ['R3', 'coffeeA'], ['B_L', 'winA']];
 const ADJ = {}; for (const [a, b] of EDGES) { const d = Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]); (ADJ[a] = ADJ[a] || []).push([b, d]); (ADJ[b] = ADJ[b] || []).push([a, d]); }
+/* A viagem de elevador custa o mesmo que andar uns metros, em qualquer sentido. */
+for (const a of FLOORS) for (const b of FLOORS) if (a !== b) ADJ['elev_' + a.key].push(['elev_' + b.key, 4]);
 function route(from, to) {
   const dist = { [from]: 0 }, prev = {}, todo = new Set(Object.keys(NODES));
   while (todo.size) {
@@ -134,9 +138,18 @@ function moveRobots(dt) {
     const P = r.P, pos = P.root.position;
     let speed = 0;
     const standingTalk = r.talking && r.mode !== 'seated' && r.mode !== 'sitting';
-    if (r.mode === 'walking' && r.path.length && !standingTalk) {
+    const inElevator = r.elevT > simT;
+    if (P.root.visible === inElevator) P.root.visible = !inElevator;
+    if (r.mode === 'walking' && r.path.length && !standingTalk && !inElevator) {
       const [tx, tz] = r.path[0], dx = tx - pos.x, dz = tz - pos.z, d = Math.hypot(dx, dz);
-      if (d < 0.06) { r.path.shift(); }
+      if (d < 0.06) {
+        const q = r.path.shift();
+        /* Entra no elevador e reaparece na porta do outro andar. */
+        if (q.elev && r.path[0]?.elev && r.path[0].elev !== q.elev) {
+          const to = r.path.shift(); pos.x = to[0]; pos.z = to[1]; P.yaw = FLOOR[to.elev].yaw + Math.PI;
+          r.elevT = simT + 2.5; elevOpen(q.elev); elevOpen(to.elev);
+        }
+      }
       else { const s = Math.min(d, r.spd * dt); pos.x += dx / d * s; pos.z += dz / d * s; speed = r.spd; P.yaw = angDamp(P.yaw, Math.atan2(dx, dz), 9, dt); }
       if (!r.path.length) {
         if (r.back) { r.mode = 'sitting'; r.t1 = simT + 0.9; SPOTS[r.spot].busy = null; r.spot = null; }

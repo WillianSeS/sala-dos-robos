@@ -22,7 +22,7 @@ function initStaff() {
     const rim = new THREE.Mesh(new THREE.TorusGeometry(0.217, 0.009, 6, 28), MC('#d8dde1', 0.24, 0.85));
     rim.rotation.x = Math.PI / 2; rim.position.y = 0.012; tray.add(rim);
     tray.visible = false; GROUPS.main.add(tray);
-    const member = { ...s, P, el, tray, item: null, state: 'idle', path: [], order: null, loading: false, failed: false, routeT: 0, pause: 0, stuck: 0, target: null };
+    const member = { ...s, P, el, tray, item: null, state: 'idle', path: [], order: null, loading: false, failed: false, routeT: 0, pause: 0, stuck: 0, target: null, elevWait: 0 };
     staffUniform(P); STAFF.members.push(member);
   }
 }
@@ -51,9 +51,7 @@ async function loadStaff(member) {
   member.loading = false;
 }
 
-function staffArea(x, z) {
-  return z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
-}
+const staffArea = floorAt;
 
 function staffSegmentClear(a, b) {
   const d = Math.hypot(b[0] - a[0], b[1] - a[1]), steps = Math.max(1, Math.ceil(d / 0.14));
@@ -74,7 +72,8 @@ function staffGraphPath(from, to) {
     if (!corridor.length || corridor[0] !== NODES[a]) continue;
     const points = [from, ...corridor, to]; let length = 0, clear = true;
     for (let i = 1; i < points.length; i++) {
-      if (!staffSegmentClear(points[i - 1], points[i])) { clear = false; break; }
+      const ride = points[i - 1].elev && points[i].elev;
+      if (!ride && !staffSegmentClear(points[i - 1], points[i])) { clear = false; break; }
       length += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
     }
     if (clear && length < score) { score = length; best = points.slice(1); }
@@ -213,6 +212,9 @@ function stepStaff(dt, t) {
   for (const member of STAFF.members) {
     if (AV.clips && !member.P.isAvatar && !member.loading && !member.failed) loadStaff(member);
     const P = member.P, p = P.root.position; let speed = 0;
+    const riding = (member.elevWait -= dt) > 0;
+    if (P.root.visible === riding) P.root.visible = !riding;
+    if (member.item) member.tray.visible = !riding;
     if (member.carryRest) {
       member.carryBones.forEach((bone, i) => { if (bone && member.carryRest[i]) bone.quaternion.copy(member.carryRest[i]); });
       member.carryRest = null;
@@ -226,10 +228,15 @@ function stepStaff(dt, t) {
         STAFF.order = null; staffReturn(member);
       } else if (member.routeT <= 0 && (!member.path.length || !member.target || Math.hypot(target[0] - member.target[0], target[1] - member.target[1]) > 0.65)) staffPlanCustomer(member);
     }
-    if (member.path.length) {
+    if (member.path.length && !riding) {
       let budget = STAFF_SPEED * dt;
       while (member.path.length && budget > 0.0001) {
         const q = member.path[0], dx = q[0] - p.x, dz = q[1] - p.z, d = Math.hypot(dx, dz);
+        if (d < 0.04 && q.elev && member.path[1]?.elev && member.path[1].elev !== q.elev) {
+          /* Viagem de elevador: some na porta de um andar e aparece na do outro. */
+          const to = member.path[1]; member.path.splice(0, 2); p.x = to[0]; p.z = to[1]; P.yaw = FLOOR[to.elev].yaw + Math.PI;
+          member.elevWait = 1.6; elevOpen(q.elev); elevOpen(to.elev); break;
+        }
         if (d < 0.04) { member.path.shift(); continue; }
         const step = Math.min(d, budget), x = p.x + dx / d * step, z = p.z + dz / d * step;
         if (roomBlocked(x, z, STAFF_RADIUS)) { member.stuck += dt; break; }
@@ -253,7 +260,7 @@ function updateStaffLabels(t) {
   for (const member of STAFF.members) {
     const el = member.el, text = member.state === 'serving' ? 'levando seu pedido' : member.state === 'collecting' ? 'preparando o pedido' : member.state === 'returning' ? 'voltando ao balcão' : 'pedir cardápio';
     el.lastChild.textContent = text;
-    if (!member.P.J.head) { el.style.opacity = '0'; continue; }
+    if (!member.P.J.head || !member.P.root.visible) { el.style.opacity = '0'; continue; }
     member.P.J.head.getWorldPosition(_staffHead); _staffHead.y += 0.4;
     const dist = camera.position.distanceTo(_staffHead); _staffHead.project(camera);
     if (_staffHead.z > 1 || _staffHead.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }

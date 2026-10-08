@@ -19,19 +19,20 @@ def panel_fits(page, selector):
 
 
 def advance_service(page, rounds=1):
-    """Avança a caminhada sem saltar posições ou ignorar paredes."""
+    """Avança a caminhada sem saltar posições ou ignorar paredes; o único salto permitido é o elevador."""
     return page.evaluate('''rounds => {
         const s=__sala, t=performance.now()/1000;
-        let moved=0, carried=0;
+        let moved=0, carried=0, rides=0;
         for(let i=0;i<rounds;i++) {
             const before=s.STAFF.members.map(m=>m.P.root.position.clone());
             s.stepStaff(.25,t+i*.25);
             s.STAFF.members.forEach((m,j)=>{
                 const p=m.P.root.position, delta=p.distanceTo(before[j]);
-                if(delta>1.25*.25+.001) throw Error('O atendimento saltou uma posição');
+                const riding=m.elevWait>0, atDoor=s.FLOORS.some(f=>Math.hypot(p.x-f.x,p.z-f.z)<.05);
+                if(delta>1.25*.25+.001) { if(!riding || !atDoor || m.P.root.visible) throw Error('O atendimento saltou uma posição'); rides++; }
+                else moved+=delta;
                 if(s.roomBlocked(p.x,p.z,.22)) throw Error('O atendimento atravessou um móvel ou parede');
-                moved+=delta;
-                if(m.state==='serving') {
+                if(m.state==='serving' && !riding) {
                     if(!m.tray.visible || !m.item || m.item.parent!==m.tray) throw Error('Pedido sem bandeja');
                     const hand=m.leftHand || m.P.J.lWr;
                     if(hand) {
@@ -42,7 +43,7 @@ def advance_service(page, rounds=1):
                 }
             });
         }
-        return {moved,carried};
+        return {moved,carried,rides};
     }''', rounds)
 
 
@@ -205,10 +206,10 @@ with sync_playwright() as p:
         assert page.evaluate('__sala.mode==="fp" && !__sala.FRIDGE.open && __sala.HOSP.item==="sandwich"')
         print(suffix + ': bebidas e comida na geladeira', flush=True)
 
-        # Passagem física separada, narguilé, música e cardápio quando sentado.
+        # Andar próprio (só pelo elevador), narguilé, música e cardápio quando sentado.
         page.click('#loungeGo')
         page.wait_for_function('__sala.mode==="fp" && __sala.inLounge(__sala.fp.pos.x,__sala.fp.pos.z)')
-        assert page.evaluate('!__sala.roomBlocked(10.5,14) && __sala.roomBlocked(8,14) && __sala.roomBlocked(12,18) && __sala.roomBlocked(8,22)')
+        assert page.evaluate('__sala.roomBlocked(10.5,14) && __sala.roomBlocked(8,14) && __sala.roomBlocked(12,18) && __sala.roomBlocked(8,22)')
         assert panel_fits(page, '#loungePanel')
         page.evaluate('__sala.setFP(6.5,16.65,Math.PI)')
         page.wait_for_function('!document.getElementById("loungeSmoke").disabled')
@@ -235,8 +236,8 @@ with sync_playwright() as p:
 
         page.evaluate('for(const r of __sala.robots)if(r.mode==="seated" && r.trade)__sala.closeTrade(r)')
         page.click('#loungeInvite')
-        invited = page.evaluate('__sala.robots.filter(r=>r.spot?.startsWith("lounge")).map(r=>({id:r.id,path:r.path}))')
-        assert invited and all(any(abs(q[0] - 10.5) < .01 and abs(q[1] - 14.8) < .01 for q in r['path']) for r in invited), invited
+        invited = page.evaluate('__sala.robots.filter(r=>r.spot?.startsWith("lounge")).map(r=>({id:r.id,elevator:r.path.some(q=>q.elev==="lounge")}))')
+        assert invited and all(r['elevator'] for r in invited), invited
         page.evaluate('__sala.fast(60)')
         assert page.evaluate('__sala.robots.some(r=>r.spot?.startsWith("lounge") && r.mode==="lounge" && r.P.root.position.z>16)')
         print(suffix + ': lounge, narguilé, música e convidados', flush=True)
@@ -270,7 +271,7 @@ with sync_playwright() as p:
 
         # O segundo pedido usa Sofia, pode ser cancelado e não deixa item preso à bandeja.
         page.evaluate('__sala.stopSmoking();__sala.exitLounge()')
-        page.wait_for_function('__sala.mode==="fp" && __sala.fp.pos.z===13.3')
+        page.wait_for_function('__sala.mode==="fp" && __sala.playerFloor()==="games"')
         advance_service(page, 100)
         page.click('#menuOpen')
         page.click('#menuItems [data-item="juice"]')

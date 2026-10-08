@@ -7,7 +7,7 @@ Leia este arquivo inteiro antes de mudar qualquer coisa.
 A **Sala dos Robôs** é uma sala de trading em 3D em Nova York, à noite.
 
 - **Robôs e mercado:** 10 robôs operam pares de moedas (EURUSD, GBPUSD, USDJPY, USDCAD). Cada robô é uma pessoa 3D sentada numa mesa, com o resultado flutuando sobre a cabeça. O telão mostra a curva da carteira. Todos os dados são simulados no navegador.
-- **O que o visitante faz:** entra em primeira pessoa, anda, senta (mesa e sofá), abre a geladeira, conversa com os traders e joga sinuca e 21 contra eles. A sala de jogos e a discoteca são separadas do escritório; o lounge tem atendimento, bebidas, comida e narguilé virtual.
+- **O que o visitante faz:** entra em primeira pessoa, anda, senta (mesa e sofá), abre a geladeira, conversa com os traders e joga sinuca e 21 contra eles. Cada sala é um andar de um prédio, ligado só pelo elevador; o lounge tem atendimento, bebidas, comida e narguilé virtual. Pode alternar entre primeira e terceira pessoa (tecla V) e ouvir música pelo Spotify.
 - **Outras pessoas:** quem está no site encontra os outros visitantes (avatares ao vivo), com chat de texto e chat de voz em 3D.
 
 Links:
@@ -52,11 +52,12 @@ Partes de `src/`:
 | `00_head.html` | Título, fontes, todo o CSS, o HTML da interface, o import map do Three.js e a abertura do `<script type="module">`. |
 | `10_core.js` | Renderizador, utilidades (`rnd`, `clamp`, `damp`, `money`…), materiais, geometrias, junção de malhas estáticas, colisores. |
 | `20_textures.js` | Texturas procedurais e a vista de Nova York (Empire State, Chrysler etc.). |
-| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14, ligada por uma passagem central. A sala de jogos ocupa x de 4 a 12, z de 6 a 14, com porta em x=5,5; a sinuca fica em (8; 9,4) e o 21 em (8; 12,1). O lounge ocupa x de 4 a 12, z de 14 a 22, conectado aos jogos pela porta x=10,5 (largura 1,8). |
+| `30_room.js` | Arquitetura e luzes. A sala principal tem x de -8 a 8, z de -6 a 6 e altura 3,2; a discoteca ocupa x de -4 a 4, z de 6 a 14; a sala de jogos ocupa x de 4 a 12, z de 6 a 14 (sinuca em (8; 9,4) e 21 em (8; 12,1)); o lounge ocupa x de 4 a 12, z de 14 a 22. Tudo fica no mesmo plano, mas as salas são andares diferentes: não há passagens entre elas (`wallBlocked` em `70_controls.js`). |
 | `40_furniture.js` | Mesas (`STATIONS`, `SCREENS`), sofá, mesa de sinuca, café, geladeira (`FRIDGE`). |
 | `42_disco_room.js` | Sala anexa: pista, luzes, DJ, globo espelhado e bancos. |
 | `43_games_room.js` | Sala de jogos: paredes, iluminação, mesa do 21, placas e tacos. |
 | `44_smoking_room.js` | Lounge: sofás, bar, mesas de narguilé, fumaça leve e `LOUNGE_LAYOUT` com posições/assentos. |
+| `44e_elevator.js` | Prédio: `FLOORS` (andar, nome, parede e porta do elevador de cada sala), `floorAt(x, z)`, portas, cabine e indicador de andar. Precisa vir antes do `45_walls.js`, que junta a geometria estática. |
 | `45_walls.js` | Telão, letreiro, relógios, placas. |
 | `50_people.js` | Pessoa procedural, usada só como reserva enquanto os modelos carregam. |
 | `55_avatars.js` | Pessoas Rocketbox: classe `Avatar`, poses e animações. `AV_FILES` lista os arquivos e `PERSON_NAMES` os nomes fictícios. |
@@ -67,10 +68,12 @@ Partes de `src/`:
 | `75_interact.js` | Sentar e levantar (`SEATS`), geladeira, ação da tecla E. |
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
-| `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias) e música local por Web Audio ou arquivo do aparelho. |
+| `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias), música local por Web Audio ou arquivo do aparelho e player do Spotify (link colado → `open.spotify.com/embed/…`). |
 | `77t_hospitality.js` | Cardápio, geladeira, mão em primeira pessoa, goles/mordidas, lounge, convites e smoking virtual. |
 | `77u_service.js` | Caio/Sofia realistas, aventais, bandejas, rotas e pedidos com entrega/cancelamento. NPCs separados da lista de traders. |
-| `77y_games.js` | Atalhos para entrar na sala de jogos e voltar ao escritório. |
+| `77w_elevator.js` | Elevador do visitante: painel de andares (tecla E na porta), viagem com escurecimento e contagem, portas abrindo. Os atalhos (`goGames`, `goDisco`, `goLounge`…) chamam `rideTo(andar)`. |
+| `77x_view.js` | Terceira pessoa: o avatar do visitante (o mesmo da dança) anda, senta, come, bebe e fuma; câmera atrás da cabeça sem atravessar paredes. Botão 👤 ou tecla V, lembrado no `localStorage`. |
+| `77y_games.js` | Atalhos para a sala de jogos e o escritório (pelo elevador). |
 | `77z_disco.js` | Acesso à discoteca, dança procedural e realista, reações, convites e câmera. |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
 | `78v_voice.js` | Chat de voz (WebRTC + som 3D). Também chama `mpInit()`. |
@@ -95,6 +98,8 @@ Instale uma vez:
 
 ```bash
 pip install playwright && python3 -m playwright install chromium
+# Se o Chromium já vier instalado, use a versão do Playwright que combina com ele
+# (por exemplo, chromium-1194 → pip install playwright==1.56.0).
 ```
 
 Na raiz do repositório, deixe um servidor rodando:
@@ -104,6 +109,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_predio.py` valida paredes fechadas entre andares, elevador (painel, viagem, portas, atalhos sentado), garçom atravessando andares, terceira pessoa, Spotify e visitante trocando de andar no desktop/celular.
 - `python3 testes/teste_hospitalidade.py` valida atendimento andando e bandeja, geladeira, itens/gestos, lounge, fumaça, música sentado, presença e limpeza no desktop/celular.
 - `python3 testes/teste_sala_jogos.py` valida entradas, paredes, sinuca e 21 na sala separada, caminhos dos robôs, presença fora dos limites antigos e retorno no desktop/celular.
 - `python3 testes/teste_discoteca.py` valida passagem e colisões, danças realistas, robôs andando à pista, emojis e dança entre visitantes, música e saída no desktop/celular.
@@ -128,6 +134,8 @@ Testes:
 - robôs e simulação: `robots`, `fast(seg)`, `openTrade`, `closeTrade`;
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
+- prédio e câmera: `FLOORS`, `floorAt`, `playerFloor`, `rideTo`, `openElevator`, `closeElevator`, `VIEW`, `setThirdPerson`;
+- Spotify: `SPOTIFY`, `spotifyEmbedUrl`, `spotifyLoad`, `spotifyClose`;
 - lounge e atendimento: `HOSP`, `STAFF`, `CONSUMABLES`, `goLounge`, `openHospitality`, `requestService`, `consumeHeld`, `startSmoking`, `stopSmoking`;
 - lazer: `CASINO`, `startCasino`, `exitCasino`, `casinoDeal`, `casinoHit`, `casinoStand`, `handValue`, `MUSIC`, `openMusic`, `closeMusic`;
 - discoteca: `DISCO`, `goDisco`, `exitDisco`, `startDance`, `stopDance`, `inviteDancers`, `sendDiscoEmoji`;
@@ -199,6 +207,8 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 - O teste real, com o Supabase e a voz entre dois aparelhos diferentes, ainda precisa ser feito no site publicado.
 - Sem servidor TURN, algumas redes muito fechadas não conectam a voz.
 - Com alto-falante pode haver eco. O recomendado é fone de ouvido.
+- Robôs e garçons viajam de elevador entre andares: andam até a porta, somem por 1,6 a 2,5 s e aparecem na porta do outro andar (nós `elev_*` em `NODES`).
+- O Spotify toca pelo player oficial incorporado. Para tocar as músicas inteiras, a pessoa precisa estar logada no Spotify no mesmo navegador; sem login, só prévias de 30 s. Controle total (tocar sem o player, sincronizar entre visitantes) exigiria o Web Playback SDK, conta Premium e um app registrado no painel de desenvolvedor do Spotify, o que não foi feito.
 
 ## 10. Créditos
 

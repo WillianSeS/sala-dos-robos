@@ -10,7 +10,7 @@ const LOUNGE_LAYOUT = {
     { id: 'loungeBackA', type: 'sofa', name: 'Sofá do lounge', x: 8.35, z: 21.3, eye: 1.08, yaw: 0 },
     { id: 'loungeBackB', type: 'sofa', name: 'Sofá do lounge', x: 9.4, z: 21.3, eye: 1.08, yaw: 0 },
   ],
-  entry: { x: 10.5, z: 14.8 }, hub: { x: 10.5, z: 17 },
+  entry: { x: 11.26, z: 16 }, hub: { x: 10.5, z: 17 },
 };
 const LOUNGE_VISUAL = { smoke: [], embers: [] };
 const loungeMat = {
@@ -41,11 +41,8 @@ for (const [x, group] of [[4.045, 'loungeLeft'], [11.955, 'loungeRight']]) {
 B(mat.walnut, 8, 0.46, 21.95, 7.9, 0.86, 0.04, { group: 'loungeBack', cast: false });
 B(loungeMat.brass, 8, 0.91, 21.945, 7.9, 0.025, 0.05, { group: 'loungeBack', cast: false });
 B(mat.base, 8, 0.055, 21.945, 7.9, 0.11, 0.06, { group: 'loungeBack', cast: false });
-for (const x of [9.56, 11.44]) B(loungeMat.brass, x, 1.2, 14, 0.045, 2.4, 0.12, { group: 'gamesBack', cast: false });
-clubSign('LOUNGE', 'BEBIDAS • PETISCOS • SMOKING VIRTUAL', 10.5, 2.76, 13.93, 1.65, 0.53, 'gamesBack');
-clubSign('SALA DE JOGOS', '← SINUCA E CLUBE DO 21', 10.5, 2.76, 14.07, 1.65, 0.53, 'gamesBack', 0);
 clubSign('ROBOT LOUNGE', 'PAUSA • MÚSICA • BOA COMPANHIA', 8, 2.33, 21.92, 4.4, 0.95, 'loungeBack');
-// Dois cantos de descanso; o corredor x=10,5 permanece livre.
+// Dois cantos de descanso; o corredor x=10,5 leva ao elevador.
 function loungeSofa(x, z, yaw, w) {
   const m = mtx(x, 0, z, 0, yaw, 0);
   const part = (geo, material, px, py, pz) => SM(geo, material, m.clone().multiply(mtx(px, py, pz)), { cast: false });

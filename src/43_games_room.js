@@ -5,17 +5,13 @@ for (const [key, p, n] of [
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 B(gameWall, 12, 1.6, 10, 0.08, RH, 8, { group: 'gamesRight', cast: false });
-// Passagem de 1,8 m para o lounge: os jogos continuam numa sala própria.
-B(gameWall, 6.8, 1.6, 14, 5.6, RH, 0.08, { group: 'gamesBack', cast: false });
-B(gameWall, 11.7, 1.6, 14, 0.6, RH, 0.08, { group: 'gamesBack', cast: false });
-B(gameWall, 10.5, 2.8, 14, 1.8, 0.8, 0.08, { group: 'gamesBack', cast: false });
+// Parede inteira para o lounge: cada sala fica num andar do prédio.
+B(gameWall, 8, 1.6, 14, 8, RH, 0.08, { group: 'gamesBack', cast: false });
 B(gameWall, 4.01, 1.6, 10, 0.02, RH, 8, { group: 'gamesLeft', cast: false });
 B(gameWall, 10, 1.6, 6, 4, RH, 0.08, { group: 'gamesFront', cast: false });
+B(gameWall, 6, 1.6, 6.05, 4, RH, 0.06, { group: 'gamesFront', cast: false });
 mesh(G.plane, gameWall, GROUPS.main, 8, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
-clubSign('SALA DE JOGOS', 'SINUCA • CLUBE DO 21', 5.5, 2.77, 5.93, 1.9, 0.56, 'wallFront');
-clubSign('ESCRITÓRIO', '← VOLTAR AO PREGÃO', 5.5, 2.77, 6.06, 1.9, 0.56, 'wallFront', 0);
 clubSign('CLUBE DO 21', 'FICHAS DE BRINCADEIRA • DIVIRTA-SE', 7, 2.3, 13.92, 3.8, 1.1, 'gamesBack');
-for (const x of [4.38, 6.62]) B(mat.chrome, x, 1.2, 5.94, 0.04, 2.4, 0.04, { group: 'wallFront', cast: false });
 // Mesa de cartas dedicada: o café e o sofá continuam no escritório.
 B(mat.walnut, 8, 0.72, 12.1, 2.5, 0.16, 1.2);
 B(mat.felt, 8, 0.805, 12.1, 2.3, 0.01, 1.02, { cast: false });

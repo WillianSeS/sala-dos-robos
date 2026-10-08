@@ -2,13 +2,15 @@
 const CLUB = { tiles: [], lights: [], beams: [], ball: null, particles: new THREE.Group() };
 const clubWall = MC('#171123', 0.85), clubFloor = MC('#100d1c', 0.55);
 for (const [key, p, n] of [
-  ['clubLeft', [-4, 1.6, 10], [1, 0, 0]], ['clubRight', [4, 1.6, 10], [-1, 0, 0]], ['clubBack', [0, 1.6, 14], [0, 0, -1]],
+  ['clubLeft', [-4, 1.6, 10], [1, 0, 0]], ['clubRight', [4, 1.6, 10], [-1, 0, 0]], ['clubBack', [0, 1.6, 14], [0, 0, -1]], ['clubFront', [0, 1.6, 6], [0, 0, 1]],
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, clubFloor, GROUPS.main, 0, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 mesh(G.plane, clubWall, GROUPS.main, 0, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
 B(clubWall, -4, 1.6, 10, 0.08, RH, 8, { group: 'clubLeft', cast: false });
 B(clubWall, 4, 1.6, 10, 0.08, RH, 8, { group: 'clubRight', cast: false });
 B(clubWall, 0, 1.6, 14, 8, RH, 0.08, { group: 'clubBack', cast: false });
+/* Parede fechada do lado do escritório (atrás da parede dele, que só tem uma face). */
+B(clubWall, 0, 1.6, 6.05, 8, RH, 0.06, { group: 'clubFront', cast: false });
 const clubNeon = color => M({ color: '#160d22', emissive: color, emissiveIntensity: 2.2, roughness: 0.7 });
 const pinkNeon = clubNeon('#fc59df'), blueNeon = clubNeon('#427aff');
 for (const [x, group] of [[-3.95, 'clubLeft'], [3.95, 'clubRight']]) {
@@ -16,7 +18,6 @@ for (const [x, group] of [[-3.95, 'clubLeft'], [3.95, 'clubRight']]) {
   B(x < 0 ? pinkNeon : blueNeon, x, 2.9, 10, 0.04, 0.04, 7.9, { group, cast: false });
   for (const z of [7.3, 9.5, 11.7, 13.7]) B(x < 0 ? pinkNeon : blueNeon, x, 1.5, z, 0.04, 1.5, 0.05, { group, cast: false });
 }
-for (const x of [-1.12, 1.12]) B(pinkNeon, x, 1.2, 5.94, 0.04, 2.4, 0.04, { group: 'wallFront', cast: false });
 function clubSign(text, subtitle, x, y, z, w, h, group = 'main', ry = Math.PI) {
   const tex = canvasTex(768, 256, (g, tw, th) => {
     g.fillStyle = '#130c20'; g.fillRect(0, 0, tw, th);
@@ -27,9 +28,7 @@ function clubSign(text, subtitle, x, y, z, w, h, group = 'main', ry = Math.PI) {
   const m = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
   return mesh(G.plane, m, GROUPS[group], x, y, z, 0, ry, 0, w, h, 1, false);
 }
-clubSign('DISCOTECA', 'ENTRE NA PISTA →', 0, 2.77, 5.93, 1.9, 0.56, 'wallFront');
 clubSign('ROBÔ DISCO', 'DANÇA • MÚSICA • BOAS VIBES', 0, 2.25, 13.92, 4.4, 1.3, 'clubBack');
-clubSign('SALA DOS ROBÔS', '← VOLTAR AO PREGÃO', 0, 2.76, 6.06, 1.9, 0.56, 'wallFront', 0);
 /* pista: cores mudam suavemente, sem estrobo */
 B(mat.black, 0, 0.006, 9.8, 4.7, 0.012, 4.5, { cast: false });
 for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) {

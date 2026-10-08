@@ -67,20 +67,8 @@ function consumeHeld() {
   if (!inRoom || !HOSP.item || HOSP.consumeUntil > t || HOSP.smokingUntil > t || !['fp', 'seat', 'dance'].includes(mode)) return;
   HOSP.consumeUntil = t + 2.4; HOSP.portions--; HOSP.finishing = HOSP.portions <= 0; publishHospitality();
 }
-function goLounge() {
-  if (!inRoom) return;
-  if (seatState.s) { standUp(goLounge); return; }
-  if (mode !== 'fp') return;
-  fp.vel.set(0, 0, 0); fp.pos.set(10.5, 0, 14.8); fp.yaw = 2.8; fp.pitch = -0.04;
-  if (document.pointerLockElement) document.exitPointerLock();
-  startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.8, () => { mode = 'fp'; cross.hidden = isTouch; });
-}
-function exitLounge() {
-  if (seatState.s) { standUp(exitLounge); return; }
-  if (mode !== 'fp') return;
-  stopSmoking(); fp.pos.set(10.5, 0, 13.3); fp.vel.set(0, 0, 0); fp.yaw = 0; fp.pitch = 0;
-  startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(0, 0), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; cross.hidden = isTouch; });
-}
+function goLounge() { rideTo('lounge'); }
+function exitLounge() { stopSmoking(); rideTo('games'); }
 function nearestHook() {
   const x = seatState.s ? seatState.s.x : fp.pos.x, z = seatState.s ? seatState.s.z : fp.pos.z;
   let result = null;
@@ -122,7 +110,7 @@ function stepHospitality(dt, t) {
   if (HOSP.smokingUntil > t && (!inRoom || !inLounge(fp.pos.x, fp.pos.z) || (nearestHook()?.d ?? 99) > 2.6)) stopSmoking();
   const smoke = HOSP.smokingUntil > t, using = HOSP.consumeUntil > t;
   if (HOSP.rig) {
-    const visible = inRoom && !DISCO.dancing && ['fp', 'seat', 'music', 'menu'].includes(mode);
+    const visible = inRoom && !DISCO.dancing && !VIEW.third && ['fp', 'seat', 'music', 'menu'].includes(mode);
     HOSP.rig.visible = visible && (!!HOSP.item || smoke);
     if (HOSP.prop) HOSP.prop.visible = !smoke;
     if (HOSP.smokeProp) HOSP.smokeProp.visible = smoke;

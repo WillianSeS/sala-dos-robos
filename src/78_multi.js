@@ -168,7 +168,10 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 21.7); v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 21.7);
+      /* Quem trocou de andar pelo elevador aparece direto no outro andar, sem atravessar paredes. */
+      if (floorAt(v.tx, v.tz) !== floorAt(v.x, v.z)) { v.x = v.tx; v.z = v.tz; }
+      v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
       v.item = Object.hasOwn(CONSUMABLES, p.it) ? p.it : '';
       v.consumeUntil = +p.ct > Date.now() && +p.ct < Date.now() + 5000 ? performance.now()/1000 + (+p.ct - Date.now())/1000 : 0;
       v.smokingUntil = inLounge(v.tx, v.tz) && [0, 1].includes(p.hs) && +p.ht > Date.now() && +p.ht < Date.now()+8000 ? performance.now()/1000 + (+p.ht - Date.now())/1000 : 0; v.hookIndex = p.hs;

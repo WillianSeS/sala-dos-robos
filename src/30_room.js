@@ -49,26 +49,12 @@ skyFar.position.set(-80, 6.85, 0); /* horizonte (55% da textura) na altura dos o
 const skyMid = new THREE.Mesh(new THREE.PlaneGeometry(130, 65), new THREE.MeshBasicMaterial({ map: TEX.skyMid, transparent: true, fog: false }));
 skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.add(skyMid);
 
-/* parede direita (porta) e parede da frente */
+/* parede direita (elevador) e parede da frente */
 mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
 B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
-/* passagens separadas para a discoteca e a sala de jogos */
-for (const [x, width] of [[-4.55, 6.9], [2.75, 3.3], [7.3, 1.4]]) {
-  mesh(G.plane, mat.plasterLight, GROUPS.wallFront, x, RH / 2, RD, 0, Math.PI, 0, width, RH, 1, false);
-  B(mat.base, x, 0.05, 5.99, width, 0.1, 0.02, { group: 'wallFront', cast: false });
-}
-for (const x of [0, 5.5]) B(mat.plasterLight, x, 2.8, RD, 2.2, 0.8, 0.06, { group: 'wallFront', cast: false });
-/* porta de madeira com batente */
-const doorWood = M({ map: TEX.slat, color: '#8a6a4a', roughness: 0.5 });
-B(doorWood, 7.975, 1.08, -4.8, 0.04, 2.16, 0.94, { group: 'wallRight' });
-B(mat.aluDark, 7.97, 2.19, -4.8, 0.07, 0.06, 1.06, { group: 'wallRight' });
-B(mat.aluDark, 7.97, 1.1, -5.3, 0.07, 2.2, 0.06, { group: 'wallRight' });
-B(mat.aluDark, 7.97, 1.1, -4.3, 0.07, 2.2, 0.06, { group: 'wallRight' });
-S(G.cyl, mat.steel, 7.93, 1.02, -4.45, 0, 0, Math.PI / 2, 0.012, 0.09, 0.012, { group: 'wallRight' });
-B(mat.steel, 7.89, 1.02, -4.5, 0.02, 0.02, 0.12, { group: 'wallRight' });
-/* placa de saída */
-const exitMat = M({ color: '#0b3d1f', emissive: '#19c25a', emissiveIntensity: 1.6, roughness: 0.6 });
-B(exitMat, 7.96, 2.42, -4.8, 0.03, 0.14, 0.34, { group: 'wallRight', cast: false });
+/* parede da frente inteira: cada sala fica num andar e só se chega pelo elevador */
+mesh(G.plane, mat.plasterLight, GROUPS.wallFront, 0, RH / 2, RD, 0, Math.PI, 0, 16, RH, 1, false);
+B(mat.base, 0, 0.05, 5.99, 16, 0.1, 0.02, { group: 'wallFront', cast: false });
 
 /* luminárias lineares suspensas (fonte visível) + cabos */
 function linearLamp(x, z, len) {

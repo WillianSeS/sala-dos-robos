@@ -1,7 +1,7 @@
 /* ================= dança, reações e acesso à discoteca ================= */
 const DISCO_STYLES = ['groove', 'disco', 'party'];
 const DISCO_EMOJIS = ['🔥', '❤️', '😂', '🎉', '🕺'];
-const DISCO = { dancing: false, style: 'groove', lights: !reduceMotion, player: null, loading: false, emojis: [], emoji: '', emojiUntil: 0, emojiId: 0, lastEmoji: -10, lastBotEmoji: 0 };
+const DISCO = { dancing: false, style: 'groove', lights: !reduceMotion, player: null, loading: false, emojis: [], emoji: '', emojiUntil: 0, emojiId: 0, lastEmoji: -10, lastBotEmoji: 0, panelOpen: false };
 const inDisco = (x, z) => Math.abs(x) < 3.8 && z > 6.4 && z < 13.7;
 function danceWave(t, style, phase = 0) {
   const amount = reduceMotion ? 0.25 : 1, b = t * 4.2 + phase, s = Math.sin(b);
@@ -23,20 +23,9 @@ function applyAvatarDance(A, t) {
   A.root.rotation.y = A.yaw + b.sway * 0.5; A.root.rotation.z = b.sway * 0.12; A.root.position.y = 0.015 + b.bounce * 0.2;
 }
 function goDisco() {
-  if (!inRoom) return;
-  if (seatState.s) { standUp(goDisco); return; }
-  if (mode !== 'fp') return;
-  fp.pos.set(0, 0, 7.1); fp.vel.set(0, 0, 0); fp.yaw = Math.PI; fp.pitch = -0.05;
-  if (document.pointerLockElement) document.exitPointerLock();
-  startTween(new THREE.Vector3(0, EYE, 7.1), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; cross.hidden = isTouch; });
-  $('discoMsg').textContent = 'Bem-vindo! Escolha seus passos ou chame os robôs para a pista.';
+  if (rideTo('disco')) $('discoMsg').textContent = 'Bem-vindo! Escolha seus passos ou chame os robôs para a pista.';
 }
-function exitDisco() {
-  if (DISCO.dancing) stopDance();
-  if (mode !== 'fp') return;
-  fp.pos.set(0, 0, 5.5); fp.vel.set(0, 0, 0); fp.yaw = 0; fp.pitch = 0;
-  startTween(new THREE.Vector3(0, EYE, 5.5), fpQuat(0, 0), reduceMotion ? 0.01 : 0.65, () => { mode = 'fp'; cross.hidden = isTouch; });
-}
+function exitDisco() { rideTo('office'); }
 async function loadDancer() {
   if (!AV.clips || DISCO.loading || DISCO.player?.isAvatar) return;
   DISCO.loading = true;
@@ -136,7 +125,11 @@ $('discoGo').onclick = goDisco; $('discoExit').onclick = exitDisco;
 $('discoDance').onclick = () => DISCO.dancing ? stopDance() : startDance();
 $('discoStyle').onchange = () => { DISCO.style = $('discoStyle').value; if (DISCO.dancing) publishDiscoPresence(); };
 $('discoInvite').onclick = () => inviteDancers();
-$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!MUSIC.playing) { $('musicStyle').value = 'electro'; musicPlay(); } };
+$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!MUSIC.playing && !SPOTIFY.url) { $('musicStyle').value = 'electro'; musicPlay(); } };
+/* O painel da pista começa fechado e abre pelo botão 🪩 Pista. */
+function setDiscoPanel(open) { DISCO.panelOpen = open; $('discoPanel').hidden = !open; $('discoPanelOpen').hidden = open; }
+$('discoPanelOpen').onclick = () => setDiscoPanel(true);
+$('discoPanelClose').onclick = () => setDiscoPanel(false);
 $('discoLights').setAttribute('aria-pressed', String(DISCO.lights));
 $('discoLights').onclick = () => { DISCO.lights = !DISCO.lights; $('discoLights').setAttribute('aria-pressed', String(DISCO.lights)); $('discoLights').textContent = DISCO.lights ? 'Luzes suaves' : 'Luzes reduzidas'; };
 document.querySelectorAll('[data-emoji]').forEach(b => { b.onclick = () => sendDiscoEmoji(b.dataset.emoji); });

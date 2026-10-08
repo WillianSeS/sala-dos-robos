@@ -131,7 +131,7 @@ function updateLabels() {
     r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42;
     const dist = camera.position.distanceTo(_hv);
     _hv.project(camera);
-    if (_hv.z > 1 || _hv.z < -1 || dist < 0.55) { r.el.style.opacity = '0'; continue; }
+    if (_hv.z > 1 || _hv.z < -1 || dist < 0.55 || !r.P.root.visible) { r.el.style.opacity = '0'; continue; }
     const sc = clamp(4.2 / dist, 0.42, 1.25) * (r.react && simT < r.reactT ? 1.18 : 1);
     r.el.style.opacity = '1';
     r.el.style.transform = `translate(${(_hv.x * 0.5 + 0.5) * W}px,${(-_hv.y * 0.5 + 0.5) * H}px) translate(-50%,-100%) scale(${sc.toFixed(3)})`;

@@ -120,6 +120,15 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .held-bar{position:fixed;right:16px;bottom:calc(104px + env(safe-area-inset-bottom,0px));width:218px;box-sizing:border-box;background:#0e1719ed;border:1px solid #8eb5a466;border-radius:12px;padding:10px;display:grid;gap:7px;z-index:3}.held-bar p{margin:0;font-size:11px;color:var(--muted)}.held-bar .pool-row{justify-content:flex-start}.service-note{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;padding:9px 13px;border:1px solid var(--line);background:#101917ed;border-radius:10px;font-size:11px;z-index:4;text-align:center}
 .lounge-panel{border-color:#be984d88;background:#15120ded}.lounge-panel b{font-size:20px}.pl.staff{border-color:#d9bf80}.pl.staff .v{color:#e1cc99}
 @media(max-width:600px){.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.disco-shortcuts{max-width:270px}.held-bar{width:210px;bottom:calc(95px + env(safe-area-inset-bottom,0px))}.service-note{top:calc(245px + env(safe-area-inset-top,0px));width:max-content;max-width:calc(100% - 32px)}}
+.elev-floors{display:grid;gap:8px}.elev-floor{text-align:left}
+.elev-ride{position:fixed;inset:0;background:#050607;display:grid;place-content:center;justify-items:center;gap:10px;z-index:8;pointer-events:none}
+.elev-ride b{font:700 64px var(--mono);color:#ffb347;letter-spacing:.04em}.elev-ride span{font-size:14px;color:var(--muted)}
+.spotify-dock{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100% - 32px));box-sizing:border-box;background:#0d1411ee;border:1px solid #1ed76066;border-radius:12px;padding:8px;display:grid;gap:6px;z-index:4}
+.spotify-head{display:flex;gap:6px;align-items:center}.spotify-head b{flex:1;font-size:12px}.spotify-head .btn.sm{padding:6px 9px;font-size:11px}
+.spotify-box iframe{display:block;width:100%;height:152px;border:0;border-radius:10px}
+.spotify-dock.min{width:auto}.spotify-dock.min .spotify-box{position:absolute;left:-10000px;width:300px}
+/* No celular o player aparece junto com o painel de música e segue tocando escondido. */
+@media(max-width:600px){.spotify-dock{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100% - 32px);z-index:6}.spotify-box iframe{height:80px}body:not(.music-open) .spotify-dock{left:-10000px}}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -133,9 +142,9 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
 <div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
-<div class="disco-shortcuts"><button id="loungeGo" class="btn sm" hidden>🛋️ Lounge</button><button id="menuOpen" class="btn sm" hidden>🍽️ Cardápio</button><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button></div>
+<div class="disco-shortcuts"><button id="viewToggle" class="btn sm" hidden aria-pressed="false">👤 3ª pessoa</button><button id="loungeGo" class="btn sm" hidden>🛋️ Lounge</button><button id="menuOpen" class="btn sm" hidden>🍽️ Cardápio</button><button id="gamesGo" class="btn sm" hidden>🎮 Sala de jogos</button><button id="gamesBack" class="btn sm" hidden>🏢 Escritório</button><button id="discoGo" class="btn sm" hidden>🪩 Discoteca</button><button id="discoPanelOpen" class="btn sm" hidden>🪩 Pista</button></div>
 <section id="discoPanel" class="disco-panel" hidden aria-label="Controles da discoteca">
-  <b>🪩 Discoteca dos Robôs</b><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
+  <div class="talk-h"><b>🪩 Discoteca dos Robôs</b><button id="discoPanelClose" class="btn sm" aria-label="Minimizar o painel da pista">Minimizar</button></div><p id="discoMsg" role="status">Escolha seus passos e entre na pista!</p>
   <label>Passos<select id="discoStyle"><option value="groove">😎 Balanço</option><option value="disco">🕺 Disco</option><option value="party">🙌 Comemoração</option></select></label>
   <div class="pool-row"><button id="discoDance" class="btn sm" aria-pressed="false">Dançar</button><button id="discoInvite" class="btn sm">Chamar os robôs</button><button id="discoMusic" class="btn sm">🎶 Música</button></div>
   <div class="pool-row"><button id="discoSip" class="btn sm" hidden>Tomar bebida</button></div><div class="pool-row" aria-label="Reações"><button class="disco-emoji" data-emoji="🔥" aria-label="Mandar fogo">🔥</button><button class="disco-emoji" data-emoji="❤️" aria-label="Mandar coração">❤️</button><button class="disco-emoji" data-emoji="😂" aria-label="Mandar risada">😂</button><button class="disco-emoji" data-emoji="🎉" aria-label="Mandar festa">🎉</button><button class="disco-emoji" data-emoji="🕺" aria-label="Mandar dança">🕺</button></div>
@@ -179,9 +188,17 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <label>Estilo<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo</option></select></label>
   <label>Escolher música do aparelho<input id="musicFile" type="file" accept="audio/*"></label>
   <label>Volume<input id="musicVolume" type="range" min="0" max="100" value="25"></label>
+  <label>Spotify: link de playlist, álbum, artista ou música<input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…"></label>
+  <div class="pool-row"><button class="btn sm" id="spotifyLoad">🎧 Tocar no Spotify</button></div>
   <p id="musicMsg" role="status">Escolha um estilo e toque em Reproduzir.</p>
   <div class="pool-row"><button class="btn sm" id="musicPlay">Reproduzir</button><button class="btn sm" id="musicStop">Parar música</button></div>
 </section>
+<section class="talk leisure" id="elevator" hidden role="dialog" aria-label="Elevador do prédio">
+  <div class="talk-h"><div><b>🛗 Elevador</b><span>Escolha o andar</span></div><button class="btn sm" id="elevClose">Fechar</button></div>
+  <div id="elevFloors" class="elev-floors"></div>
+</section>
+<div id="elevRide" class="elev-ride" hidden aria-live="polite"><b id="elevRideText"></b><span id="elevRideName"></span></div>
+<aside id="spotifyDock" class="spotify-dock" hidden aria-label="Player do Spotify"><div class="spotify-head"><b>🎧 Spotify</b><button id="spotifyMin" class="btn sm">Minimizar</button><button id="spotifyClose" class="btn sm">Fechar</button></div><div id="spotifyBox" class="spotify-box"></div></aside>
 <div class="poolhud" id="poolHud" hidden>
   <div class="pool-top"><div class="pool-score" id="poolScore"></div><div class="pool-msg" id="poolMsg"></div></div>
   <div class="pool-bottom">
