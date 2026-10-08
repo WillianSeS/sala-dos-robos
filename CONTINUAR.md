@@ -119,6 +119,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_show_coreografia.py` valida figurinos nos ossos, escala da estola, restauração da pose/modelo, confete inicial, cancan com reduzir movimento e convites para dançar com espaço livre, ocupado ou sem espaço.
 - `python3 testes/teste_dardos_entrada.py` valida setores/anéis, clique/toque e Espaço, voo, nove lançamentos, medalhas/recorde persistidos, saída/terceira pessoa e entrada responsiva.
 - `python3 testes/teste_vegas.py` valida a vista de fora (lâmpadas piscando, troca de vista, entrada), o show (dançarinas no palco, atendente que oferece e traz bebida, dançar, mesa, gorjetas, falta de fichas, voz desligável) e o painel do show sem sobreposição no desktop/celular.
 - `python3 testes/teste_predio.py` valida paredes fechadas entre andares, cabine (portas por sensor, passagem só com porta aberta), viagem em etapas, atalhos sentado, garçom atravessando andares, etiquetas por andar, terceira pessoa (corpo virando, zoom), Spotify, rádio compartilhada entre dois visitantes e visitante trocando de andar no desktop/celular.
@@ -178,7 +179,7 @@ O ambiente de teste não tem placa de vídeo, então roda a 1–2 quadros por se
   - `m`: `w` em pé ou andando, `s` sentado, `t` conversando, `d` dançando;
   - `sy`: altura do assento;
   - `vc`: 1 se está na voz;
-  - `ds`: estilo de dança (`groove`, `disco`, `party`);
+  - `ds`: estilo de dança (`groove`, `disco`, `party`, `showgirl`);
   - `it`: id de bebida/comida do catálogo; `ct`: fim da animação em milissegundos de `Date.now()`.
   - `hs`: índice da mesa de narguilé (0/1, -1 inativo); `ht`: fim do gesto em milissegundos. IDs e durações recebidas são validados. A recepção converte para relógio monotônico local. Esses estados são transitórios, sem novos registros/tabelas.
   - `ro`, `rs`, `rt`: rádio da sala ligada (1/0), estação (`lofi`, `lounge`, `electro`) e momento da última mudança (`Date.now()`). Cada visitante adota o estado com `rt` mais recente; `rt` no futuro é ignorado.

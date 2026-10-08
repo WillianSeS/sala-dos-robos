@@ -6,6 +6,16 @@ from comum import AQUI, URL, ARGS, rota
 os.makedirs(AQUI + '/saida', exist_ok=True)
 
 
+def draw_for_photo(page):
+    """Desenha a cena real, incluindo as cinco passadas quando o prédio está empilhado."""
+    page.evaluate('''()=>{
+        const s=__sala, render=s.renderer.render, clear=s.renderer.clear;
+        s.renderer.render=window.__drawSala; s.renderer.clear=window.__clearSala;
+        try { if(s.STACK.on)s.renderStacked();else s.renderer.render(s.scene,s.camera); }
+        finally { s.renderer.render=render;s.renderer.clear=clear; }
+    }''')
+
+
 def wait_offer(page):
     """Espera uma atendente oferecer algo; se não vier, mostra o estado delas para diagnóstico."""
     try:
@@ -21,7 +31,7 @@ with sync_playwright() as p:
         context.route('**/*', rota)
         context.route('https://fonts.googleapis.com/**', lambda r: r.fulfill(body='', content_type='text/css'))
         context.add_init_script(path=AQUI + '/fake_supabase.js')
-        context.add_init_script('Object.defineProperty(window,"__sala",{configurable:true,set(value){window.__drawSala=value.renderer.render.bind(value.renderer);value.renderer.render=()=>{};value.renderer.shadowMap.enabled=false;value.renderer.setPixelRatio(.35);value.renderer.setSize(innerWidth,innerHeight,false);Object.defineProperty(window,"__sala",{value,writable:true,configurable:true})}})')
+        context.add_init_script('Object.defineProperty(window,"__sala",{configurable:true,set(value){window.__drawSala=value.renderer.render.bind(value.renderer);window.__clearSala=value.renderer.clear.bind(value.renderer);value.renderer.render=()=>{};value.renderer.clear=()=>{};value.renderer.shadowMap.enabled=false;value.renderer.setPixelRatio(.35);value.renderer.setSize(innerWidth,innerHeight,false);Object.defineProperty(window,"__sala",{value,writable:true,configurable:true})}})')
         # Registra as falas em vez de tocar o som (o navegador de teste não tem vozes).
         context.add_init_script('Object.defineProperty(navigator,"hardwareConcurrency",{get:()=>2});HTMLCanvasElement.prototype.requestPointerLock=()=>Promise.resolve();window.__falas=[];try{localStorage.removeItem("sala-voz")}catch(e){}if(window.speechSynthesis){speechSynthesis.speak=u=>window.__falas.push(u.text);speechSynthesis.cancel=()=>{}}')
         errors = []
@@ -39,7 +49,7 @@ with sync_playwright() as p:
             page.wait_for_timeout(400)
         assert len(patterns) > 1, 'As lâmpadas do letreiro não piscaram'
         assert page.locator('#btnOutside').is_hidden(), 'A entrada exclusiva oculta controles da sala'
-        page.evaluate('__drawSala(__sala.scene,__sala.camera)'); page.screenshot(path=AQUI + '/saida/hotel-fora-' + nome + '.png')
+        draw_for_photo(page); page.screenshot(path=AQUI + '/saida/hotel-fora-' + nome + '.png')
         page.evaluate('__sala.setOrbitView("inside")')
         assert page.evaluate('__sala.orbit.view==="inside" && !__sala.EXT.group.visible')
         page.evaluate('__sala.setOrbitView("outside")')
@@ -158,7 +168,7 @@ with sync_playwright() as p:
             return others.filter(e=>{const r=e.getBoundingClientRect();return bar.left<r.right-1&&r.left<bar.right-1&&bar.top<r.bottom-1&&r.top<bar.bottom-1}).map(e=>e.id);
         }''')
         assert not overlap, overlap
-        page.evaluate('__drawSala(__sala.scene,__sala.camera)'); page.screenshot(path=AQUI + '/saida/show-' + nome + '.png')
+        draw_for_photo(page); page.screenshot(path=AQUI + '/saida/show-' + nome + '.png')
         page.evaluate('__sala.rideTo("office")')
         page.wait_for_function('__sala.mode==="fp" && __sala.playerFloor()==="office"', timeout=30000)
         page.wait_for_timeout(300)

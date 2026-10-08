@@ -44,6 +44,8 @@ function dancePose(style, b, amt) {
       armL: 0.25, armR: 0.25, fwdL: 0.35 * Math.max(0, half), fwdR: 0.35 * Math.max(0, -half), elbL: 0.7, elbR: 0.7 });
   }
   if (amt !== 1) for (const k in p) p[k] *= amt;
+  /* Um giro parcial saltaria de volta à posição inicial ao fechar os 16 tempos. */
+  if (style === 'showgirl' && amt < 1) p.turn = 0;
   return p;
 }
 const _danceQ = new THREE.Quaternion(), _danceUp = new THREE.Vector3(0, 1, 0);
@@ -86,11 +88,11 @@ function publishDiscoPresence() {
 }
 function startDance() {
   const show = inShow(fp.pos.x, fp.pos.z);
-  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return;
-  /* No bar do show, dança onde está; na discoteca, na pista. */
-  const spots = show ? [[fp.pos.x, fp.pos.z]] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
-  const free = spots.find(([x, z]) => !blocked(x, z));
-  if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return; }
+  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return false;
+  /* No show, um passo curto desvia de quem estiver cruzando o visitante; na discoteca, usa a pista. */
+  const spots = show ? [[fp.pos.x, fp.pos.z], ...Array.from({ length: 8 }, (_, i) => [fp.pos.x + Math.cos(i * Math.PI / 4) * 0.65, fp.pos.z + Math.sin(i * Math.PI / 4) * 0.65])] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
+  const free = spots.find(([x, z]) => (!show || inShow(x, z)) && !blocked(x, z));
+  if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return false; }
   fp.pos.set(free[0], 0, free[1]);
   if (!DISCO.player) { DISCO.player = makePerson(10 + myLook); DISCO.player.root.visible = false; }
   DISCO.dancing = true; mode = 'dance';
@@ -101,6 +103,7 @@ function startDance() {
   cross.hidden = true; $('discoDance').textContent = 'Parar de dançar'; $('discoDance').setAttribute('aria-pressed', 'true');
   $('discoMsg').textContent = 'Você está dançando! Mande emojis para animar a pista.';
   loadDancer(); publishDiscoPresence();
+  return true;
 }
 function stopDance() {
   DISCO.dancing = false; if (DISCO.player) DISCO.player.root.visible = false;

@@ -60,7 +60,7 @@ function attachToBone(A, boneName, obj, offset, euler = new THREE.Euler()) {
   A.root.updateMatrixWorld(true); _rootInv.copy(A.root.matrixWorld).invert();
   _boneM.multiplyMatrices(_rootInv, bone.matrixWorld);
   const at = new THREE.Vector3().setFromMatrixPosition(_boneM).add(offset);
-  _wantM.compose(at, new THREE.Quaternion().setFromEuler(euler), new THREE.Vector3(1, 1, 1));
+  _wantM.compose(at, new THREE.Quaternion().setFromEuler(euler), obj.scale);
   _boneM.invert().multiply(_wantM).decompose(obj.position, obj.quaternion, obj.scale);
   bone.add(obj); return obj;
 }
@@ -93,7 +93,7 @@ const CONFETTI_N = 160;
 const confetti = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.04, 0.025), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false }), CONFETTI_N);
 confetti.frustumCulled = false; confetti.userData.floor = 'show'; GROUPS.main.add(confetti);
 const CONF = Array.from({ length: CONFETTI_N }, (_, i) => ({ x: 0, y: -1, z: 0, vy: 0, ph: i, spin: 1 + (i % 5) }));
-{ const colors = ['#ffd36b', '#ff5fb7', '#6be3ff', '#b6ff6b', '#ffffff']; CONF.forEach((c, i) => confetti.setColorAt(i, new THREE.Color(colors[i % colors.length]))); }
+{ const colors = ['#ffd36b', '#ff5fb7', '#6be3ff', '#b6ff6b', '#ffffff'], hidden = new THREE.Matrix4().makeScale(0, 0, 0); CONF.forEach((c, i) => { confetti.setColorAt(i, new THREE.Color(colors[i % colors.length])); confetti.setMatrixAt(i, hidden); }); }
 function confettiBurst(n = CONFETTI_N) {
   const st = SHOW_LAYOUT.stage;
   for (let i = 0; i < n; i++) Object.assign(CONF[(SHOW.confI = ((SHOW.confI || 0) + 1) % CONFETTI_N)], { x: srnd(st.x0, st.x1), y: 2.9 + Math.random() * 0.4, z: srnd(st.z0 - 1.2, st.z1 - 0.1), vy: 0.35 + Math.random() * 0.35 });
@@ -138,11 +138,16 @@ function hostWalk(h, dt) {
 }
 function hostGo(h, x, z) { const p = h.P.root.position; h.path = staffPath([p.x, p.z], [x, z]) || [[x, z]]; }
 /* Ponto a 1 m do visitante, do lado de onde a atendente vem. */
-function besidePlayer(h) {
+function besidePlayer(h, avoidPeople = false) {
   const p = h.P.root.position, a = Math.atan2(p.z - fp.pos.z, p.x - fp.pos.x);
   for (const da of [0, 0.6, -0.6, 1.2, -1.2, Math.PI]) {
     const x = fp.pos.x + Math.cos(a + da), z = fp.pos.z + Math.sin(a + da);
-    if (inShow(x, z) && !roomBlocked(x, z, HOST_RADIUS)) return [x, z];
+    if (!inShow(x, z) || roomBlocked(x, z, HOST_RADIUS)) continue;
+    if (avoidPeople && [
+      ...SHOW.hosts.filter(o => o !== h).map(o => [o, 0.22]),
+      ...STAFF.members.map(o => [o, 0.22]), ...robots.map(o => [o, 0.24]),
+    ].some(([o, radius]) => (x - o.P.root.position.x) ** 2 + (z - o.P.root.position.z) ** 2 < (PR + radius) ** 2)) continue;
+    return [x, z];
   }
   return null;
 }
@@ -164,10 +169,11 @@ function offerDrink() {
   hostGo(h, SHOW_LAYOUT.bar.x, SHOW_LAYOUT.bar.z); showSay('Já volto com a sua bebida!'); serviceMessage(h.name + ' foi buscar sua bebida no balcão.');
 }
 function offerDance() {
-  const h = SHOW.offer; if (!h) return;
+  const h = SHOW.offer; if (!h) return false;
+  if (!startDance()) { $('hostLine').textContent = 'Não há espaço livre para dançar aqui. Dê alguns passos ou escolha uma mesa.'; return false; }
   closeOffer(60); h.state = 'dance'; h.P.pose = 'dance'; h.until = performance.now() / 1000 + 25; h.P.danceStyle = DISCO_STYLES[Math.floor(Math.random() * 3)];
-  const spot = besidePlayer(h); if (spot) { h.P.root.position.x = spot[0]; h.P.root.position.z = spot[1]; }
-  showSay('Vamos dançar!'); startDance();
+  const spot = besidePlayer(h, true); if (spot) { h.P.root.position.x = spot[0]; h.P.root.position.z = spot[1]; }
+  showSay('Vamos dançar!'); return true;
 }
 function offerSeat() {
   const h = SHOW.offer; if (!h) return;

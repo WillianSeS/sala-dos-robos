@@ -4,6 +4,16 @@ from playwright.sync_api import sync_playwright
 from comum import AQUI, URL, ARGS, rota
 
 os.makedirs(AQUI + '/saida', exist_ok=True)
+
+
+def draw_for_photo(page):
+    """Desenha a cena real, incluindo as cinco passadas quando o prédio está empilhado."""
+    page.evaluate('''()=>{
+        const s=__sala, render=s.renderer.render, clear=s.renderer.clear;
+        s.renderer.render=window.__drawSala; s.renderer.clear=window.__clearSala;
+        try { if(s.STACK.on)s.renderStacked();else s.renderer.render(s.scene,s.camera); }
+        finally { s.renderer.render=render;s.renderer.clear=clear; }
+    }''')
 with sync_playwright() as p:
     browser = p.chromium.launch(args=ARGS)
     for mobile in (False, True):
@@ -12,7 +22,7 @@ with sync_playwright() as p:
         context.route('**/*', rota)
         context.route('https://fonts.googleapis.com/**', lambda r: r.fulfill(body='', content_type='text/css'))
         context.add_init_script(path=AQUI + '/fake_supabase.js')
-        context.add_init_script('Object.defineProperty(window,"__sala",{configurable:true,set(value){window.__drawSala=value.renderer.render.bind(value.renderer);value.renderer.render=()=>{};value.renderer.shadowMap.enabled=false;value.renderer.setPixelRatio(.35);value.renderer.setSize(innerWidth,innerHeight,false);Object.defineProperty(window,"__sala",{value,writable:true,configurable:true})}})')
+        context.add_init_script('Object.defineProperty(window,"__sala",{configurable:true,set(value){window.__drawSala=value.renderer.render.bind(value.renderer);window.__clearSala=value.renderer.clear.bind(value.renderer);value.renderer.render=()=>{};value.renderer.clear=()=>{};value.renderer.shadowMap.enabled=false;value.renderer.setPixelRatio(.35);value.renderer.setSize(innerWidth,innerHeight,false);Object.defineProperty(window,"__sala",{value,writable:true,configurable:true})}})')
         context.add_init_script('Object.defineProperty(navigator,"hardwareConcurrency",{get:()=>2});HTMLCanvasElement.prototype.requestPointerLock=()=>Promise.resolve();try{localStorage.removeItem("sala-view")}catch(e){}')
         errors = []
         page = context.new_page()
@@ -110,7 +120,7 @@ with sync_playwright() as p:
             assert page.evaluate('__sala.VIEW.zoom<2')
         page.evaluate('__sala.sitDown(__sala.SEATS.find(s=>s.id==="loungeSideA"))')
         page.wait_for_function('__sala.mode==="seat" && __sala.DISCO.player.pose==="sofa" && __sala.DISCO.player.root.visible')
-        page.evaluate('__drawSala(__sala.scene,__sala.camera)')
+        draw_for_photo(page)
         page.screenshot(path=AQUI + '/saida/terceira-pessoa-' + nome + '.png')
         page.evaluate('__sala.standUp()')
         page.wait_for_function('__sala.mode==="fp"')
@@ -219,7 +229,7 @@ with sync_playwright() as p:
                 page.wait_for_function('__sala.act==="Jogar sinuca" && !document.getElementById("btnAct").hidden')
                 result = layout_ok()
                 assert result['inside'] and not result['overlaps'] and 'joy' in result['ids'] and 'mRun' in result['ids'], (size, result)
-                page.evaluate('__drawSala(__sala.scene,__sala.camera)')
+                draw_for_photo(page)
                 page.screenshot(path=AQUI + '/saida/controles-celular-' + str(size['width']) + '.png')
             page.set_viewport_size({'width': 390, 'height': 760})
             box = page.locator('#joy').bounding_box()
@@ -259,6 +269,8 @@ with sync_playwright() as p:
             return {c,ys:s.FLOORS.map(f=>f.stackOffset.y),robot:robot.P.root.children[0].getObjectByProperty('isMesh',true).layers.mask&(1<<s.FLOOR.office.layer),games:pool.length,labels:s.FLOORS.every(f=>f.stackLabel.style.opacity==='1')}})()''')
         assert all(stack['c'].get(k, 0) > 10 for k in ('office', 'games', 'disco', 'lounge', 'show')), stack
         assert stack['ys'] == sorted(stack['ys']) and stack['ys'][0] == 0 and stack['ys'][-1] > 15 and stack['robot'] and stack['games'] > 0 and stack['labels'], stack
+        draw_for_photo(page)
+        page.screenshot(path=AQUI + '/saida/predio-empilhado-' + nome + '.png')
         page.evaluate('__sala.enterRoom()')
         page.wait_for_function('__sala.mode==="fp" && !__sala.STACK.on', timeout=60000)
         assert page.evaluate('__sala.FLOORS.every(f=>f.stackLabel.style.opacity==="0")')

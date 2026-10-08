@@ -4072,7 +4072,7 @@ function attachToBone(A, boneName, obj, offset, euler = new THREE.Euler()) {
   A.root.updateMatrixWorld(true); _rootInv.copy(A.root.matrixWorld).invert();
   _boneM.multiplyMatrices(_rootInv, bone.matrixWorld);
   const at = new THREE.Vector3().setFromMatrixPosition(_boneM).add(offset);
-  _wantM.compose(at, new THREE.Quaternion().setFromEuler(euler), new THREE.Vector3(1, 1, 1));
+  _wantM.compose(at, new THREE.Quaternion().setFromEuler(euler), obj.scale);
   _boneM.invert().multiply(_wantM).decompose(obj.position, obj.quaternion, obj.scale);
   bone.add(obj); return obj;
 }
@@ -4105,7 +4105,7 @@ const CONFETTI_N = 160;
 const confetti = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.04, 0.025), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false }), CONFETTI_N);
 confetti.frustumCulled = false; confetti.userData.floor = 'show'; GROUPS.main.add(confetti);
 const CONF = Array.from({ length: CONFETTI_N }, (_, i) => ({ x: 0, y: -1, z: 0, vy: 0, ph: i, spin: 1 + (i % 5) }));
-{ const colors = ['#ffd36b', '#ff5fb7', '#6be3ff', '#b6ff6b', '#ffffff']; CONF.forEach((c, i) => confetti.setColorAt(i, new THREE.Color(colors[i % colors.length]))); }
+{ const colors = ['#ffd36b', '#ff5fb7', '#6be3ff', '#b6ff6b', '#ffffff'], hidden = new THREE.Matrix4().makeScale(0, 0, 0); CONF.forEach((c, i) => { confetti.setColorAt(i, new THREE.Color(colors[i % colors.length])); confetti.setMatrixAt(i, hidden); }); }
 function confettiBurst(n = CONFETTI_N) {
   const st = SHOW_LAYOUT.stage;
   for (let i = 0; i < n; i++) Object.assign(CONF[(SHOW.confI = ((SHOW.confI || 0) + 1) % CONFETTI_N)], { x: srnd(st.x0, st.x1), y: 2.9 + Math.random() * 0.4, z: srnd(st.z0 - 1.2, st.z1 - 0.1), vy: 0.35 + Math.random() * 0.35 });
@@ -4150,11 +4150,16 @@ function hostWalk(h, dt) {
 }
 function hostGo(h, x, z) { const p = h.P.root.position; h.path = staffPath([p.x, p.z], [x, z]) || [[x, z]]; }
 /* Ponto a 1 m do visitante, do lado de onde a atendente vem. */
-function besidePlayer(h) {
+function besidePlayer(h, avoidPeople = false) {
   const p = h.P.root.position, a = Math.atan2(p.z - fp.pos.z, p.x - fp.pos.x);
   for (const da of [0, 0.6, -0.6, 1.2, -1.2, Math.PI]) {
     const x = fp.pos.x + Math.cos(a + da), z = fp.pos.z + Math.sin(a + da);
-    if (inShow(x, z) && !roomBlocked(x, z, HOST_RADIUS)) return [x, z];
+    if (!inShow(x, z) || roomBlocked(x, z, HOST_RADIUS)) continue;
+    if (avoidPeople && [
+      ...SHOW.hosts.filter(o => o !== h).map(o => [o, 0.22]),
+      ...STAFF.members.map(o => [o, 0.22]), ...robots.map(o => [o, 0.24]),
+    ].some(([o, radius]) => (x - o.P.root.position.x) ** 2 + (z - o.P.root.position.z) ** 2 < (PR + radius) ** 2)) continue;
+    return [x, z];
   }
   return null;
 }
@@ -4176,10 +4181,11 @@ function offerDrink() {
   hostGo(h, SHOW_LAYOUT.bar.x, SHOW_LAYOUT.bar.z); showSay('Já volto com a sua bebida!'); serviceMessage(h.name + ' foi buscar sua bebida no balcão.');
 }
 function offerDance() {
-  const h = SHOW.offer; if (!h) return;
+  const h = SHOW.offer; if (!h) return false;
+  if (!startDance()) { $('hostLine').textContent = 'Não há espaço livre para dançar aqui. Dê alguns passos ou escolha uma mesa.'; return false; }
   closeOffer(60); h.state = 'dance'; h.P.pose = 'dance'; h.until = performance.now() / 1000 + 25; h.P.danceStyle = DISCO_STYLES[Math.floor(Math.random() * 3)];
-  const spot = besidePlayer(h); if (spot) { h.P.root.position.x = spot[0]; h.P.root.position.z = spot[1]; }
-  showSay('Vamos dançar!'); startDance();
+  const spot = besidePlayer(h, true); if (spot) { h.P.root.position.x = spot[0]; h.P.root.position.z = spot[1]; }
+  showSay('Vamos dançar!'); return true;
 }
 function offerSeat() {
   const h = SHOW.offer; if (!h) return;
@@ -4911,6 +4917,8 @@ function dancePose(style, b, amt) {
       armL: 0.25, armR: 0.25, fwdL: 0.35 * Math.max(0, half), fwdR: 0.35 * Math.max(0, -half), elbL: 0.7, elbR: 0.7 });
   }
   if (amt !== 1) for (const k in p) p[k] *= amt;
+  /* Um giro parcial saltaria de volta à posição inicial ao fechar os 16 tempos. */
+  if (style === 'showgirl' && amt < 1) p.turn = 0;
   return p;
 }
 const _danceQ = new THREE.Quaternion(), _danceUp = new THREE.Vector3(0, 1, 0);
@@ -4953,11 +4961,11 @@ function publishDiscoPresence() {
 }
 function startDance() {
   const show = inShow(fp.pos.x, fp.pos.z);
-  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return;
-  /* No bar do show, dança onde está; na discoteca, na pista. */
-  const spots = show ? [[fp.pos.x, fp.pos.z]] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
-  const free = spots.find(([x, z]) => !blocked(x, z));
-  if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return; }
+  if (mode !== 'fp' || (!inDisco(fp.pos.x, fp.pos.z) && !show)) return false;
+  /* No show, um passo curto desvia de quem estiver cruzando o visitante; na discoteca, usa a pista. */
+  const spots = show ? [[fp.pos.x, fp.pos.z], ...Array.from({ length: 8 }, (_, i) => [fp.pos.x + Math.cos(i * Math.PI / 4) * 0.65, fp.pos.z + Math.sin(i * Math.PI / 4) * 0.65])] : [[clamp(fp.pos.x, -2.2, 2.2), clamp(fp.pos.z, 8.5, 11.8)], [0, 8.5], [-2.1, 8.5], [2.1, 8.5]];
+  const free = spots.find(([x, z]) => (!show || inShow(x, z)) && !blocked(x, z));
+  if (!free) { $('discoMsg').textContent = 'A pista está cheia aqui. Dê alguns passos e tente de novo.'; return false; }
   fp.pos.set(free[0], 0, free[1]);
   if (!DISCO.player) { DISCO.player = makePerson(10 + myLook); DISCO.player.root.visible = false; }
   DISCO.dancing = true; mode = 'dance';
@@ -4968,6 +4976,7 @@ function startDance() {
   cross.hidden = true; $('discoDance').textContent = 'Parar de dançar'; $('discoDance').setAttribute('aria-pressed', 'true');
   $('discoMsg').textContent = 'Você está dançando! Mande emojis para animar a pista.';
   loadDancer(); publishDiscoPresence();
+  return true;
 }
 function stopDance() {
   DISCO.dancing = false; if (DISCO.player) DISCO.player.root.visible = false;
@@ -5506,20 +5515,40 @@ for (const f of FLOORS) { f.layer = 1 + f.n - 40; f.stackOffset = new THREE.Vect
 hemi.layers.enableAll();
 const WALL_GROUP_FLOOR = new Map(Object.keys(WALL_INFO).map(k => [GROUPS[k], groupFloorKey(k)]));
 const _stackV = new THREE.Vector3();
+const STACK_PERSON_FLOOR = new WeakMap();
+function stackPersonFloor(P) {
+  if (!P || !P.root) return;
+  const f = floorAt(P.root.position.x, P.root.position.z);
+  STACK_PERSON_FLOOR.set(P.root, f);
+  /* A caneca dos modelos importados acompanha a mão, mas fica fora do grupo do corpo. */
+  if (P.cup) STACK_PERSON_FLOOR.set(P.cup, f);
+}
 /* Marca cada objeto com a camada do seu andar (a camada 0 continua, para sombras e vista normal). */
 function floorOfObject(o) {
   for (let p = o; p; p = p.parent) {
+    const person = STACK_PERSON_FLOOR.get(p); if (person) return person;
     if (p.userData.floor) return p.userData.floor;
     const g = WALL_GROUP_FLOOR.get(p); if (g) return g;
   }
   o.getWorldPosition(_stackV); return floorAt(_stackV.x, _stackV.z);
 }
 function assignLayers() {
-  scene.traverse(o => {
+  /* Braços, roupas e objetos na mão pertencem ao andar do corpo inteiro, inclusive junto à porta. */
+  robots.forEach(r => stackPersonFloor(r.P));
+  for (const member of STAFF.members) { stackPersonFloor(member.P); STACK_PERSON_FLOOR.set(member.tray, floorAt(member.P.root.position.x, member.P.root.position.z)); }
+  stackPersonFloor(DISCO.player);
+  for (const n of [...SHOW.dancers, ...SHOW.hosts]) stackPersonFloor(n.P);
+  if (WELCOME.npc) stackPersonFloor(WELCOME.npc.P);
+  for (const v of MP.vis.values()) stackPersonFloor(v.A);
+  function visit(o) {
+    /* traverse() não interrompe os descendentes: exclui o hotel e a câmera por inteiro. */
     if (o === EXT.group || o === camera) return;
-    if (!(o.isMesh || o.isSprite || o.isPoints || o.isLine || o.isLight) || o.userData.floorFixed || o === hemi) return;
-    o.layers.mask = 1 | (1 << FLOOR[floorOfObject(o)].layer);
-  });
+    if ((o.isMesh || o.isSprite || o.isPoints || o.isLine || o.isLight) && !o.userData.floorFixed && o !== hemi) {
+      o.layers.mask = 1 | (1 << FLOOR[floorOfObject(o)].layer);
+    }
+    for (const child of o.children) visit(child);
+  }
+  visit(scene);
 }
 function stackActive() {
   return (!inRoom && orbit.view === 'inside' && (mode === 'orbit' || mode === 'tween')) || (mode === 'tween' && STACK.keep);
@@ -5528,16 +5557,29 @@ function stackActive() {
 function stackShift(v, x, z) { if (STACK.on) v.add(FLOOR[floorAt(x, z)].stackOffset); return v; }
 function renderStacked() {
   assignLayers();
-  const base = camera.position.clone(), bg = scene.background;
-  /* Fundo de cor única faria o three.js apagar a tela a cada passada: limpa uma vez com a cor dele. */
-  renderer.setClearColor(bg, 1); scene.background = null;
-  renderer.autoClear = false; renderer.clear();
-  for (const f of FLOORS) {
-    camera.position.copy(base).sub(f.stackOffset); camera.updateMatrixWorld();
-    setWalls(false); camera.layers.set(f.layer);
-    renderer.render(scene, camera);
+  const base = camera.position.clone(), bg = scene.background, cameraMask = camera.layers.mask;
+  const autoClear = renderer.autoClear, clearColor = renderer.getClearColor(new THREE.Color()), clearAlpha = renderer.getClearAlpha();
+  const visibility = [skyFar, skyMid, ...TRAFFIC, ...Object.keys(WALL_INFO).map(k => GROUPS[k])].map(o => [o, o.visible]);
+  const updateShadows = renderer.shadowMap.needsUpdate; let shadowsUpdated = false, completed = false;
+  try {
+    /* Fundo de cor única faria o three.js apagar a tela a cada passada: limpa uma vez com a cor dele. */
+    if (bg && bg.isColor) renderer.setClearColor(bg, 1); scene.background = null;
+    renderer.autoClear = false; renderer.clear();
+    for (const f of FLOORS) {
+      camera.position.copy(base).sub(f.stackOffset); camera.updateMatrixWorld();
+      setWalls(false); camera.layers.set(f.layer);
+      /* O three.js consome needsUpdate no primeiro desenho; os demais andares também precisam atualizar suas sombras. */
+      renderer.shadowMap.needsUpdate = updateShadows;
+      renderer.render(scene, camera);
+      if (updateShadows && !renderer.shadowMap.needsUpdate) shadowsUpdated = true;
+    }
+    completed = true;
+  } finally {
+    camera.position.copy(base); camera.updateMatrixWorld(); camera.layers.mask = cameraMask;
+    renderer.autoClear = autoClear; renderer.setClearColor(clearColor, clearAlpha); scene.background = bg;
+    for (const [o, visible] of visibility) o.visible = visible;
+    renderer.shadowMap.needsUpdate = updateShadows && (!completed || !shadowsUpdated);
   }
-  camera.position.copy(base); camera.updateMatrixWorld(); camera.layers.enableAll(); renderer.autoClear = true; scene.background = bg;
 }
 /* Placas com o número e o nome de cada andar, ao lado do corte do prédio. */
 for (const f of FLOORS) { f.stackLabel = mkLabel('floor'); f.stackLabel.firstChild.textContent = f.n + 'º andar'; f.stackLabel.lastChild.textContent = f.name; }
@@ -5548,7 +5590,7 @@ function updateStackLabels() {
     if (!STACK.on) { el.style.opacity = '0'; continue; }
     const [cx, cz] = ROOM_CENTER[f.key], half = f.key === 'office' ? 8 : 4;
     _stackL.set(cx - half - 0.6, f.key === 'office' ? 0.2 : 1.4, cz).add(f.stackOffset).project(camera);
-    if (_stackL.z > 1) { el.style.opacity = '0'; continue; }
+    if (!Number.isFinite(_stackL.x + _stackL.y + _stackL.z) || _stackL.z < -1 || _stackL.z > 1) { el.style.opacity = '0'; continue; }
     el.style.opacity = '1';
     el.style.transform = `translate(${(_stackL.x * 0.5 + 0.5) * innerWidth}px,${(-_stackL.y * 0.5 + 0.5) * innerHeight}px) translate(-100%,-50%)`;
   }
