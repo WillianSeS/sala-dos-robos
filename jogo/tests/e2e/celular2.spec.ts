@@ -1,7 +1,7 @@
 /* Fase 2 no celular (Pixel 7, toque): botão de sentar, ✋ no elevador (chamar e painel), viagem pelo painel,
    mapa pelo botão do topo e interface sem sobreposição em retrato e paisagem. */
 import { expect, test } from '@playwright/test';
-import { abrir, avancarAte, estado, naCabine, posicionar, semSobreposicao, vigiarConsole } from './ajuda';
+import { abrir, avancarAte, estado, naCabine, passos, posicionar, semSobreposicao, vigiarConsole } from './ajuda';
 
 test.setTimeout(900_000);
 
@@ -52,7 +52,7 @@ test('celular: sentar pelo 🪑, elevador pelo ✋ e pelo painel de toque, mapa 
   // paisagem
   await page.setViewportSize({ width: 915, height: 412 });
   await page.waitForTimeout(600);
-  await avancarAte(page, () => true, { max: 3 });
+  await passos(page, 3); // no modo gravar, o resize limpa o canvas e exige um novo quadro
   await semSobreposicao(page);
   await test.info().attach('paisagem', { body: await page.screenshot({ timeout: 240_000 }), contentType: 'image/png' });
   expect(msgs).toEqual([]);

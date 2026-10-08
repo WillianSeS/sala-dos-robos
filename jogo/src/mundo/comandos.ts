@@ -41,6 +41,9 @@ export const comandosJogador = {
   fase: 'livre' as 'livre' | 'aproximando' | 'sentando' | 'sentado' | 'levantando',
 };
 
+/** A cortina da vista externa só abre depois do primeiro quadro da câmera da fachada. */
+export const comandosVista = { externaPronta: false };
+
 /** Pontos fixos do elevador (iguais em todos os andares). */
 export const CABINE = { x0: 2.1, x1: 4.3, z0: 10.0, z1: 12.2 };
 export const PONTO_CABINE: Ponto = { x: 3.2, z: 10.95, yaw: Math.PI }; // de frente para as portas (a câmera fica atrás, com espaço)

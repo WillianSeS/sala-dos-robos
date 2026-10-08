@@ -178,8 +178,9 @@ test('4. sentar e levantar num sofá (tecla C) e na poltrona (tecla E)', async (
   await segurar(page, ['KeyD'], 30);
   e = await estado(page);
   expect(e.velocidade).toBeGreaterThan(0.5);
-  // poltrona, pela interação comum (E)
-  await posicionar(page, -1.0, -0.95, -Math.PI / 2);
+  // poltrona, pela interação comum (E): aproxima pela frente, voltada para oeste.
+  // O ponto atrás do encosto fica dentro do colisor e a física o empurra para fora do alcance.
+  await posicionar(page, -2.15, -0.72, Math.PI / 2);
   await avancarAte(page, (s) => s.ui.dica === 'Sentar', { max: 20, msg: 'poltrona perto' });
   await page.keyboard.press('KeyE');
   await avancarAte(page, (s) => s.fase === 'sentado', { max: 200, msg: 'sentar na poltrona' });
@@ -191,6 +192,17 @@ test('4. sentar e levantar num sofá (tecla C) e na poltrona (tecla E)', async (
 
 test('5. vistas: aérea (B) com corte das paredes e externa com o andar destacado', async ({ page }) => {
   const msgs = vigiarConsole(page);
+  // Simula uma conexão lenta somente para a fachada desta página.
+  let liberarModelo = () => {};
+  let modeloPedido = false;
+  const modeloLiberado = new Promise<void>((resolve) => {
+    liberarModelo = resolve;
+  });
+  await page.route('**/modelos/predio.glb', async (rota) => {
+    modeloPedido = true;
+    await modeloLiberado;
+    await rota.continue();
+  });
   await abrir(page, { quadro: true });
   await page.keyboard.press('KeyB');
   await passos(page, 12);
@@ -207,6 +219,16 @@ test('5. vistas: aérea (B) com corte das paredes e externa com o andar destacad
   expect((await estado(page)).ui.vista).toBe('normal');
   // externa
   await page.getByTestId('botao-externa').click();
+  try {
+    await expect.poll(() => modeloPedido).toBe(true);
+    await passos(page, 10);
+    await page.waitForTimeout(600);
+    const pendente = await estado(page);
+    expect(pendente.ui.vista).toBe('externa');
+    expect(pendente.ui.cortina).toBe(true); // não revela a cena anterior enquanto a fachada carrega
+  } finally {
+    liberarModelo();
+  }
   await avancarAte(page, (s) => s.ui.vista === 'externa' && !s.ui.cortina, { max: 100, msg: 'vista externa' });
   await passos(page, 10);
   e = await estado(page);

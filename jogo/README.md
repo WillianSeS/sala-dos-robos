@@ -4,6 +4,10 @@ Nova versão do jogo, em **TypeScript + React + Vite + Three.js + React Three Fi
 
 Estado atual: **Fase 2, estrutura do edifício** (sobre a Fase 1, a prova de movimentação, já validada).
 
+**Abrir a versão de teste:** https://willianses.github.io/sala-dos-robos/jogo3d/
+
+Esta versão está sendo reconstruída por fases. Os robôs, minijogos, interações e multiplayer entram nas fases seguintes; o jogo antigo continua disponível em https://willianses.github.io/sala-dos-robos/.
+
 O que a Fase 2 traz:
 - **Entrada cinematográfica.**
   - Fachada 3D da torre de 44 andares, com letreiro, coroa dourada, rua com carros e cidade iluminada.

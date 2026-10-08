@@ -11,7 +11,7 @@ import { useModelo } from '../motor/carregar';
 import type { Preset } from '../motor/qualidade';
 import { prepararCena } from './Andar';
 import { Carros } from './Carros';
-import { planoCorte } from './comandos';
+import { comandosVista, planoCorte } from './comandos';
 import { fachadaProcedural } from './fachada';
 import { chegarAoPredio } from './navegacao';
 import { telemetria } from '../testes/telemetria';
@@ -60,6 +60,7 @@ export function Exterior({ preset }: { preset: Preset }) {
     planoCorte.constant = 1000;
     if (useJogo.getState().etapa !== 'jogo') useJogo.getState().setCarregado(true);
     return () => {
+      comandosVista.externaPronta = false;
       for (const lista of Object.values(dados.destaque)) for (const d of lista) d.mat.emissiveIntensity = d.base;
     };
   }, [dados]);
@@ -140,6 +141,7 @@ export function Exterior({ preset }: { preset: Preset }) {
       telemetria.camera.modo = 'externa';
       telemetria.camera.pos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
     }
+    if (jogo.vista === 'externa') comandosVista.externaPronta = true;
     // andar atual pulsando na fachada (vista externa)
     for (const [n, lista] of Object.entries(dados.destaque)) {
       const atual = jogo.vista === 'externa' && Number(n) === jogo.andar;

@@ -194,8 +194,12 @@ test.describe('controles (quadro a quadro, entradas reais de teclado e mouse)', 
     p = (await estado(page)).pos;
     expect(p.z).toBeGreaterThan(4.6); // passou para o corredor
     await segurar(page, ['KeyW'], 75);
-    p = (await estado(page)).pos;
-    expect(p.z).toBeLessThan(6.35); // parede do fim do corredor
+    const hall = await estado(page);
+    p = hall.pos;
+    // Na Fase 2 o corredor abre no hall: a próxima barreira é o elevador fechado.
+    expect(p.z).toBeGreaterThanOrEqual(9.4);
+    expect(p.z).toBeLessThan(9.65);
+    expect(hall.ui.elevador.fase).toBe('fechado');
   });
 
   test('8. alterna entre primeira e terceira pessoa (tecla V e botão)', async ({ page }) => {

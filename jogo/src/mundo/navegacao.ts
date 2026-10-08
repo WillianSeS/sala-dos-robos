@@ -2,7 +2,7 @@
    vista externa e volta ao início. As transições usam a cortina (escurecimento) para esconder os cortes. */
 import { useJogo } from '../estado/jogo';
 import { INFO_ANDAR, type NumeroAndar } from './andares';
-import { comandosElevador, comandosJogador, dentroDaCabine, PONTO_CABINE, PONTO_PAINEL } from './comandos';
+import { comandosElevador, comandosJogador, comandosVista, dentroDaCabine, PONTO_CABINE, PONTO_PAINEL } from './comandos';
 import { telemetria } from '../testes/telemetria';
 
 const esperar = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -88,8 +88,17 @@ export function vistaExterna(ligar: boolean) {
   const jogo = useJogo.getState();
   if (jogo.etapa !== 'jogo') return;
   jogo.setPainel(null);
-  void comCortina(() => {
+  void comCortina(async () => {
+    if (ligar) comandosVista.externaPronta = false;
     useJogo.getState().setVista(ligar ? 'externa' : 'normal');
+    if (ligar) {
+      // O GLB pode ainda estar carregando: não revela a cena com a câmera do interior.
+      while (!comandosVista.externaPronta) {
+        const atual = useJogo.getState();
+        if (atual.vista !== 'externa' || atual.etapa !== 'jogo') break;
+        await esperar(20);
+      }
+    }
   }, 400);
 }
 

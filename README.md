@@ -8,12 +8,16 @@ Hotel **Las Vegas Night** em 3D, com uma sala de trading no 40º andar. Cada rob
 
 ## Nova versão 3D (em desenvolvimento)
 
+**Prévia da Fase 2:** https://willianses.github.io/sala-dos-robos/jogo3d/
+
 A pasta [`jogo/`](jogo/) guarda a reconstrução em TypeScript + React + Three.js (React Three Fiber) + Rapier, feita por fases. A **Fase 1** já está pronta:
 - uma sala com medidas reais, modelada no Blender;
 - um personagem que anda, corre e respira parado;
 - câmeras em 1ª e 3ª pessoa;
 - colisões e uma porta;
 - controles de computador e de celular.
+
+A **Fase 2** acrescenta a fachada, a entrada cinematográfica, o elevador entre cinco andares, o mapa, os menus, os assentos e as vistas aérea e externa.
 
 Veja [`jogo/README.md`](jogo/README.md) e [`jogo/docs/VIABILIDADE.md`](jogo/docs/VIABILIDADE.md). O site publicado acima continua sendo a versão oficial até a nova cobrir tudo.
 
