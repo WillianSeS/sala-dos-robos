@@ -121,9 +121,9 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .held-bar{position:fixed;right:16px;bottom:calc(104px + env(safe-area-inset-bottom,0px));width:218px;box-sizing:border-box;background:#0e1719ed;border:1px solid #8eb5a466;border-radius:12px;padding:10px;display:grid;gap:7px;z-index:3}.held-bar p{margin:0;font-size:11px;color:var(--muted)}.held-bar .pool-row{justify-content:flex-start}.service-note{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;padding:9px 13px;border:1px solid var(--line);background:#101917ed;border-radius:10px;font-size:11px;z-index:4;text-align:center}
 .lounge-panel{border-color:#be984d88;background:#15120ded}.lounge-panel b{font-size:20px}.pl.staff{border-color:#d9bf80}.pl.staff .v{color:#e1cc99}
 @media(max-width:600px){.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.disco-shortcuts{max-width:270px}.held-bar{width:210px;bottom:calc(95px + env(safe-area-inset-bottom,0px))}.service-note{top:calc(245px + env(safe-area-inset-top,0px));width:max-content;max-width:calc(100% - 32px)}}
-.elev-floors{display:grid;gap:8px}.elev-floor{text-align:left}
-.elev-ride{position:fixed;inset:0;background:#050607;display:grid;place-content:center;justify-items:center;gap:10px;z-index:8;pointer-events:none}
-.elev-ride b{font:700 64px var(--mono);color:#ffb347;letter-spacing:.04em}.elev-ride span{font-size:14px;color:var(--muted)}
+.leisure label.check{display:flex;align-items:center;gap:8px}.elev-floors{display:grid;gap:8px}.elev-floor{text-align:left}
+.elev-ride{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#0b0c0eee;border:1px solid #d9b46a88;border-radius:12px;padding:8px 16px;display:grid;justify-items:center;gap:2px;z-index:4;pointer-events:none}
+.elev-ride b{font:700 30px var(--mono);color:#ffb347;letter-spacing:.04em}.elev-ride span{font-size:11px;color:var(--muted)}
 .spotify-dock{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100% - 32px));box-sizing:border-box;background:#0d1411ee;border:1px solid #1ed76066;border-radius:12px;padding:8px;display:grid;gap:6px;z-index:4}
 .spotify-head{display:flex;gap:6px;align-items:center}.spotify-head b{flex:1;font-size:12px}.spotify-head .btn.sm{padding:6px 9px;font-size:11px}
 .spotify-box iframe{display:block;width:100%;height:152px;border:0;border-radius:10px}
@@ -185,13 +185,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <div class="pool-row"><button class="btn sm" id="casinoDeal">Nova rodada</button><button class="btn sm" id="casinoHit">Pedir carta</button><button class="btn sm" id="casinoStand">Parar</button><button class="btn sm" id="casinoReset" hidden>Repor fichas</button></div>
 </section>
 <section class="talk leisure" id="music" hidden role="dialog" aria-label="Música da sala">
-  <div class="talk-h"><div><b>Música da sala</b><span>Som ambiente neste aparelho</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
-  <label>Estilo<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo</option></select></label>
-  <label>Escolher música do aparelho<input id="musicFile" type="file" accept="audio/*"></label>
+  <div class="talk-h"><div><b>📻 Rádio da sala</b><span>Ligar, desligar e trocar a estação vale para todos na sala</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
+  <label>Estação<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo (só para mim)</option></select></label>
+  <label class="check"><input id="radioMute" type="checkbox"> Silenciar a rádio só para mim</label>
+  <label>Música do aparelho (só você ouve)<input id="musicFile" type="file" accept="audio/*"></label>
   <label>Volume<input id="musicVolume" type="range" min="0" max="100" value="25"></label>
-  <label>Spotify: link de playlist, álbum, artista ou música<input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…"></label>
+  <label>Spotify (só você ouve): link de playlist, álbum, artista ou música<input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…"></label>
   <div class="pool-row"><button class="btn sm" id="spotifyLoad">🎧 Tocar no Spotify</button></div>
-  <p id="musicMsg" role="status">Escolha um estilo e toque em Reproduzir.</p>
+  <p id="musicMsg" role="status">Escolha uma estação e toque em Reproduzir: todos na sala vão ouvir.</p>
   <div class="pool-row"><button class="btn sm" id="musicPlay">Reproduzir</button><button class="btn sm" id="musicStop">Parar música</button></div>
 </section>
 <section class="talk leisure" id="elevator" hidden role="dialog" aria-label="Elevador do prédio">
@@ -629,6 +630,26 @@ TEX.skyMid = canvasTex(2048, 1024, (g, w, h) => {
 });
 
 
+/* ================= prédio: um andar por sala, ligados por elevador ================= */
+/* As salas não têm passagens entre si; cada uma tem a porta do elevador numa parede.
+   wx: superfície interna da parede; dir: sentido para dentro da sala (no eixo x).
+   A cabine fica do lado de fora da parede: CAB.depth de fundo e 2 × CAB.half de largura. */
+const FLOORS = [
+  { key: 'office', n: 40, name: 'Escritório', sub: 'PREGÃO', wx: 8, dir: -1, z: -4.8, group: 'wallRight' },
+  { key: 'games', n: 41, name: 'Sala de jogos', sub: 'SINUCA • 21', wx: 11.96, dir: -1, z: 8, group: 'gamesRight' },
+  { key: 'disco', n: 42, name: 'Discoteca', sub: 'PISTA • DJ', wx: -3.96, dir: 1, z: 8, group: 'clubLeft' },
+  { key: 'lounge', n: 43, name: 'Lounge', sub: 'COBERTURA', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+];
+for (const f of FLOORS) { f.x = f.wx + f.dir * 0.7; f.yaw = f.dir < 0 ? Math.PI / 2 : -Math.PI / 2; f.open = 0; f.openUntil = 0; }
+const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
+const FLOOR = Object.fromEntries(FLOORS.map(f => [f.key, f]));
+const CAB = { depth: 1.59, half: 0.75, door: 0.57, center: 0.84 };
+/* Trechos de parede (centro, comprimento) ao longo de z, com o vão da porta do elevador. */
+function wallRuns(z0, z1, key) {
+  const f = FLOOR[key], a = f.z - CAB.door, b = f.z + CAB.door;
+  return [[z0, a], [b, z1]].filter(([u, v]) => v - u > 0.001).map(([u, v]) => [(u + v) / 2, v - u]);
+}
+
 /* ================= arquitetura ================= */
 /* sala: x -8..8, z -6..6, pé-direito 3,2 m. Fundo (z=-6) = parede de ripas com telão. */
 const RW = 8, RD = 6, RH = 3.2;
@@ -680,8 +701,11 @@ const skyMid = new THREE.Mesh(new THREE.PlaneGeometry(130, 65), new THREE.MeshBa
 skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.add(skyMid);
 
 /* parede direita (elevador) e parede da frente */
-mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
-B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
+for (const [z, len] of wallRuns(-RD, RD, 'office')) {
+  mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, z, 0, -Math.PI / 2, 0, len, RH, 1, false);
+  B(mat.base, 7.99, 0.05, z, 0.02, 0.1, len, { group: 'wallRight', cast: false });
+}
+mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, 2.75, FLOOR.office.z, 0, -Math.PI / 2, 0, CAB.door * 2, 0.9, 1, false);
 /* parede da frente inteira: cada sala fica num andar e só se chega pelo elevador */
 mesh(G.plane, mat.plasterLight, GROUPS.wallFront, 0, RH / 2, RD, 0, Math.PI, 0, 16, RH, 1, false);
 B(mat.base, 0, 0.05, 5.99, 16, 0.1, 0.02, { group: 'wallFront', cast: false });
@@ -972,7 +996,8 @@ for (const [key, p, n] of [
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, clubFloor, GROUPS.main, 0, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 mesh(G.plane, clubWall, GROUPS.main, 0, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
-B(clubWall, -4, 1.6, 10, 0.08, RH, 8, { group: 'clubLeft', cast: false });
+for (const [z, len] of wallRuns(6, 14, 'disco')) B(clubWall, -4, 1.6, z, 0.08, RH, len, { group: 'clubLeft', cast: false });
+B(clubWall, -4, 2.75, FLOOR.disco.z, 0.08, 0.9, CAB.door * 2, { group: 'clubLeft', cast: false });
 B(clubWall, 4, 1.6, 10, 0.08, RH, 8, { group: 'clubRight', cast: false });
 B(clubWall, 0, 1.6, 14, 8, RH, 0.08, { group: 'clubBack', cast: false });
 /* Parede fechada do lado do escritório (atrás da parede dele, que só tem uma face). */
@@ -980,7 +1005,7 @@ B(clubWall, 0, 1.6, 6.05, 8, RH, 0.06, { group: 'clubFront', cast: false });
 const clubNeon = color => M({ color: '#160d22', emissive: color, emissiveIntensity: 2.2, roughness: 0.7 });
 const pinkNeon = clubNeon('#fc59df'), blueNeon = clubNeon('#427aff');
 for (const [x, group] of [[-3.95, 'clubLeft'], [3.95, 'clubRight']]) {
-  B(x < 0 ? pinkNeon : blueNeon, x, 0.08, 10, 0.04, 0.04, 7.9, { group, cast: false });
+  for (const [z, len] of x < 0 ? wallRuns(6.05, 13.95, 'disco') : [[10, 7.9]]) B(x < 0 ? pinkNeon : blueNeon, x, 0.08, z, 0.04, 0.04, len, { group, cast: false });
   B(x < 0 ? pinkNeon : blueNeon, x, 2.9, 10, 0.04, 0.04, 7.9, { group, cast: false });
   for (const z of [7.3, 9.5, 11.7, 13.7]) B(x < 0 ? pinkNeon : blueNeon, x, 1.5, z, 0.04, 1.5, 0.05, { group, cast: false });
 }
@@ -1046,7 +1071,8 @@ for (const [key, p, n] of [
   ['gamesLeft', [4, 1.6, 10], [1, 0, 0]], ['gamesFront', [10, 1.6, 6], [0, 0, 1]], ['gamesRight', [12, 1.6, 10], [-1, 0, 0]], ['gamesBack', [8, 1.6, 14], [0, 0, -1]],
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
-B(gameWall, 12, 1.6, 10, 0.08, RH, 8, { group: 'gamesRight', cast: false });
+for (const [z, len] of wallRuns(6, 14, 'games')) B(gameWall, 12, 1.6, z, 0.08, RH, len, { group: 'gamesRight', cast: false });
+B(gameWall, 12, 2.75, FLOOR.games.z, 0.08, 0.9, CAB.door * 2, { group: 'gamesRight', cast: false });
 // Parede inteira para o lounge: cada sala fica num andar do prédio.
 B(gameWall, 8, 1.6, 14, 8, RH, 0.08, { group: 'gamesBack', cast: false });
 B(gameWall, 4.01, 1.6, 10, 0.02, RH, 8, { group: 'gamesLeft', cast: false });
@@ -1101,13 +1127,17 @@ for (const [key, p, n] of [
 mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 18, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 mesh(G.plane, mat.ceiling, GROUPS.main, 8, RH, 18, Math.PI / 2, 0, 0, 8, 8, 1, false);
 B(loungeMat.wall, 4, 1.6, 18, 0.08, RH, 8, { group: 'loungeLeft', cast: false });
-B(loungeMat.wall, 12, 1.6, 18, 0.08, RH, 8, { group: 'loungeRight', cast: false });
+for (const [z, len] of wallRuns(14, 22, 'lounge')) B(loungeMat.wall, 12, 1.6, z, 0.08, RH, len, { group: 'loungeRight', cast: false });
+B(loungeMat.wall, 12, 2.75, FLOOR.lounge.z, 0.08, 0.9, CAB.door * 2, { group: 'loungeRight', cast: false });
 B(loungeMat.wall, 8, 1.6, 22, 8, RH, 0.08, { group: 'loungeBack', cast: false });
 // Painéis de madeira, rodapés e filetes de latão deixam o ambiente acolhedor.
 for (const [x, group] of [[4.045, 'loungeLeft'], [11.955, 'loungeRight']]) {
-  B(mat.walnut, x, 0.46, 18, 0.04, 0.86, 7.9, { group, cast: false });
-  B(loungeMat.brass, x, 0.91, 18, 0.05, 0.025, 7.9, { group, cast: false });
-  B(mat.base, x, 0.055, 18, 0.06, 0.11, 7.9, { group, cast: false });
+  // Na parede da direita os painéis param no vão do elevador.
+  for (const [z, len] of x > 8 ? wallRuns(14.05, 21.95, 'lounge') : [[18, 7.9]]) {
+    B(mat.walnut, x, 0.46, z, 0.04, 0.86, len, { group, cast: false });
+    B(loungeMat.brass, x, 0.91, z, 0.05, 0.025, len, { group, cast: false });
+    B(mat.base, x, 0.055, z, 0.06, 0.11, len, { group, cast: false });
+  }
   B(loungeMat.warm, x, 2.98, 18, 0.035, 0.02, 7.8, { group, cast: false });
 }
 B(mat.walnut, 8, 0.46, 21.95, 7.9, 0.86, 0.04, { group: 'loungeBack', cast: false });
@@ -1247,53 +1277,62 @@ function stepLoungeVisual(dt, t) {
   }
 }
 
-/* ================= prédio: um andar por sala, ligados por elevador ================= */
-/* As salas não têm mais passagens entre si; cada uma tem a porta do elevador numa parede.
-   wx: superfície interna da parede; n: sentido para dentro da sala (no eixo x). */
-const FLOORS = [
-  { key: 'office', n: 40, name: 'Escritório', sub: 'PREGÃO', wx: 8, dir: -1, z: -4.8, group: 'wallRight' },
-  { key: 'games', n: 41, name: 'Sala de jogos', sub: 'SINUCA • 21', wx: 11.96, dir: -1, z: 8, group: 'gamesRight' },
-  { key: 'disco', n: 42, name: 'Discoteca', sub: 'PISTA • DJ', wx: -3.96, dir: 1, z: 8, group: 'clubLeft' },
-  { key: 'lounge', n: 43, name: 'Lounge', sub: 'COBERTURA', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
-];
-for (const f of FLOORS) { f.x = f.wx + f.dir * 0.7; f.yaw = f.dir < 0 ? Math.PI / 2 : -Math.PI / 2; f.open = 0; f.openUntil = 0; }
-const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
-const FLOOR = Object.fromEntries(FLOORS.map(f => [f.key, f]));
-
-/* Interior da cabine pintado em perspectiva: aparece quando as portas abrem. */
-const elevCabTex = canvasTex(256, 512, (g, w, h) => {
-  g.fillStyle = '#1d2226'; g.fillRect(0, 0, w, h);
-  const ix = 52, iy = 70, iw = w - 104, ih = h - 150;
-  g.fillStyle = '#9aa3a8'; g.beginPath(); g.moveTo(0, 0); g.lineTo(ix, iy); g.lineTo(ix, iy + ih); g.lineTo(0, h); g.fill();
-  g.beginPath(); g.moveTo(w, 0); g.lineTo(ix + iw, iy); g.lineTo(ix + iw, iy + ih); g.lineTo(w, h); g.fill();
-  g.fillStyle = '#7d878c'; g.fillRect(ix, iy, iw, ih);
-  g.fillStyle = '#c4cbcf'; g.fillRect(ix + 8, iy + 8, iw - 16, ih - 16);
-  g.fillStyle = '#3a3029'; g.beginPath(); g.moveTo(0, h); g.lineTo(ix, iy + ih); g.lineTo(ix + iw, iy + ih); g.lineTo(w, h); g.fill();
-  g.fillStyle = '#fff6e2'; g.beginPath(); g.moveTo(0, 0); g.lineTo(ix, iy); g.lineTo(ix + iw, iy); g.lineTo(w, 0); g.fill();
-  g.strokeStyle = '#d9b46a'; g.lineWidth = 6; g.beginPath(); g.moveTo(ix + 10, iy + ih * 0.55); g.lineTo(ix + iw - 10, iy + ih * 0.55); g.stroke();
+/* ================= elevador: portas, cabine e indicadores de andar ================= */
+/* A cabine fica atrás do vão da parede. Materiais com brilho próprio dispensam luzes extras. */
+const elevSteelTex = canvasTex(128, 256, (g, w, h) => {
+  const grad = g.createLinearGradient(0, 0, w, 0); grad.addColorStop(0, '#8e979c'); grad.addColorStop(0.5, '#b9c0c4'); grad.addColorStop(1, '#8a9398');
+  g.fillStyle = grad; g.fillRect(0, 0, w, h);
+  for (let x = 0; x < w; x += 2) { g.fillStyle = `rgba(255,255,255,${0.03 + Math.random() * 0.05})`; g.fillRect(x, 0, 1, h); }
+  g.fillStyle = '#6c757a'; g.fillRect(0, h * 0.5 - 1, w, 2);
 });
-const elevCabMat = new THREE.MeshBasicMaterial({ map: elevCabTex, toneMapped: false, color: '#c9c9c9' });
-const elevDoorMat = MC('#9aa1a6', 0.38, 0.45);
+const elevFloorTex = canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = '#2b2622'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 260; i++) { g.fillStyle = `rgba(${200 + Math.random() * 55},${180 + Math.random() * 50},150,${Math.random() * 0.12})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+});
+const selfLit = (tex, k) => M({ map: tex, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: k, roughness: 0.45, metalness: 0.1 });
+const elevMat = {
+  steel: selfLit(elevSteelTex, 0.55), floor: selfLit(elevFloorTex, 0.35),
+  ceiling: M({ color: '#2a2c2e', emissive: '#fff4de', emissiveIntensity: 1.6, roughness: 0.9 }),
+  brass: M({ color: '#b99655', emissive: '#4a3a1e', roughness: 0.3, metalness: 0.7 }),
+};
+function elevDisplayDraw(f, n, arrow = '') {
+  const g = f.display.userData.g, w = 256, h = 96;
+  g.fillStyle = '#060708'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#ffb347'; g.font = '700 64px ' + FONT; g.textAlign = 'center'; g.fillText(arrow + n, w / 2, 70);
+  f.display.needsUpdate = true;
+}
 for (const f of FLOORS) {
-  const { wx, dir, z } = f, at = off => wx + dir * off, ry = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
-  mesh(G.plane, elevCabMat, GROUPS[f.group], at(0.012), 1.1, z, 0, ry, 0, 1.12, 2.2, 1, false);
-  /* Folhas de aço: encolhem para os batentes quando abrem. */
-  f.leaves = [-1, 1].map(s => mesh(G.box, elevDoorMat, GROUPS[f.group], at(0.03), 1.1, z + s * 0.28, 0, 0, 0, 0.03, 2.2, 0.56, false));
+  const { wx, dir, z } = f, at = off => wx + dir * off, out = off => wx - dir * off, ry = dir > 0 ? Math.PI / 2 : -Math.PI / 2, o = { group: f.group, cast: false };
+  /* Cabine: piso, teto iluminado, fundo, laterais e corrimão. */
+  B(elevMat.floor, out(CAB.depth / 2), 0.0, z, CAB.depth, 0.02, CAB.half * 2, o);
+  B(elevMat.ceiling, out(CAB.depth / 2), 2.46, z, CAB.depth, 0.03, CAB.half * 2, o);
+  B(elevMat.steel, out(CAB.depth + 0.02), 1.23, z, 0.04, 2.46, CAB.half * 2 + 0.08, o);
+  for (const s of [-1, 1]) B(elevMat.steel, out(CAB.depth / 2), 1.23, z + s * (CAB.half + 0.02), CAB.depth, 2.46, 0.04, o);
+  B(elevMat.steel, out(0.06), 2.38, z, 0.04, 0.16, CAB.half * 2, o);
+  S(G.cyl, elevMat.brass, out(CAB.depth - 0.05), 0.95, z, Math.PI / 2, 0, 0, 0.02, CAB.half * 1.7, 0.02, o);
+  for (const s of [-1, 1]) S(G.cyl, elevMat.brass, out(0.9), 0.95, z + s * (CAB.half - 0.05), 0, 0, Math.PI / 2, 0.02, 1.1, 0.02, o);
+  /* Botoeira na lateral, perto da porta, e visor do andar acima da porta, por dentro. */
+  B(mat.aluDark, out(0.35), 1.2, z - dir * (CAB.half - 0.01), 0.16, 0.42, 0.02, o);
+  for (let i = 0; i < FLOORS.length; i++) S(new THREE.CircleGeometry(0.018, 14), mat.ledWarm, out(0.35), 1.06 + i * 0.09, z - dir * (CAB.half - 0.025), 0, dir < 0 ? Math.PI : 0, 0, 1, 1, 1, { ...o, recv: false });
+  f.display = canvasTex(256, 96, null);
+  mesh(G.plane, new THREE.MeshBasicMaterial({ map: f.display, toneMapped: false }), GROUPS[f.group], out(0.09), 2.2, z, 0, -ry, 0, 0.42, 0.16, 1, false);
+  elevDisplayDraw(f, f.n);
+  /* Portas de aço no lado da sala: encolhem para os batentes quando abrem. */
+  f.leaves = [-1, 1].map(s => mesh(G.box, elevMat.steel, GROUPS[f.group], at(0.03), 1.15, z + s * 0.28, 0, 0, 0, 0.03, 2.3, 0.56, false));
   f.leaves.forEach((leaf, i) => { leaf.userData.side = i ? 1 : -1; });
-  for (const s of [-1, 1]) B(mat.aluDark, at(0.04), 1.16, z + s * 0.62, 0.08, 2.32, 0.1, { group: f.group, cast: false });
-  B(mat.aluDark, at(0.04), 2.27, z, 0.08, 0.1, 1.34, { group: f.group, cast: false });
-  B(mat.steel, at(0.005), 0.006, z, 0.7, 0.012, 1.14, { group: f.group, cast: false });
-  /* Painel de chamada ao lado da porta. */
-  B(mat.aluDark, at(0.02), 1.15, z + dir * -0.86, 0.03, 0.3, 0.14, { group: f.group, cast: false });
-  for (const dy of [-0.05, 0.06]) S(new THREE.CircleGeometry(0.025, 16), mat.ledWarm, at(0.037), 1.15 + dy, z + dir * -0.86, 0, ry, 0, 1, 1, 1, { group: f.group, cast: false, recv: false });
-  /* Indicador do andar acima da porta. */
+  for (const s of [-1, 1]) B(mat.aluDark, at(0.04), 1.16, z + s * 0.62, 0.08, 2.32, 0.1, o);
+  B(mat.aluDark, at(0.04), 2.32, z, 0.08, 0.06, 1.34, o);
+  B(mat.steel, at(0.005), 0.006, z, 0.7, 0.012, 1.14, o);
+  /* Botão de chamada ao lado da porta e indicador do andar acima dela. */
+  B(mat.aluDark, at(0.02), 1.15, z + dir * -0.86, 0.03, 0.3, 0.14, o);
+  for (const dy of [-0.05, 0.06]) S(new THREE.CircleGeometry(0.025, 16), mat.ledWarm, at(0.037), 1.15 + dy, z + dir * -0.86, 0, ry, 0, 1, 1, 1, { ...o, recv: false });
   const tex = canvasTex(512, 160, (g, w, h) => {
     g.fillStyle = '#0b0c0e'; g.fillRect(0, 0, w, h); g.strokeStyle = '#d9b46a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
     g.fillStyle = '#ffb347'; g.font = '700 92px ' + FONT; g.textAlign = 'left'; g.fillText(String(f.n), 28, 112);
     g.fillStyle = '#f1e6d0'; g.font = '700 38px ' + FONT; g.fillText(f.name.toUpperCase(), 170, 78);
     g.fillStyle = '#b8a98c'; g.font = '500 26px ' + FONT; g.fillText('ELEVADOR • ' + f.sub, 170, 120);
   });
-  mesh(G.plane, new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }), GROUPS[f.group], at(0.03), 2.58, z, 0, ry, 0, 1.3, 0.4, 1, false);
+  mesh(G.plane, new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }), GROUPS[f.group], at(0.03), 2.62, z, 0, ry, 0, 1.3, 0.4, 1, false);
 }
 
 
@@ -2193,7 +2232,7 @@ function updateLabels() {
     r.P.J.head.getWorldPosition(_hv); _hv.y += 0.42;
     const dist = camera.position.distanceTo(_hv);
     _hv.project(camera);
-    if (_hv.z > 1 || _hv.z < -1 || dist < 0.55 || !r.P.root.visible) { r.el.style.opacity = '0'; continue; }
+    if (_hv.z > 1 || _hv.z < -1 || dist < 0.55 || !r.P.root.visible || otherFloor(r.P.root.position.x, r.P.root.position.z)) { r.el.style.opacity = '0'; continue; }
     const sc = clamp(4.2 / dist, 0.42, 1.25) * (r.react && simT < r.reactT ? 1.18 : 1);
     r.el.style.opacity = '1';
     r.el.style.transform = `translate(${(_hv.x * 0.5 + 0.5) * W}px,${(-_hv.y * 0.5 + 0.5) * H}px) translate(-50%,-100%) scale(${sc.toFixed(3)})`;
@@ -2206,7 +2245,8 @@ let mode = 'orbit';
 const portrait = () => innerWidth < innerHeight;
 const orbit = { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, idle: 0 };
 if (portrait()) { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); }
-const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0 };
+/* body: para onde o corpo do personagem está virado (convenção dos avatares); segue a direção em que ele anda. */
+const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0, body: 1.78 + Math.PI };
 const EYE = 1.62, PR = 0.28;
 const keys = {};
 let locked = false, tween = null, inRoom = false;
@@ -2287,7 +2327,7 @@ canvas.addEventListener('pointerdown', e => {
     joy = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
     joyEl.hidden = false; joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.firstElementChild.style.transform = '';
   } else ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: orbit.r }; }
+  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: orbit.r, z: VIEW.zoom }; }
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
 });
 canvas.addEventListener('pointermove', e => {
@@ -2301,15 +2341,29 @@ canvas.addEventListener('pointermove', e => {
   const p = ptr.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
   if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 6, 22); return; }
+  if (ptr.size === 2 && pinch && VIEW.third && inRoom) { const [a, b] = [...ptr.values()]; VIEW.zoom = clamp(pinch.z * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 1.4, 4.5); return; }
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
 });
 const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyEl.hidden = true; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
-canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; } }, { passive: false });
+canvas.addEventListener('wheel', e => {
+  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; }
+  else if (VIEW.third && inRoom) { e.preventDefault(); VIEW.zoom = clamp(VIEW.zoom * Math.exp(e.deltaY * 0.001), 1.4, 4.5); }
+}, { passive: false });
 
 /* colisão do visitante com móveis e pessoas */
+/* Cabine do elevador: livre por dentro; o vão da porta só passa com as portas abertas. */
+function elevatorSpace(x, z, radius) {
+  for (const f of FLOORS) {
+    const d = (x - f.wx) * -f.dir, side = Math.abs(z - f.z);
+    if (d >= 0.08 + radius && d <= CAB.depth - radius && side <= CAB.half - radius) return true;
+    if (d > -0.6 && d < 0.09 + radius && side <= 0.55 - radius && f.open > 0.8) return true;
+  }
+  return false;
+}
 function wallBlocked(x, z, radius = PR) {
+  if (elevatorSpace(x, z, radius)) return false;
   if (z <= RD - radius) {
     if (x < -RW + radius || x > RW - radius || z < -RD + radius) return true;
   } else {
@@ -2338,7 +2392,8 @@ function stepFP(dt) {
   if (keys.KeyW || keys.ArrowUp) f += 1; if (keys.KeyS || keys.ArrowDown) f -= 1;
   if (keys.KeyD || keys.ArrowRight) s += 1; if (keys.KeyA || keys.ArrowLeft) s -= 1;
   if (joy) { f -= joy.dy; s += joy.dx; }
-  const run = keys.ShiftLeft || keys.ShiftRight, sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
+  /* Joystick empurrado até o fim corre, como o Shift no teclado. */
+  const run = keys.ShiftLeft || keys.ShiftRight || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
   if (len > 1) { f /= len; s /= len; }
   const sy = Math.sin(fp.yaw), cy = Math.cos(fp.yaw);
   const tx = (-sy * f + cy * s) * sp, tz = (-cy * f - sy * s) * sp;
@@ -2347,6 +2402,9 @@ function stepFP(dt) {
   if (!blocked(nx, fp.pos.z)) fp.pos.x = nx; else fp.vel.x = 0;
   if (!blocked(fp.pos.x, nz)) fp.pos.z = nz; else fp.vel.z = 0;
   const v = Math.hypot(fp.vel.x, fp.vel.z);
+  /* O corpo vira para onde anda; parado em primeira pessoa, volta a olhar para frente. */
+  if (v > 0.25) fp.body = angDamp(fp.body, Math.atan2(fp.vel.x, fp.vel.z), 10, dt);
+  else if (!VIEW.third) fp.body = angDamp(fp.body, fp.yaw + Math.PI, 6, dt);
   fp.bob += v * dt * 5.2;
   const bob = reduceMotion ? 0 : Math.sin(fp.bob) * 0.022 * Math.min(1, v / 1.6);
   camera.position.set(fp.pos.x, EYE + bob, fp.pos.z);
@@ -2386,7 +2444,9 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
-  const elev = FLOOR[floorAt(px, pz)]; consider(elev.x, elev.z, 1.7, 0.3, 'Chamar o elevador', openElevator);
+  const elev = FLOOR[floorAt(px, pz)];
+  if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
+  else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
   if (inLounge(px, pz)) {
     for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
     consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));
@@ -2917,8 +2977,15 @@ $('casinoClose').onclick = exitCasino; $('casinoDeal').onclick = casinoDeal;
 $('casinoHit').onclick = casinoHit; $('casinoStand').onclick = casinoStand;
 $('casinoReset').onclick = () => { if (CASINO.state !== 'playing' && CASINO.balance < 10) { CASINO.balance = 100; CASINO.msg = 'Mais 100 fichas de brincadeira para continuar!'; casinoRender(); } };
 
-const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new Audio(), url: null, playing: false, returnMode: 'fp', beat: 0, request: 0 };
+/* Rádio da sala: ligar, desligar e trocar a estação vale para todo mundo. A batida segue o relógio
+   (Date.now), então todos ouvem a mesma nota ao mesmo tempo. O estado viaja na presença (ro, rs, rt) e
+   vence o mais recente. Arquivo do aparelho e Spotify tocam só para quem escolheu. */
+const RADIO_STATIONS = ['lofi', 'lounge', 'electro'];
+const RADIO = { on: false, station: 'lofi', t: 0, by: '' };
+const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new Audio(), url: null, playing: false, radio: false, file: false, mute: false, next: 0, returnMode: 'fp' };
 MUSIC.audio.loop = true; MUSIC.audio.volume = 0.25;
+const radioBeat = st => st === 'electro' ? 260 : st === 'lounge' ? 430 : 520;
+const stationName = st => $('musicStyle').querySelector('[value="' + st + '"]').textContent;
 function openMusic() {
   if (!inRoom || !['fp', 'seat'].includes(mode)) return;
   MUSIC.returnMode = mode; leisureOpen('music', 'music'); document.body.classList.add('music-open');
@@ -2928,50 +2995,89 @@ function closeMusic() {
   if (mode === 'music') { mode = MUSIC.returnMode; cross.hidden = mode !== 'fp' || isTouch; }
   $('musicOpen').focus();
 }
-function musicStop() {
-  MUSIC.request++; MUSIC.playing = false; clearInterval(MUSIC.timer); MUSIC.timer = null;
-  for (const osc of MUSIC.nodes) { osc.onended = null; osc.stop(); osc.disconnect(); }
-  MUSIC.nodes.clear(); MUSIC.audio.pause();
-  $('musicPlay').textContent = 'Reproduzir'; $('musicMsg').textContent = 'Música parada.';
-}
-function musicBeat() {
-  if (!MUSIC.playing || !MUSIC.ctx || MUSIC.ctx.state !== 'running') return;
-  const style = $('musicStyle').value;
+function musicBeat(style, k, time) {
   const notes = style === 'electro' ? [48, 55, 60, 63, 48, 58, 55, 63] : style === 'lounge' ? [60, 64, 67, 71, 62, 65, 69, 72] : [48, 60, 63, 67, 53, 60, 65, 67];
-  const time = MUSIC.ctx.currentTime, duration = style === 'electro' ? 0.22 : 0.65;
+  const duration = style === 'electro' ? 0.22 : 0.65;
   const osc = MUSIC.ctx.createOscillator(), env = MUSIC.ctx.createGain();
-  osc.type = style === 'electro' ? 'triangle' : 'sine'; osc.frequency.value = 440 * 2 ** ((notes[MUSIC.beat++ % notes.length] - 69) / 12);
+  osc.type = style === 'electro' ? 'triangle' : 'sine'; osc.frequency.value = 440 * 2 ** ((notes[k % notes.length] - 69) / 12);
   env.gain.setValueAtTime(0, time); env.gain.linearRampToValueAtTime(0.18, time + 0.025); env.gain.exponentialRampToValueAtTime(0.001, time + duration);
   osc.connect(env); env.connect(MUSIC.gain); MUSIC.nodes.add(osc);
   osc.onended = () => { MUSIC.nodes.delete(osc); osc.disconnect(); env.disconnect(); };
   osc.start(time); osc.stop(time + duration + 0.03);
 }
+function radioTick() {
+  if (!MUSIC.ctx || MUSIC.ctx.state !== 'running') return;
+  const st = RADIO.station, step = radioBeat(st), now = Date.now();
+  if (!MUSIC.next || MUSIC.next * step < now - 1000) MUSIC.next = Math.ceil(now / step);
+  while (MUSIC.next * step < now + 200) {
+    const when = MUSIC.ctx.currentTime + (MUSIC.next * step - now) / 1000;
+    if (when >= MUSIC.ctx.currentTime) musicBeat(st, MUSIC.next, when);
+    MUSIC.next++;
+  }
+}
+function radioSound(on) {
+  if (on === MUSIC.radio) return;
+  MUSIC.radio = on; clearInterval(MUSIC.timer); MUSIC.timer = null; MUSIC.next = 0;
+  for (const osc of MUSIC.nodes) { osc.onended = null; osc.stop(); osc.disconnect(); }
+  MUSIC.nodes.clear();
+  if (!on) return;
+  if (!MUSIC.ctx) { MUSIC.ctx = new AudioContext(); MUSIC.gain = MUSIC.ctx.createGain(); MUSIC.gain.connect(MUSIC.ctx.destination); }
+  MUSIC.gain.gain.value = +$('musicVolume').value / 100;
+  MUSIC.ctx.resume().catch(() => { }); MUSIC.timer = setInterval(radioTick, 60); radioTick();
+}
+/* Liga o som da rádio aqui quando ela está no ar, o visitante está na sala e não silenciou. */
+function stepRadio() {
+  radioSound(inRoom && RADIO.on && !MUSIC.mute && !MUSIC.file);
+  MUSIC.playing = MUSIC.radio || MUSIC.file;
+}
+function radioMessage() {
+  $('musicMsg').textContent = RADIO.on ? '📻 No ar para todos: ' + stationName(RADIO.station) + (RADIO.by ? ' · por ' + RADIO.by : '') + (MUSIC.mute || MUSIC.file ? ' (silenciada para você)' : '')
+    : 'Rádio desligada. Escolha uma estação e toque em Reproduzir: todos na sala vão ouvir.';
+}
+function setRadio(on, station = RADIO.station, by = myName, t = Date.now()) {
+  RADIO.on = on; RADIO.station = station; RADIO.t = t; RADIO.by = by; MUSIC.next = 0;
+  if (MUSIC.radio) { radioSound(false); stepRadio(); }
+  if ($('musicStyle').value !== 'file') $('musicStyle').value = station;
+  $('musicPlay').textContent = RADIO.on ? 'Recomeçar' : 'Reproduzir';
+  if (by === myName && MP.room && inRoom) MP.room.presence(myPresence()).catch(() => { });
+  radioMessage();
+}
+/* Estado recebido de outro visitante: vale o mais recente. */
+function radioFromPeer(p) {
+  const t = +p.rt;
+  if (!RADIO_STATIONS.includes(p.rs) || !(t > RADIO.t) || t > Date.now() + 10000) return;
+  setRadio(!!p.ro, p.rs, String(p.n || 'Visitante').slice(0, 24), t);
+}
+function stopFile() { MUSIC.file = false; MUSIC.audio.pause(); }
+function musicStop() {
+  stopFile(); if (RADIO.on) setRadio(false);
+  stepRadio(); $('musicPlay').textContent = 'Reproduzir'; $('musicMsg').textContent = 'Música parada.';
+}
 async function musicPlay() {
-  musicStop();
-  const style = $('musicStyle').value, request = MUSIC.request;
+  const style = $('musicStyle').value;
+  if (style !== 'file') { stopFile(); MUSIC.mute = false; $('radioMute').checked = false; setRadio(true, style); stepRadio(); return; }
   try {
-    if (style === 'file') { if (!MUSIC.url) throw new Error('Escolha um arquivo de áudio.'); await MUSIC.audio.play(); if (request !== MUSIC.request) { if (!MUSIC.playing) MUSIC.audio.pause(); return; } MUSIC.playing = true; }
-    else {
-      if (!MUSIC.ctx) { MUSIC.ctx = new AudioContext(); MUSIC.gain = MUSIC.ctx.createGain(); MUSIC.gain.connect(MUSIC.ctx.destination); }
-      await MUSIC.ctx.resume(); if (request !== MUSIC.request) return; MUSIC.gain.gain.value = +$('musicVolume').value / 100;
-      MUSIC.playing = true; MUSIC.beat = 0; musicBeat(); MUSIC.timer = setInterval(musicBeat, style === 'electro' ? 260 : style === 'lounge' ? 430 : 520);
-    }
-    $('musicMsg').textContent = 'Tocando: ' + (style === 'file' ? $('musicFile').files[0].name : $('musicStyle').selectedOptions[0].textContent);
+    if (!MUSIC.url) throw new Error('Escolha um arquivo de áudio.');
+    MUSIC.file = true; stepRadio(); await MUSIC.audio.play(); MUSIC.playing = true;
+    $('musicMsg').textContent = 'Tocando só para você: ' + $('musicFile').files[0].name + (RADIO.on ? ' (rádio silenciada para você)' : '');
     $('musicPlay').textContent = 'Recomeçar';
-  } catch (e) { if (request !== MUSIC.request) return; musicStop(); $('musicMsg').textContent = 'Não consegui tocar esse áudio. Escolha outro arquivo ou um estilo da sala.'; }
+  } catch (e) { stopFile(); stepRadio(); $('musicMsg').textContent = 'Não consegui tocar esse áudio. Escolha outro arquivo ou uma estação da rádio.'; }
 }
 $('musicOpen').onclick = openMusic; $('musicClose').onclick = closeMusic;
 $('musicPlay').onclick = musicPlay; $('musicStop').onclick = musicStop;
-$('musicStyle').onchange = () => { if (MUSIC.playing) musicPlay(); };
+$('musicStyle').onchange = () => { const st = $('musicStyle').value; if (st !== 'file' && RADIO.on) setRadio(true, st); };
+$('radioMute').onchange = () => { MUSIC.mute = $('radioMute').checked; stepRadio(); radioMessage(); };
 $('musicVolume').oninput = () => { const v = +$('musicVolume').value / 100; MUSIC.audio.volume = v; if (MUSIC.gain) MUSIC.gain.gain.setTargetAtTime(v, MUSIC.ctx.currentTime, 0.03); };
 $('musicFile').onchange = () => {
   const file = $('musicFile').files[0]; if (!file) return;
-  musicStop(); if (MUSIC.url) URL.revokeObjectURL(MUSIC.url);
+  stopFile(); if (MUSIC.url) URL.revokeObjectURL(MUSIC.url);
   MUSIC.url = URL.createObjectURL(file); MUSIC.audio.src = MUSIC.url;
   $('musicStyle').querySelector('[value="file"]').disabled = false; $('musicStyle').value = 'file';
-  $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir.';
+  $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir (só você ouve).';
 };
-MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
+/* Navegadores só liberam o som depois de um toque: retoma a rádio no primeiro toque se precisar. */
+addEventListener('pointerdown', () => { if (MUSIC.ctx && MUSIC.ctx.state === 'suspended' && MUSIC.radio) MUSIC.ctx.resume().catch(() => { }); }, { passive: true });
+MUSIC.audio.onerror = () => { stopFile(); stepRadio(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
 
 /* Spotify: o visitante cola o link de uma playlist, álbum, artista ou música e ouve pelo player oficial.
    O player fica num canto da tela e continua tocando com o painel fechado. */
@@ -2983,7 +3089,7 @@ function spotifyEmbedUrl(text) {
 function spotifyLoad() {
   const text = $('spotifyUrl').value, url = spotifyEmbedUrl(text);
   if (!url) { $('musicMsg').textContent = 'Cole um link do Spotify, como https://open.spotify.com/playlist/…'; return false; }
-  musicStop();
+  stopFile(); MUSIC.mute = true; $('radioMute').checked = true; stepRadio();
   let frame = $('spotifyBox').querySelector('iframe');
   if (!frame) {
     frame = document.createElement('iframe'); frame.title = 'Player do Spotify'; frame.loading = 'lazy';
@@ -2993,7 +3099,7 @@ function spotifyLoad() {
   if (frame.src !== url) frame.src = url;
   SPOTIFY.url = url; $('spotifyDock').hidden = false; $('spotifyDock').classList.remove('min'); $('spotifyMin').textContent = 'Minimizar';
   try { localStorage.setItem('sala-spotify', text.trim()); } catch (e) { }
-  $('musicMsg').textContent = 'Spotify conectado. Toque no play do player. Entre na sua conta do Spotify neste navegador para ouvir as músicas inteiras.';
+  $('musicMsg').textContent = 'Spotify conectado só para você (a rádio da sala ficou silenciada para você). Toque no play do player. Entre na sua conta do Spotify neste navegador para ouvir as músicas inteiras.';
   return true;
 }
 function spotifyClose() {
@@ -3425,7 +3531,7 @@ function updateStaffLabels(t) {
   for (const member of STAFF.members) {
     const el = member.el, text = member.state === 'serving' ? 'levando seu pedido' : member.state === 'collecting' ? 'preparando o pedido' : member.state === 'returning' ? 'voltando ao balcão' : 'pedir cardápio';
     el.lastChild.textContent = text;
-    if (!member.P.J.head || !member.P.root.visible) { el.style.opacity = '0'; continue; }
+    if (!member.P.J.head || !member.P.root.visible || otherFloor(member.P.root.position.x, member.P.root.position.z)) { el.style.opacity = '0'; continue; }
     member.P.J.head.getWorldPosition(_staffHead); _staffHead.y += 0.4;
     const dist = camera.position.distanceTo(_staffHead); _staffHead.project(camera);
     if (_staffHead.z > 1 || _staffHead.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }
@@ -3434,10 +3540,20 @@ function updateStaffLabels(t) {
   }
 }
 
-/* ================= elevador do visitante: painel, viagem e portas ================= */
-const ELEV = { ride: null };
+/* ================= elevador do visitante: entrar, escolher o andar, viajar e sair ================= */
+/* As portas abrem quando o visitante chega perto. Ao escolher o andar, ele entra na cabine, as portas
+   fecham, o visor conta os andares e, no destino, ele sai pela porta do outro andar. */
+const ELEV = { ride: null, shake: 0 };
+const ELEV_STEPS = [['in', 1.0], ['close', 1.0], ['move', 2.4], ['open', 1.0], ['out', 0.9]];
 function elevOpen(key, sec = 3) { const f = FLOOR[key]; if (f) f.openUntil = Math.max(f.openUntil, performance.now() / 1000 + sec); }
+const cabCenter = f => [f.wx - f.dir * CAB.center, f.z];
+const wrapAngle = a => Math.atan2(Math.sin(a), Math.cos(a));
+function inCab(x, z) {
+  return FLOORS.find(f => { const d = (x - f.wx) * -f.dir; return d > 0.05 && d < CAB.depth && Math.abs(z - f.z) < CAB.half; }) || null;
+}
 function playerFloor() { const s = seatState.s; return s ? floorAt(s.x, s.z) : floorAt(fp.pos.x, fp.pos.z); }
+/* Etiquetas de nome só aparecem para quem está no mesmo andar (na vista aérea, todas). */
+const otherFloor = (x, z) => inRoom && floorAt(x, z) !== playerFloor();
 function renderElevator() {
   const list = $('elevFloors'), here = playerFloor(); list.replaceChildren();
   for (const f of [...FLOORS].reverse()) {
@@ -3455,48 +3571,78 @@ function closeElevator() {
   if (mode === 'elevator') { mode = 'fp'; cross.hidden = isTouch; }
 }
 function rideTo(key) {
-  const f = FLOOR[key]; if (!f || !inRoom || ELEV.ride) return false;
+  const b = FLOOR[key]; if (!b || !inRoom || ELEV.ride) return false;
   if (seatState.s) { standUp(() => rideTo(key)); return true; }
   if (DISCO.dancing) stopDance();
   if (mode === 'elevator') closeElevator();
   if (mode !== 'fp') return false;
   const from = playerFloor(); if (from === key) return false;
   stopSmoking(); for (const k in keys) keys[k] = false; fp.vel.set(0, 0, 0); joy = null; joyEl.hidden = true;
-  ELEV.ride = { from, to: key, t: 0, dur: reduceMotion ? 0.8 : DEBUG ? 0.5 : 2.6, moved: false };
-  mode = 'ride'; cross.hidden = true; elevOpen(from, 1.2);
-  $('elevRideText').textContent = FLOOR[from].n + ''; $('elevRideName').textContent = 'Indo para ' + f.name;
-  $('elevRide').hidden = false; $('elevRide').style.opacity = '0';
+  ELEV.ride = { a: FLOOR[from], b, step: 0, t: 0, x0: fp.pos.x, z0: fp.pos.z, yaw0: fp.yaw, pitch0: fp.pitch };
+  mode = 'ride'; cross.hidden = true; elevOpen(from, 2);
+  $('elevRideText').textContent = FLOOR[from].n + ''; $('elevRideName').textContent = 'Indo para o ' + b.n + 'º · ' + b.name;
+  $('elevRide').hidden = false;
   return true;
 }
 function cancelRide() {
-  ELEV.ride = null; $('elevRide').hidden = true;
+  const r = ELEV.ride; ELEV.ride = null; ELEV.shake = 0; $('elevRide').hidden = true;
+  if (r) for (const f of [r.a, r.b]) elevDisplayDraw(f, f.n);
   if (mode === 'ride') { mode = 'fp'; cross.hidden = isTouch; }
 }
+function stepRide(dt) {
+  const r = ELEV.ride, [name, base] = ELEV_STEPS[r.step], dur = base * (DEBUG ? 0.15 : reduceMotion ? 0.5 : 1);
+  r.t += dt; const k = Math.min(1, r.t / dur), e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+  const px = fp.pos.x, pz = fp.pos.z, { a, b } = r;
+  ELEV.shake = 0;
+  if (name === 'in') {
+    const [cx, cz] = cabCenter(a); elevOpen(a.key, 1);
+    fp.pos.x = r.x0 + (cx - r.x0) * e; fp.pos.z = r.z0 + (cz - r.z0) * e;
+    fp.yaw = r.yaw0 + wrapAngle(a.yaw - r.yaw0) * e; fp.pitch = r.pitch0 * (1 - e);
+  } else if (name === 'close' || name === 'move') {
+    a.openUntil = 0;
+    if (name === 'move') {
+      const n = Math.round(a.n + (b.n - a.n) * e), arrow = b.n > a.n ? '▲' : '▼';
+      if (n !== r.n) { r.n = n; elevDisplayDraw(a, n, arrow); elevDisplayDraw(b, n, arrow); $('elevRideText').textContent = arrow + ' ' + n; }
+      if (!reduceMotion) ELEV.shake = Math.sin(r.t * 31) * 0.004 * Math.sin(Math.PI * k);
+    }
+  } else if (name === 'open') elevOpen(b.key, 3);
+  else if (name === 'out') {
+    const [cx, cz] = cabCenter(b); elevOpen(b.key, 2);
+    fp.pos.x = cx + (b.x - cx) * e; fp.pos.z = cz + (b.z - cz) * e; fp.yaw = b.yaw;
+  }
+  if (dt > 0) fp.vel.set((fp.pos.x - px) / dt, 0, (fp.pos.z - pz) / dt);
+  const speed = Math.hypot(fp.vel.x, fp.vel.z);
+  fp.body = angDamp(fp.body, speed > 0.2 ? Math.atan2(fp.vel.x, fp.vel.z) : fp.yaw + Math.PI, 8, dt);
+  if (k < 1) return;
+  if (name === 'move') {
+    /* Cabines iguais: o visitante continua no mesmo lugar da cabine, agora no outro andar. */
+    const [cx, cz] = cabCenter(b); fp.pos.set(cx, 0, cz); fp.yaw = b.yaw; fp.body = b.yaw + Math.PI; fp.vel.set(0, 0, 0);
+    elevDisplayDraw(a, a.n); elevDisplayDraw(b, b.n);
+  }
+  r.step++; r.t = 0;
+  if (r.step >= ELEV_STEPS.length) { fp.vel.set(0, 0, 0); cancelRide(); }
+}
 function stepElevator(dt, t) {
+  /* Sensor da porta: abre quando o visitante chega perto ou está dentro da cabine. */
+  if (inRoom && mode === 'fp' && !ELEV.ride) {
+    const f = FLOOR[playerFloor()], d = (fp.pos.x - f.wx) * -f.dir;
+    if (d > -1.6 && d < CAB.depth && Math.abs(fp.pos.z - f.z) < 1) elevOpen(f.key, 0.8);
+  }
   for (const f of FLOORS) {
     f.open = damp(f.open, f.openUntil > t ? 1 : 0, 5, dt);
     const width = 0.56 * (1 - 0.92 * f.open);
     for (const leaf of f.leaves) { leaf.scale.z = width; leaf.position.z = f.z + leaf.userData.side * (0.56 - width / 2); }
   }
-  const ride = ELEV.ride; if (!ride) return;
-  ride.t += dt; const k = Math.min(1, ride.t / ride.dur), a = FLOOR[ride.from], b = FLOOR[ride.to];
-  /* Escurece, conta os andares, chega com as portas abrindo e clareia. */
-  $('elevRide').style.opacity = String(k < 0.3 ? k / 0.3 : k > 0.75 ? (1 - k) / 0.25 : 1);
-  const step = clamp((k - 0.3) / 0.4, 0, 1), n = Math.round(a.n + (b.n - a.n) * step);
-  $('elevRideText').textContent = (b.n > a.n ? '▲ ' : '▼ ') + n;
-  if (!ride.moved && k >= 0.5) {
-    ride.moved = true; fp.pos.set(b.x, 0, b.z); fp.yaw = b.yaw; fp.pitch = 0; elevOpen(b.key, 3.5);
-    camera.position.set(b.x, EYE, b.z); camera.quaternion.copy(fpQuat(b.yaw, 0));
-  }
-  if (k >= 1) cancelRide();
+  if (ELEV.ride) stepRide(dt);
 }
 $('elevClose').onclick = closeElevator;
 
 /* ================= terceira pessoa: o visitante vê o próprio personagem ================= */
-/* O mesmo avatar da dança anda, senta, come, bebe e usa o narguilé atrás da câmera. Botão 👤 ou tecla V. */
-const VIEW = { third: false, dist: 0 };
+/* O mesmo avatar da dança anda, senta, come, bebe e usa o narguilé atrás da câmera. Botão 👤 ou tecla V;
+   roda do mouse ou pinça com dois dedos aproximam e afastam a câmera. */
+const VIEW = { third: false, dist: 0, zoom: 2.6 };
 try { VIEW.third = localStorage.getItem('sala-view') === '3'; } catch (e) { }
-const THIRD_MODES = ['fp', 'seat', 'menu', 'music', 'casino', 'elevator'];
+const THIRD_MODES = ['fp', 'seat', 'menu', 'music', 'casino', 'elevator', 'ride'];
 function playerBody() {
   if (!DISCO.player) { DISCO.player = makePerson(10 + myLook); DISCO.player.root.visible = false; }
   if (!DISCO.player.isAvatar && AV.clips) loadDancer();
@@ -3515,9 +3661,9 @@ function updateViewButton() {
 function stepThirdCam(dt) {
   const s = seatState.s, x = s ? s.x : fp.pos.x, z = s ? s.z : fp.pos.z, headY = s ? s.eye + 0.15 : 1.75;
   const cp = Math.cos(fp.pitch), fx = -Math.sin(fp.yaw) * cp, fy = Math.sin(fp.pitch), fz = -Math.cos(fp.yaw) * cp;
-  /* Afasta até 2,6 m atrás da cabeça, parando antes das paredes. */
-  let want = 2.6;
-  for (let d = 0.2; d <= 2.6; d += 0.1) if (wallBlocked(x - fx * d, z - fz * d, 0.15)) { want = Math.max(0.25, d - 0.15); break; }
+  /* Afasta até VIEW.zoom atrás da cabeça, parando antes das paredes. */
+  let want = VIEW.zoom;
+  for (let d = 0.2; d <= VIEW.zoom; d += 0.1) if (wallBlocked(x - fx * d, z - fz * d, 0.15)) { want = Math.max(0.25, d - 0.15); break; }
   VIEW.dist = want < VIEW.dist ? want : damp(VIEW.dist, want, 4, dt);
   camera.position.set(x - fx * VIEW.dist, clamp(headY + 0.2 - fy * VIEW.dist, 0.4, RH - 0.2), z - fz * VIEW.dist);
   camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch));
@@ -3528,7 +3674,7 @@ function stepPlayerBody(dt, t) {
   const A = playerBody(), s = seatState.s;
   A.root.visible = true;
   if (s) { A.root.position.set(s.x, 0, s.z); A.yaw = s.yaw + Math.PI; A.pose = 'sofa'; A.speed = 0; }
-  else { A.root.position.set(fp.pos.x, 0, fp.pos.z); A.yaw = fp.yaw + Math.PI; A.pose = mode === 'casino' ? 'cross' : 'stand'; A.speed = mode === 'fp' ? Math.hypot(fp.vel.x, fp.vel.z) : 0; }
+  else { A.root.position.set(fp.pos.x, 0, fp.pos.z); A.yaw = fp.body; A.pose = mode === 'casino' ? 'cross' : 'stand'; A.speed = ['fp', 'ride'].includes(mode) ? Math.hypot(fp.vel.x, fp.vel.z) : 0; }
   A.smokingUntil = HOSP.smokingUntil;
   A.isAvatar ? A.update(dt, t) : animatePerson(A, dt, t);
   if (s && A.isAvatar) A.root.position.y = s.kind === 'desk' ? 0 : -0.03;
@@ -3670,7 +3816,7 @@ $('discoGo').onclick = goDisco; $('discoExit').onclick = exitDisco;
 $('discoDance').onclick = () => DISCO.dancing ? stopDance() : startDance();
 $('discoStyle').onchange = () => { DISCO.style = $('discoStyle').value; if (DISCO.dancing) publishDiscoPresence(); };
 $('discoInvite').onclick = () => inviteDancers();
-$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!MUSIC.playing && !SPOTIFY.url) { $('musicStyle').value = 'electro'; musicPlay(); } };
+$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!RADIO.on && !SPOTIFY.url) { $('musicStyle').value = 'electro'; musicPlay(); } };
 /* O painel da pista começa fechado e abre pelo botão 🪩 Pista. */
 function setDiscoPanel(open) { DISCO.panelOpen = open; $('discoPanel').hidden = !open; $('discoPanelOpen').hidden = open; }
 $('discoPanelOpen').onclick = () => setDiscoPanel(true);
@@ -3828,12 +3974,12 @@ async function mpInit() {
 }
 /* minha presença: onde estou e o que estou fazendo (8x por segundo, só quando muda) */
 function myPresence() {
-  let x = fp.pos.x, z = fp.pos.z, yaw = fp.yaw + Math.PI, m = 'w', sy = 0;
+  let x = fp.pos.x, z = fp.pos.z, yaw = ['fp', 'ride'].includes(mode) ? fp.body : fp.yaw + Math.PI, m = 'w', sy = 0;
   if ((mode === 'seat' || mode === 'music' || mode === 'menu') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
   else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
   if (DISCO.dancing) { m = 'd'; yaw = Math.PI; }
-  return { it: HOSP.item, ct: HOSP.consumeUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.consumeUntil - performance.now()/1000)*1000) : 0, hs: HOSP.smokingUntil > performance.now()/1000 ? HOSP.hookIndex : -1, ht: HOSP.smokingUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.smokingUntil - performance.now()/1000)*1000) : 0, ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
+  return { ro: RADIO.on ? 1 : 0, rs: RADIO.station, rt: RADIO.t, it: HOSP.item, ct: HOSP.consumeUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.consumeUntil - performance.now()/1000)*1000) : 0, hs: HOSP.smokingUntil > performance.now()/1000 ? HOSP.hookIndex : -1, ht: HOSP.smokingUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.smokingUntil - performance.now()/1000)*1000) : 0, ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
 function stepMulti(dt, t) {
   if (MP.room && inRoom && (t - MP.sendT > MP.sendDt)) {
@@ -3849,7 +3995,7 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 21.7);
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -5.6, 13.5); v.tz = clamp(+p.z || 0, -5.8, 21.7);
       /* Quem trocou de andar pelo elevador aparece direto no outro andar, sem atravessar paredes. */
       if (floorAt(v.tx, v.tz) !== floorAt(v.x, v.z)) { v.x = v.tx; v.z = v.tz; }
       v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
@@ -3857,6 +4003,7 @@ function stepMulti(dt, t) {
       v.consumeUntil = +p.ct > Date.now() && +p.ct < Date.now() + 5000 ? performance.now()/1000 + (+p.ct - Date.now())/1000 : 0;
       v.smokingUntil = inLounge(v.tx, v.tz) && [0, 1].includes(p.hs) && +p.ht > Date.now() && +p.ht < Date.now()+8000 ? performance.now()/1000 + (+p.ht - Date.now())/1000 : 0; v.hookIndex = p.hs;
       v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
+      if (p.rt) radioFromPeer(p);
       if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
         v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
       }
@@ -3874,7 +4021,7 @@ function updateVisitorLabels(t) {
     const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.smokingUntil > t ? '💨 no lounge' : v.consumeUntil > t && v.item ? (CONSUMABLES[v.item].kind === 'food' ? '🍽️ comendo' : '🥤 bebendo') : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
-    if (!v.A || !v.A.J.head) { el.style.opacity = '0'; continue; }
+    if (!v.A || !v.A.J.head || otherFloor(v.x, v.z)) { el.style.opacity = '0'; continue; }
     v.A.J.head.getWorldPosition(_vh); _vh.y += 0.42;
     const dist = camera.position.distanceTo(_vh); _vh.project(camera);
     if (_vh.z > 1 || _vh.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }
@@ -4182,10 +4329,10 @@ function frame(now) {
   for (const r of robots) { r.P.smokingUntil = r.smokingUntil || 0; r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t); }
   /* câmera */
   if (mode === 'dance' || (mode === 'menu' && HOSP.returnMode === 'dance')) stepDanceCamera(dt);
-  else if (['menu', 'casino', 'music', 'elevator', 'ride'].includes(mode)) { if (VIEW.third && mode !== 'ride') stepThirdCam(dt); else { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } }
+  else if (['menu', 'casino', 'music', 'elevator', 'ride'].includes(mode)) { if (VIEW.third) stepThirdCam(dt); else { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } if (mode === 'ride') camera.position.y += ELEV.shake; }
   else if (mode === 'fp') { stepFP(dt); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') { stepSeat(); if (VIEW.third) stepThirdCam(dt); } else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
   setWalls(['menu', 'dance', 'casino', 'music', 'elevator', 'ride', 'fp', 'seat', 'talk', 'pool'].includes(mode) || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
-  stepElevator(dt, t); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
+  stepElevator(dt, t); stepRadio(); stepDisco(dt, t); stepHospitality(dt, t); stepPlayerBody(dt, t); stepLoungeVisual(dt, t); stepStaff(dt, t); stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
   wallT += dt; if (wallT > 1) { wallT = 0; drawWall(); drawSigns(); updateClocks(); }
@@ -4214,7 +4361,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { RADIO, setRadio, CAB, inCab, elevatorSpace, cabCenter, FLOORS, FLOOR, floorAt, ELEV, rideTo, openElevator, closeElevator, playerFloor, NODES, route, wallBlocked, VIEW, setThirdPerson, SPOTIFY, spotifyEmbedUrl, spotifyLoad, spotifyClose, staffPath, HOSP, STAFF, CONSUMABLES, LOUNGE_LAYOUT, LOUNGE_VISUAL, roomBlocked, goLounge, exitLounge, inLounge, openHospitality, closeHospitality, deliverConsumable, consumeHeld, putAwayConsumable, startSmoking, stopSmoking, inviteLoungeRobots, requestService, cancelService, stepStaff, stepHospitality, makeConsumableProp, setPersonItem, updatePersonItem, disposePersonItem, inGames, goGames, exitGames, findAct, DISCO, goDisco, exitDisco, startDance, stopDance, inviteDancers, sendDiscoEmoji, blocked, myPresence, CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>

@@ -260,7 +260,7 @@ function updateStaffLabels(t) {
   for (const member of STAFF.members) {
     const el = member.el, text = member.state === 'serving' ? 'levando seu pedido' : member.state === 'collecting' ? 'preparando o pedido' : member.state === 'returning' ? 'voltando ao balcão' : 'pedir cardápio';
     el.lastChild.textContent = text;
-    if (!member.P.J.head || !member.P.root.visible) { el.style.opacity = '0'; continue; }
+    if (!member.P.J.head || !member.P.root.visible || otherFloor(member.P.root.position.x, member.P.root.position.z)) { el.style.opacity = '0'; continue; }
     member.P.J.head.getWorldPosition(_staffHead); _staffHead.y += 0.4;
     const dist = camera.position.distanceTo(_staffHead); _staffHead.project(camera);
     if (_staffHead.z > 1 || _staffHead.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }

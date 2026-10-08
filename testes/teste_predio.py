@@ -1,4 +1,4 @@
-"""Prédio com andares: paredes fechadas, elevador, terceira pessoa e Spotify no desktop e no celular."""
+"""Prédio com andares: paredes fechadas, cabine do elevador, terceira pessoa, rádio da sala e Spotify no desktop e no celular."""
 import os
 from playwright.sync_api import sync_playwright
 from comum import AQUI, URL, ARGS, rota
@@ -27,9 +27,20 @@ with sync_playwright() as p:
             && __sala.FLOORS.every(f=>!__sala.roomBlocked(f.x,f.z) && __sala.floorAt(f.x,f.z)===f.key)''')
         print(nome + ': paredes fechadas entre os andares OK', flush=True)
 
-        # Elevador pela tecla E: painel com os quatro andares, viagem e chegada com portas abrindo.
+        # Cabine de verdade: porta fechada barra a passagem; chegando perto, as portas abrem e dá para entrar.
+        page.evaluate('__sala.setFP(0,0,0)')
+        page.wait_for_function('__sala.FLOOR.office.open<.1', timeout=30000)
+        assert page.evaluate('__sala.wallBlocked(8.05,-4.8,.28)')
+        page.evaluate('__sala.setFP(6.4,-4.8,-Math.PI/2)')
+        page.wait_for_function('__sala.FLOOR.office.open>.8')
+        assert page.evaluate('!__sala.wallBlocked(8.05,-4.8,.28) && !__sala.wallBlocked(8.84,-4.8,.28) && __sala.wallBlocked(9.7,-4.8,.28) && __sala.wallBlocked(8.84,-5.7,.28)')
+        page.evaluate('__sala.setFP(8.84,-4.8,Math.PI/2)')
+        page.wait_for_function('__sala.act==="Escolher o andar"')
         page.evaluate('__sala.setFP(6.6,-4.8,-Math.PI/2)')
-        page.wait_for_function('__sala.act==="Chamar o elevador"')
+        print(nome + ': cabine com portas e passagem OK', flush=True)
+
+        # Elevador pela tecla E: painel com os quatro andares, entrada, viagem e saída no outro andar.
+        page.wait_for_function('__sala.act==="Usar o elevador"')
         page.evaluate('__sala.doAct()')
         assert page.evaluate('__sala.mode==="elevator"') and page.locator('#elevator').is_visible()
         assert page.locator('#elevFloors button').count() == 4
@@ -39,6 +50,8 @@ with sync_playwright() as p:
         page.evaluate('__sala.openElevator()')
         page.click('#elevFloors [data-floor="lounge"]')
         assert page.evaluate('__sala.mode==="ride"') and page.locator('#elevRide').is_visible()
+        page.wait_for_function('__sala.ELEV.ride?.step===2', timeout=30000)
+        assert page.evaluate('__sala.inCab(__sala.fp.pos.x,__sala.fp.pos.z)?.key==="office" && __sala.FLOOR.office.openUntil===0')
         page.wait_for_function('__sala.mode==="fp" && __sala.playerFloor()==="lounge"', timeout=30000)
         assert page.evaluate('__sala.FLOOR.lounge.openUntil>performance.now()/1000 && !__sala.blocked(__sala.fp.pos.x,__sala.fp.pos.z)')
         assert not page.locator('#elevRide').is_visible()
@@ -67,6 +80,10 @@ with sync_playwright() as p:
         assert ride['rode'] and ride['delivered'] and ride['role'] == 'garçom', ride
         print(nome + ': atendimento entre andares pelo elevador OK', flush=True)
 
+        # Etiquetas de nome só para quem está no mesmo andar.
+        page.wait_for_timeout(300)
+        assert page.evaluate('__sala.robots.filter(r=>__sala.floorAt(r.P.root.position.x,r.P.root.position.z)==="office").every(r=>r.el.style.opacity==="0")')
+
         # Terceira pessoa: o próprio avatar aparece, anda e segura o item; a câmera não atravessa paredes.
         assert page.locator('#viewToggle').is_visible()
         page.click('#viewToggle')
@@ -82,6 +99,15 @@ with sync_playwright() as p:
         assert not page.evaluate('__sala.wallBlocked(__sala.camera.position.x,__sala.camera.position.z,.1)')
         page.evaluate('__sala.consumeHeld()')
         page.wait_for_function('__sala.DISCO.player.heldProp?.userData.consuming')
+        # O corpo vira para onde anda (aqui, para o lado), e a câmera aproxima e afasta.
+        page.evaluate('__sala.setFP(9,17.5,0)')
+        page.keyboard.down('KeyD'); page.wait_for_function('Math.abs(__sala.fp.body-Math.PI/2)<.3 && Math.abs(__sala.DISCO.player.yaw-Math.PI/2)<.3', timeout=30000); page.keyboard.up('KeyD')
+        assert page.evaluate('Math.abs(__sala.myPresence().yaw-Math.PI/2)<.3')
+        if not mobile:
+            page.mouse.move(480, 380); page.mouse.wheel(0, 600)
+            assert page.evaluate('__sala.VIEW.zoom>3.5')
+            page.mouse.wheel(0, -900)
+            assert page.evaluate('__sala.VIEW.zoom<2')
         page.evaluate('__sala.sitDown(__sala.SEATS.find(s=>s.id==="loungeSideA"))')
         page.wait_for_function('__sala.mode==="seat" && __sala.DISCO.player.pose==="sofa" && __sala.DISCO.player.root.visible')
         page.evaluate('__drawSala(__sala.scene,__sala.camera)')
@@ -111,7 +137,7 @@ with sync_playwright() as p:
         assert 'Cole um link do Spotify' in page.inner_text('#musicMsg') and page.evaluate('__sala.MUSIC.playing')
         page.fill('#spotifyUrl', 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M')
         page.click('#spotifyLoad')
-        assert page.evaluate('!__sala.MUSIC.playing && document.querySelector("#spotifyBox iframe").src.startsWith("https://open.spotify.com/embed/playlist/")')
+        assert page.evaluate('!__sala.MUSIC.playing && __sala.RADIO.on && document.getElementById("radioMute").checked && document.querySelector("#spotifyBox iframe").src.startsWith("https://open.spotify.com/embed/playlist/")')
         assert page.locator('#spotifyDock').is_visible()
         page.click('#musicClose')
         in_view = page.evaluate('(()=>{const r=document.getElementById("spotifyDock").getBoundingClientRect();return r.right>0 && r.left<innerWidth})()')
@@ -128,6 +154,8 @@ with sync_playwright() as p:
             page.click('#spotifyClose')
             page.click('#musicClose')
         assert page.evaluate('!document.querySelector("#spotifyBox iframe") && !__sala.SPOTIFY.url') and not page.locator('#spotifyDock').is_visible()
+        page.evaluate('__sala.openMusic()'); page.click('#musicStop'); page.click('#musicClose')
+        assert page.evaluate('!__sala.RADIO.on && !__sala.MUSIC.playing')
         print(nome + ': Spotify OK', flush=True)
 
         # Quem muda de andar aparece direto no outro andar para os demais visitantes.
@@ -147,9 +175,28 @@ with sync_playwright() as p:
             other.bring_to_front()
             other.wait_for_function('[...__sala.MP.vis.values()].some(v=>__sala.floorAt(v.tx,v.tz)==="games")', timeout=30000)
             assert other.evaluate('[...__sala.MP.vis.values()].every(v=>__sala.floorAt(v.x,v.z)===__sala.floorAt(v.tx,v.tz))')
+            print(nome + ': visitante troca de andar sem atravessar paredes OK', flush=True)
+
+            # Rádio da sala: quem liga ou troca a estação muda para todos, no mesmo compasso.
+            page.bring_to_front()
+            page.evaluate('__sala.openMusic()')
+            page.select_option('#musicStyle', 'electro'); page.click('#musicPlay')
+            other.bring_to_front()
+            other.wait_for_function('__sala.RADIO.on && __sala.RADIO.station==="electro" && __sala.MUSIC.radio && __sala.MUSIC.timer!==null', timeout=30000)
+            assert other.evaluate('document.getElementById("musicStyle").value')=='electro'
+            page.bring_to_front(); page.select_option('#musicStyle', 'lounge')
+            other.bring_to_front(); other.wait_for_function('__sala.RADIO.station==="lounge"', timeout=30000)
+            beats = [x.evaluate('Math.floor(Date.now()/430)') for x in (page, other)]
+            assert abs(beats[0] - beats[1]) <= 3, beats
+            other.evaluate('__sala.openMusic()'); other.check('#radioMute')
+            assert other.evaluate('__sala.RADIO.on && !__sala.MUSIC.radio && !__sala.MUSIC.playing')
+            other.uncheck('#radioMute'); other.click('#musicClose')
+            page.bring_to_front(); page.click('#musicStop')
+            other.bring_to_front(); other.wait_for_function('!__sala.RADIO.on && !__sala.MUSIC.radio', timeout=30000)
+            page.bring_to_front(); page.click('#musicClose')
+            print(nome + ': rádio da sala para todos OK', flush=True)
             other.close()
             page.bring_to_front()
-            print(nome + ': visitante troca de andar sem atravessar paredes OK', flush=True)
 
         page.evaluate('__sala.openElevator()')
         page.evaluate('__sala.leaveRoom()')

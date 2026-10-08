@@ -29,13 +29,17 @@ for (const [key, p, n] of [
 mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 18, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 mesh(G.plane, mat.ceiling, GROUPS.main, 8, RH, 18, Math.PI / 2, 0, 0, 8, 8, 1, false);
 B(loungeMat.wall, 4, 1.6, 18, 0.08, RH, 8, { group: 'loungeLeft', cast: false });
-B(loungeMat.wall, 12, 1.6, 18, 0.08, RH, 8, { group: 'loungeRight', cast: false });
+for (const [z, len] of wallRuns(14, 22, 'lounge')) B(loungeMat.wall, 12, 1.6, z, 0.08, RH, len, { group: 'loungeRight', cast: false });
+B(loungeMat.wall, 12, 2.75, FLOOR.lounge.z, 0.08, 0.9, CAB.door * 2, { group: 'loungeRight', cast: false });
 B(loungeMat.wall, 8, 1.6, 22, 8, RH, 0.08, { group: 'loungeBack', cast: false });
 // Painéis de madeira, rodapés e filetes de latão deixam o ambiente acolhedor.
 for (const [x, group] of [[4.045, 'loungeLeft'], [11.955, 'loungeRight']]) {
-  B(mat.walnut, x, 0.46, 18, 0.04, 0.86, 7.9, { group, cast: false });
-  B(loungeMat.brass, x, 0.91, 18, 0.05, 0.025, 7.9, { group, cast: false });
-  B(mat.base, x, 0.055, 18, 0.06, 0.11, 7.9, { group, cast: false });
+  // Na parede da direita os painéis param no vão do elevador.
+  for (const [z, len] of x > 8 ? wallRuns(14.05, 21.95, 'lounge') : [[18, 7.9]]) {
+    B(mat.walnut, x, 0.46, z, 0.04, 0.86, len, { group, cast: false });
+    B(loungeMat.brass, x, 0.91, z, 0.05, 0.025, len, { group, cast: false });
+    B(mat.base, x, 0.055, z, 0.06, 0.11, len, { group, cast: false });
+  }
   B(loungeMat.warm, x, 2.98, 18, 0.035, 0.02, 7.8, { group, cast: false });
 }
 B(mat.walnut, 8, 0.46, 21.95, 7.9, 0.86, 0.04, { group: 'loungeBack', cast: false });

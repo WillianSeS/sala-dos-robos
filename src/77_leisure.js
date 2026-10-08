@@ -95,8 +95,15 @@ $('casinoClose').onclick = exitCasino; $('casinoDeal').onclick = casinoDeal;
 $('casinoHit').onclick = casinoHit; $('casinoStand').onclick = casinoStand;
 $('casinoReset').onclick = () => { if (CASINO.state !== 'playing' && CASINO.balance < 10) { CASINO.balance = 100; CASINO.msg = 'Mais 100 fichas de brincadeira para continuar!'; casinoRender(); } };
 
-const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new Audio(), url: null, playing: false, returnMode: 'fp', beat: 0, request: 0 };
+/* Rádio da sala: ligar, desligar e trocar a estação vale para todo mundo. A batida segue o relógio
+   (Date.now), então todos ouvem a mesma nota ao mesmo tempo. O estado viaja na presença (ro, rs, rt) e
+   vence o mais recente. Arquivo do aparelho e Spotify tocam só para quem escolheu. */
+const RADIO_STATIONS = ['lofi', 'lounge', 'electro'];
+const RADIO = { on: false, station: 'lofi', t: 0, by: '' };
+const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new Audio(), url: null, playing: false, radio: false, file: false, mute: false, next: 0, returnMode: 'fp' };
 MUSIC.audio.loop = true; MUSIC.audio.volume = 0.25;
+const radioBeat = st => st === 'electro' ? 260 : st === 'lounge' ? 430 : 520;
+const stationName = st => $('musicStyle').querySelector('[value="' + st + '"]').textContent;
 function openMusic() {
   if (!inRoom || !['fp', 'seat'].includes(mode)) return;
   MUSIC.returnMode = mode; leisureOpen('music', 'music'); document.body.classList.add('music-open');
@@ -106,50 +113,89 @@ function closeMusic() {
   if (mode === 'music') { mode = MUSIC.returnMode; cross.hidden = mode !== 'fp' || isTouch; }
   $('musicOpen').focus();
 }
-function musicStop() {
-  MUSIC.request++; MUSIC.playing = false; clearInterval(MUSIC.timer); MUSIC.timer = null;
-  for (const osc of MUSIC.nodes) { osc.onended = null; osc.stop(); osc.disconnect(); }
-  MUSIC.nodes.clear(); MUSIC.audio.pause();
-  $('musicPlay').textContent = 'Reproduzir'; $('musicMsg').textContent = 'Música parada.';
-}
-function musicBeat() {
-  if (!MUSIC.playing || !MUSIC.ctx || MUSIC.ctx.state !== 'running') return;
-  const style = $('musicStyle').value;
+function musicBeat(style, k, time) {
   const notes = style === 'electro' ? [48, 55, 60, 63, 48, 58, 55, 63] : style === 'lounge' ? [60, 64, 67, 71, 62, 65, 69, 72] : [48, 60, 63, 67, 53, 60, 65, 67];
-  const time = MUSIC.ctx.currentTime, duration = style === 'electro' ? 0.22 : 0.65;
+  const duration = style === 'electro' ? 0.22 : 0.65;
   const osc = MUSIC.ctx.createOscillator(), env = MUSIC.ctx.createGain();
-  osc.type = style === 'electro' ? 'triangle' : 'sine'; osc.frequency.value = 440 * 2 ** ((notes[MUSIC.beat++ % notes.length] - 69) / 12);
+  osc.type = style === 'electro' ? 'triangle' : 'sine'; osc.frequency.value = 440 * 2 ** ((notes[k % notes.length] - 69) / 12);
   env.gain.setValueAtTime(0, time); env.gain.linearRampToValueAtTime(0.18, time + 0.025); env.gain.exponentialRampToValueAtTime(0.001, time + duration);
   osc.connect(env); env.connect(MUSIC.gain); MUSIC.nodes.add(osc);
   osc.onended = () => { MUSIC.nodes.delete(osc); osc.disconnect(); env.disconnect(); };
   osc.start(time); osc.stop(time + duration + 0.03);
 }
+function radioTick() {
+  if (!MUSIC.ctx || MUSIC.ctx.state !== 'running') return;
+  const st = RADIO.station, step = radioBeat(st), now = Date.now();
+  if (!MUSIC.next || MUSIC.next * step < now - 1000) MUSIC.next = Math.ceil(now / step);
+  while (MUSIC.next * step < now + 200) {
+    const when = MUSIC.ctx.currentTime + (MUSIC.next * step - now) / 1000;
+    if (when >= MUSIC.ctx.currentTime) musicBeat(st, MUSIC.next, when);
+    MUSIC.next++;
+  }
+}
+function radioSound(on) {
+  if (on === MUSIC.radio) return;
+  MUSIC.radio = on; clearInterval(MUSIC.timer); MUSIC.timer = null; MUSIC.next = 0;
+  for (const osc of MUSIC.nodes) { osc.onended = null; osc.stop(); osc.disconnect(); }
+  MUSIC.nodes.clear();
+  if (!on) return;
+  if (!MUSIC.ctx) { MUSIC.ctx = new AudioContext(); MUSIC.gain = MUSIC.ctx.createGain(); MUSIC.gain.connect(MUSIC.ctx.destination); }
+  MUSIC.gain.gain.value = +$('musicVolume').value / 100;
+  MUSIC.ctx.resume().catch(() => { }); MUSIC.timer = setInterval(radioTick, 60); radioTick();
+}
+/* Liga o som da rádio aqui quando ela está no ar, o visitante está na sala e não silenciou. */
+function stepRadio() {
+  radioSound(inRoom && RADIO.on && !MUSIC.mute && !MUSIC.file);
+  MUSIC.playing = MUSIC.radio || MUSIC.file;
+}
+function radioMessage() {
+  $('musicMsg').textContent = RADIO.on ? '📻 No ar para todos: ' + stationName(RADIO.station) + (RADIO.by ? ' · por ' + RADIO.by : '') + (MUSIC.mute || MUSIC.file ? ' (silenciada para você)' : '')
+    : 'Rádio desligada. Escolha uma estação e toque em Reproduzir: todos na sala vão ouvir.';
+}
+function setRadio(on, station = RADIO.station, by = myName, t = Date.now()) {
+  RADIO.on = on; RADIO.station = station; RADIO.t = t; RADIO.by = by; MUSIC.next = 0;
+  if (MUSIC.radio) { radioSound(false); stepRadio(); }
+  if ($('musicStyle').value !== 'file') $('musicStyle').value = station;
+  $('musicPlay').textContent = RADIO.on ? 'Recomeçar' : 'Reproduzir';
+  if (by === myName && MP.room && inRoom) MP.room.presence(myPresence()).catch(() => { });
+  radioMessage();
+}
+/* Estado recebido de outro visitante: vale o mais recente. */
+function radioFromPeer(p) {
+  const t = +p.rt;
+  if (!RADIO_STATIONS.includes(p.rs) || !(t > RADIO.t) || t > Date.now() + 10000) return;
+  setRadio(!!p.ro, p.rs, String(p.n || 'Visitante').slice(0, 24), t);
+}
+function stopFile() { MUSIC.file = false; MUSIC.audio.pause(); }
+function musicStop() {
+  stopFile(); if (RADIO.on) setRadio(false);
+  stepRadio(); $('musicPlay').textContent = 'Reproduzir'; $('musicMsg').textContent = 'Música parada.';
+}
 async function musicPlay() {
-  musicStop();
-  const style = $('musicStyle').value, request = MUSIC.request;
+  const style = $('musicStyle').value;
+  if (style !== 'file') { stopFile(); MUSIC.mute = false; $('radioMute').checked = false; setRadio(true, style); stepRadio(); return; }
   try {
-    if (style === 'file') { if (!MUSIC.url) throw new Error('Escolha um arquivo de áudio.'); await MUSIC.audio.play(); if (request !== MUSIC.request) { if (!MUSIC.playing) MUSIC.audio.pause(); return; } MUSIC.playing = true; }
-    else {
-      if (!MUSIC.ctx) { MUSIC.ctx = new AudioContext(); MUSIC.gain = MUSIC.ctx.createGain(); MUSIC.gain.connect(MUSIC.ctx.destination); }
-      await MUSIC.ctx.resume(); if (request !== MUSIC.request) return; MUSIC.gain.gain.value = +$('musicVolume').value / 100;
-      MUSIC.playing = true; MUSIC.beat = 0; musicBeat(); MUSIC.timer = setInterval(musicBeat, style === 'electro' ? 260 : style === 'lounge' ? 430 : 520);
-    }
-    $('musicMsg').textContent = 'Tocando: ' + (style === 'file' ? $('musicFile').files[0].name : $('musicStyle').selectedOptions[0].textContent);
+    if (!MUSIC.url) throw new Error('Escolha um arquivo de áudio.');
+    MUSIC.file = true; stepRadio(); await MUSIC.audio.play(); MUSIC.playing = true;
+    $('musicMsg').textContent = 'Tocando só para você: ' + $('musicFile').files[0].name + (RADIO.on ? ' (rádio silenciada para você)' : '');
     $('musicPlay').textContent = 'Recomeçar';
-  } catch (e) { if (request !== MUSIC.request) return; musicStop(); $('musicMsg').textContent = 'Não consegui tocar esse áudio. Escolha outro arquivo ou um estilo da sala.'; }
+  } catch (e) { stopFile(); stepRadio(); $('musicMsg').textContent = 'Não consegui tocar esse áudio. Escolha outro arquivo ou uma estação da rádio.'; }
 }
 $('musicOpen').onclick = openMusic; $('musicClose').onclick = closeMusic;
 $('musicPlay').onclick = musicPlay; $('musicStop').onclick = musicStop;
-$('musicStyle').onchange = () => { if (MUSIC.playing) musicPlay(); };
+$('musicStyle').onchange = () => { const st = $('musicStyle').value; if (st !== 'file' && RADIO.on) setRadio(true, st); };
+$('radioMute').onchange = () => { MUSIC.mute = $('radioMute').checked; stepRadio(); radioMessage(); };
 $('musicVolume').oninput = () => { const v = +$('musicVolume').value / 100; MUSIC.audio.volume = v; if (MUSIC.gain) MUSIC.gain.gain.setTargetAtTime(v, MUSIC.ctx.currentTime, 0.03); };
 $('musicFile').onchange = () => {
   const file = $('musicFile').files[0]; if (!file) return;
-  musicStop(); if (MUSIC.url) URL.revokeObjectURL(MUSIC.url);
+  stopFile(); if (MUSIC.url) URL.revokeObjectURL(MUSIC.url);
   MUSIC.url = URL.createObjectURL(file); MUSIC.audio.src = MUSIC.url;
   $('musicStyle').querySelector('[value="file"]').disabled = false; $('musicStyle').value = 'file';
-  $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir.';
+  $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir (só você ouve).';
 };
-MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
+/* Navegadores só liberam o som depois de um toque: retoma a rádio no primeiro toque se precisar. */
+addEventListener('pointerdown', () => { if (MUSIC.ctx && MUSIC.ctx.state === 'suspended' && MUSIC.radio) MUSIC.ctx.resume().catch(() => { }); }, { passive: true });
+MUSIC.audio.onerror = () => { stopFile(); stepRadio(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
 
 /* Spotify: o visitante cola o link de uma playlist, álbum, artista ou música e ouve pelo player oficial.
    O player fica num canto da tela e continua tocando com o painel fechado. */
@@ -161,7 +207,7 @@ function spotifyEmbedUrl(text) {
 function spotifyLoad() {
   const text = $('spotifyUrl').value, url = spotifyEmbedUrl(text);
   if (!url) { $('musicMsg').textContent = 'Cole um link do Spotify, como https://open.spotify.com/playlist/…'; return false; }
-  musicStop();
+  stopFile(); MUSIC.mute = true; $('radioMute').checked = true; stepRadio();
   let frame = $('spotifyBox').querySelector('iframe');
   if (!frame) {
     frame = document.createElement('iframe'); frame.title = 'Player do Spotify'; frame.loading = 'lazy';
@@ -171,7 +217,7 @@ function spotifyLoad() {
   if (frame.src !== url) frame.src = url;
   SPOTIFY.url = url; $('spotifyDock').hidden = false; $('spotifyDock').classList.remove('min'); $('spotifyMin').textContent = 'Minimizar';
   try { localStorage.setItem('sala-spotify', text.trim()); } catch (e) { }
-  $('musicMsg').textContent = 'Spotify conectado. Toque no play do player. Entre na sua conta do Spotify neste navegador para ouvir as músicas inteiras.';
+  $('musicMsg').textContent = 'Spotify conectado só para você (a rádio da sala ficou silenciada para você). Toque no play do player. Entre na sua conta do Spotify neste navegador para ouvir as músicas inteiras.';
   return true;
 }
 function spotifyClose() {

@@ -120,9 +120,9 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 .held-bar{position:fixed;right:16px;bottom:calc(104px + env(safe-area-inset-bottom,0px));width:218px;box-sizing:border-box;background:#0e1719ed;border:1px solid #8eb5a466;border-radius:12px;padding:10px;display:grid;gap:7px;z-index:3}.held-bar p{margin:0;font-size:11px;color:var(--muted)}.held-bar .pool-row{justify-content:flex-start}.service-note{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;padding:9px 13px;border:1px solid var(--line);background:#101917ed;border-radius:10px;font-size:11px;z-index:4;text-align:center}
 .lounge-panel{border-color:#be984d88;background:#15120ded}.lounge-panel b{font-size:20px}.pl.staff{border-color:#d9bf80}.pl.staff .v{color:#e1cc99}
 @media(max-width:600px){.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.disco-shortcuts{max-width:270px}.held-bar{width:210px;bottom:calc(95px + env(safe-area-inset-bottom,0px))}.service-note{top:calc(245px + env(safe-area-inset-top,0px));width:max-content;max-width:calc(100% - 32px)}}
-.elev-floors{display:grid;gap:8px}.elev-floor{text-align:left}
-.elev-ride{position:fixed;inset:0;background:#050607;display:grid;place-content:center;justify-items:center;gap:10px;z-index:8;pointer-events:none}
-.elev-ride b{font:700 64px var(--mono);color:#ffb347;letter-spacing:.04em}.elev-ride span{font-size:14px;color:var(--muted)}
+.leisure label.check{display:flex;align-items:center;gap:8px}.elev-floors{display:grid;gap:8px}.elev-floor{text-align:left}
+.elev-ride{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#0b0c0eee;border:1px solid #d9b46a88;border-radius:12px;padding:8px 16px;display:grid;justify-items:center;gap:2px;z-index:4;pointer-events:none}
+.elev-ride b{font:700 30px var(--mono);color:#ffb347;letter-spacing:.04em}.elev-ride span{font-size:11px;color:var(--muted)}
 .spotify-dock{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100% - 32px));box-sizing:border-box;background:#0d1411ee;border:1px solid #1ed76066;border-radius:12px;padding:8px;display:grid;gap:6px;z-index:4}
 .spotify-head{display:flex;gap:6px;align-items:center}.spotify-head b{flex:1;font-size:12px}.spotify-head .btn.sm{padding:6px 9px;font-size:11px}
 .spotify-box iframe{display:block;width:100%;height:152px;border:0;border-radius:10px}
@@ -184,13 +184,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <div class="pool-row"><button class="btn sm" id="casinoDeal">Nova rodada</button><button class="btn sm" id="casinoHit">Pedir carta</button><button class="btn sm" id="casinoStand">Parar</button><button class="btn sm" id="casinoReset" hidden>Repor fichas</button></div>
 </section>
 <section class="talk leisure" id="music" hidden role="dialog" aria-label="Música da sala">
-  <div class="talk-h"><div><b>Música da sala</b><span>Som ambiente neste aparelho</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
-  <label>Estilo<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo</option></select></label>
-  <label>Escolher música do aparelho<input id="musicFile" type="file" accept="audio/*"></label>
+  <div class="talk-h"><div><b>📻 Rádio da sala</b><span>Ligar, desligar e trocar a estação vale para todos na sala</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
+  <label>Estação<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo (só para mim)</option></select></label>
+  <label class="check"><input id="radioMute" type="checkbox"> Silenciar a rádio só para mim</label>
+  <label>Música do aparelho (só você ouve)<input id="musicFile" type="file" accept="audio/*"></label>
   <label>Volume<input id="musicVolume" type="range" min="0" max="100" value="25"></label>
-  <label>Spotify: link de playlist, álbum, artista ou música<input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…"></label>
+  <label>Spotify (só você ouve): link de playlist, álbum, artista ou música<input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/…"></label>
   <div class="pool-row"><button class="btn sm" id="spotifyLoad">🎧 Tocar no Spotify</button></div>
-  <p id="musicMsg" role="status">Escolha um estilo e toque em Reproduzir.</p>
+  <p id="musicMsg" role="status">Escolha uma estação e toque em Reproduzir: todos na sala vão ouvir.</p>
   <div class="pool-row"><button class="btn sm" id="musicPlay">Reproduzir</button><button class="btn sm" id="musicStop">Parar música</button></div>
 </section>
 <section class="talk leisure" id="elevator" hidden role="dialog" aria-label="Elevador do prédio">

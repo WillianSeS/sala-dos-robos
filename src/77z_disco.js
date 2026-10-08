@@ -125,7 +125,7 @@ $('discoGo').onclick = goDisco; $('discoExit').onclick = exitDisco;
 $('discoDance').onclick = () => DISCO.dancing ? stopDance() : startDance();
 $('discoStyle').onchange = () => { DISCO.style = $('discoStyle').value; if (DISCO.dancing) publishDiscoPresence(); };
 $('discoInvite').onclick = () => inviteDancers();
-$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!MUSIC.playing && !SPOTIFY.url) { $('musicStyle').value = 'electro'; musicPlay(); } };
+$('discoMusic').onclick = () => { if (DISCO.dancing) stopDance(); openMusic(); if (!RADIO.on && !SPOTIFY.url) { $('musicStyle').value = 'electro'; musicPlay(); } };
 /* O painel da pista começa fechado e abre pelo botão 🪩 Pista. */
 function setDiscoPanel(open) { DISCO.panelOpen = open; $('discoPanel').hidden = !open; $('discoPanelOpen').hidden = open; }
 $('discoPanelOpen').onclick = () => setDiscoPanel(true);

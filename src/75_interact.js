@@ -21,7 +21,9 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
-  const elev = FLOOR[floorAt(px, pz)]; consider(elev.x, elev.z, 1.7, 0.3, 'Chamar o elevador', openElevator);
+  const elev = FLOOR[floorAt(px, pz)];
+  if (inCab(px, pz)) consider(px, pz, 1, -1, 'Escolher o andar', openElevator);
+  else consider(elev.x, elev.z, 1.7, 0.3, 'Usar o elevador', openElevator);
   if (inLounge(px, pz)) {
     for (const [i, h] of LOUNGE_LAYOUT.hooks.entries()) consider(h.x, h.z, 2.2, .3, 'Usar narguilé', () => startSmoking(i));
     consider(5.1, 20.5, 2, .35, 'Pegar bebidas e petiscos no balcão', () => openHospitality('bar'));

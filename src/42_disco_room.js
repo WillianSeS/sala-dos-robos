@@ -6,7 +6,8 @@ for (const [key, p, n] of [
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, clubFloor, GROUPS.main, 0, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
 mesh(G.plane, clubWall, GROUPS.main, 0, RH, 10, Math.PI / 2, 0, 0, 8, 8, 1, false);
-B(clubWall, -4, 1.6, 10, 0.08, RH, 8, { group: 'clubLeft', cast: false });
+for (const [z, len] of wallRuns(6, 14, 'disco')) B(clubWall, -4, 1.6, z, 0.08, RH, len, { group: 'clubLeft', cast: false });
+B(clubWall, -4, 2.75, FLOOR.disco.z, 0.08, 0.9, CAB.door * 2, { group: 'clubLeft', cast: false });
 B(clubWall, 4, 1.6, 10, 0.08, RH, 8, { group: 'clubRight', cast: false });
 B(clubWall, 0, 1.6, 14, 8, RH, 0.08, { group: 'clubBack', cast: false });
 /* Parede fechada do lado do escritório (atrás da parede dele, que só tem uma face). */
@@ -14,7 +15,7 @@ B(clubWall, 0, 1.6, 6.05, 8, RH, 0.06, { group: 'clubFront', cast: false });
 const clubNeon = color => M({ color: '#160d22', emissive: color, emissiveIntensity: 2.2, roughness: 0.7 });
 const pinkNeon = clubNeon('#fc59df'), blueNeon = clubNeon('#427aff');
 for (const [x, group] of [[-3.95, 'clubLeft'], [3.95, 'clubRight']]) {
-  B(x < 0 ? pinkNeon : blueNeon, x, 0.08, 10, 0.04, 0.04, 7.9, { group, cast: false });
+  for (const [z, len] of x < 0 ? wallRuns(6.05, 13.95, 'disco') : [[10, 7.9]]) B(x < 0 ? pinkNeon : blueNeon, x, 0.08, z, 0.04, 0.04, len, { group, cast: false });
   B(x < 0 ? pinkNeon : blueNeon, x, 2.9, 10, 0.04, 0.04, 7.9, { group, cast: false });
   for (const z of [7.3, 9.5, 11.7, 13.7]) B(x < 0 ? pinkNeon : blueNeon, x, 1.5, z, 0.04, 1.5, 0.05, { group, cast: false });
 }

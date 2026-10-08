@@ -147,12 +147,12 @@ async function mpInit() {
 }
 /* minha presença: onde estou e o que estou fazendo (8x por segundo, só quando muda) */
 function myPresence() {
-  let x = fp.pos.x, z = fp.pos.z, yaw = fp.yaw + Math.PI, m = 'w', sy = 0;
+  let x = fp.pos.x, z = fp.pos.z, yaw = ['fp', 'ride'].includes(mode) ? fp.body : fp.yaw + Math.PI, m = 'w', sy = 0;
   if ((mode === 'seat' || mode === 'music' || mode === 'menu') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
   else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
   if (DISCO.dancing) { m = 'd'; yaw = Math.PI; }
-  return { it: HOSP.item, ct: HOSP.consumeUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.consumeUntil - performance.now()/1000)*1000) : 0, hs: HOSP.smokingUntil > performance.now()/1000 ? HOSP.hookIndex : -1, ht: HOSP.smokingUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.smokingUntil - performance.now()/1000)*1000) : 0, ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
+  return { ro: RADIO.on ? 1 : 0, rs: RADIO.station, rt: RADIO.t, it: HOSP.item, ct: HOSP.consumeUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.consumeUntil - performance.now()/1000)*1000) : 0, hs: HOSP.smokingUntil > performance.now()/1000 ? HOSP.hookIndex : -1, ht: HOSP.smokingUntil > performance.now()/1000 ? Date.now() + Math.round((HOSP.smokingUntil - performance.now()/1000)*1000) : 0, ds: DISCO.style, em: Date.now() < DISCO.emojiUntil ? DISCO.emoji : '', ei: DISCO.emojiId, et: DISCO.emojiUntil, v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
 function stepMulti(dt, t) {
   if (MP.room && inRoom && (t - MP.sendT > MP.sendDt)) {
@@ -168,7 +168,7 @@ function stepMulti(dt, t) {
       let v = MP.vis.get(peer.peer);
       if (!v) { v = new Visitor(peer.peer, p); MP.vis.set(peer.peer, v); }
       if (p.n !== v.name) v.setName(p.n);
-      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -7.8, 11.7); v.tz = clamp(+p.z || 0, -5.8, 21.7);
+      v.vc = !!p.vc; v.tx = clamp(+p.x || 0, -5.6, 13.5); v.tz = clamp(+p.z || 0, -5.8, 21.7);
       /* Quem trocou de andar pelo elevador aparece direto no outro andar, sem atravessar paredes. */
       if (floorAt(v.tx, v.tz) !== floorAt(v.x, v.z)) { v.x = v.tx; v.z = v.tz; }
       v.tyaw = +p.yaw || 0; v.m = ['w', 's', 't', 'd'].includes(p.m) ? p.m : 'w'; v.sy = +p.sy || 0;
@@ -176,6 +176,7 @@ function stepMulti(dt, t) {
       v.consumeUntil = +p.ct > Date.now() && +p.ct < Date.now() + 5000 ? performance.now()/1000 + (+p.ct - Date.now())/1000 : 0;
       v.smokingUntil = inLounge(v.tx, v.tz) && [0, 1].includes(p.hs) && +p.ht > Date.now() && +p.ht < Date.now()+8000 ? performance.now()/1000 + (+p.ht - Date.now())/1000 : 0; v.hookIndex = p.hs;
       v.ds = DISCO_STYLES.includes(p.ds) ? p.ds : 'groove';
+      if (p.rt) radioFromPeer(p);
       if (DISCO_EMOJIS.includes(p.em) && +p.ei !== v.emojiId && +p.et > Date.now() && +p.et < Date.now() + 10000) {
         v.emojiId = +p.ei; spawnDiscoEmoji(p.em, v.tx, v.tz);
       }
@@ -193,7 +194,7 @@ function updateVisitorLabels(t) {
     const el = v.el, sub = el.lastChild, txt = t < v.sayT ? '“' + v.say + '”' : v.speaking ? 'falando…' : v.smokingUntil > t ? '💨 no lounge' : v.consumeUntil > t && v.item ? (CONSUMABLES[v.item].kind === 'food' ? '🍽️ comendo' : '🥤 bebendo') : v.m === 'd' ? '🕺 dançando' : v.vc ? 'visitante · voz' : 'visitante';
     el.classList.toggle('talking', !!v.speaking);
     if (sub.textContent !== txt) sub.textContent = txt;
-    if (!v.A || !v.A.J.head) { el.style.opacity = '0'; continue; }
+    if (!v.A || !v.A.J.head || otherFloor(v.x, v.z)) { el.style.opacity = '0'; continue; }
     v.A.J.head.getWorldPosition(_vh); _vh.y += 0.42;
     const dist = camera.position.distanceTo(_vh); _vh.project(camera);
     if (_vh.z > 1 || _vh.z < -1 || dist < 0.55) { el.style.opacity = '0'; continue; }

@@ -4,7 +4,8 @@ let mode = 'orbit';
 const portrait = () => innerWidth < innerHeight;
 const orbit = { target: new THREE.Vector3(0, -1.1, 0.6), r: 14, th: 0.78, ph: 0.92, idle: 0 };
 if (portrait()) { orbit.r = 19; orbit.th = 1.15; orbit.target.set(0, -1.6, 0.2); }
-const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0 };
+/* body: para onde o corpo do personagem está virado (convenção dos avatares); segue a direção em que ele anda. */
+const fp = { pos: new THREE.Vector3(6.6, 0, -4.6), yaw: 1.78, pitch: -0.06, vel: new THREE.Vector3(), bob: 0, body: 1.78 + Math.PI };
 const EYE = 1.62, PR = 0.28;
 const keys = {};
 let locked = false, tween = null, inRoom = false;
@@ -85,7 +86,7 @@ canvas.addEventListener('pointerdown', e => {
     joy = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
     joyEl.hidden = false; joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.firstElementChild.style.transform = '';
   } else ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: orbit.r }; }
+  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: orbit.r, z: VIEW.zoom }; }
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
 });
 canvas.addEventListener('pointermove', e => {
@@ -99,15 +100,29 @@ canvas.addEventListener('pointermove', e => {
   const p = ptr.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
   if (ptr.size === 2 && pinch && mode === 'orbit') { const [a, b] = [...ptr.values()]; orbit.r = clamp(pinch.r * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 6, 22); return; }
+  if (ptr.size === 2 && pinch && VIEW.third && inRoom) { const [a, b] = [...ptr.values()]; VIEW.zoom = clamp(pinch.z * pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 1.4, 4.5); return; }
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
 });
 const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyEl.hidden = true; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
-canvas.addEventListener('wheel', e => { if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; } }, { passive: false });
+canvas.addEventListener('wheel', e => {
+  if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; }
+  else if (VIEW.third && inRoom) { e.preventDefault(); VIEW.zoom = clamp(VIEW.zoom * Math.exp(e.deltaY * 0.001), 1.4, 4.5); }
+}, { passive: false });
 
 /* colisão do visitante com móveis e pessoas */
+/* Cabine do elevador: livre por dentro; o vão da porta só passa com as portas abertas. */
+function elevatorSpace(x, z, radius) {
+  for (const f of FLOORS) {
+    const d = (x - f.wx) * -f.dir, side = Math.abs(z - f.z);
+    if (d >= 0.08 + radius && d <= CAB.depth - radius && side <= CAB.half - radius) return true;
+    if (d > -0.6 && d < 0.09 + radius && side <= 0.55 - radius && f.open > 0.8) return true;
+  }
+  return false;
+}
 function wallBlocked(x, z, radius = PR) {
+  if (elevatorSpace(x, z, radius)) return false;
   if (z <= RD - radius) {
     if (x < -RW + radius || x > RW - radius || z < -RD + radius) return true;
   } else {
@@ -136,7 +151,8 @@ function stepFP(dt) {
   if (keys.KeyW || keys.ArrowUp) f += 1; if (keys.KeyS || keys.ArrowDown) f -= 1;
   if (keys.KeyD || keys.ArrowRight) s += 1; if (keys.KeyA || keys.ArrowLeft) s -= 1;
   if (joy) { f -= joy.dy; s += joy.dx; }
-  const run = keys.ShiftLeft || keys.ShiftRight, sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
+  /* Joystick empurrado até o fim corre, como o Shift no teclado. */
+  const run = keys.ShiftLeft || keys.ShiftRight || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
   if (len > 1) { f /= len; s /= len; }
   const sy = Math.sin(fp.yaw), cy = Math.cos(fp.yaw);
   const tx = (-sy * f + cy * s) * sp, tz = (-cy * f - sy * s) * sp;
@@ -145,6 +161,9 @@ function stepFP(dt) {
   if (!blocked(nx, fp.pos.z)) fp.pos.x = nx; else fp.vel.x = 0;
   if (!blocked(fp.pos.x, nz)) fp.pos.z = nz; else fp.vel.z = 0;
   const v = Math.hypot(fp.vel.x, fp.vel.z);
+  /* O corpo vira para onde anda; parado em primeira pessoa, volta a olhar para frente. */
+  if (v > 0.25) fp.body = angDamp(fp.body, Math.atan2(fp.vel.x, fp.vel.z), 10, dt);
+  else if (!VIEW.third) fp.body = angDamp(fp.body, fp.yaw + Math.PI, 6, dt);
   fp.bob += v * dt * 5.2;
   const bob = reduceMotion ? 0 : Math.sin(fp.bob) * 0.022 * Math.min(1, v / 1.6);
   camera.position.set(fp.pos.x, EYE + bob, fp.pos.z);

@@ -4,7 +4,8 @@ for (const [key, p, n] of [
   ['gamesLeft', [4, 1.6, 10], [1, 0, 0]], ['gamesFront', [10, 1.6, 6], [0, 0, 1]], ['gamesRight', [12, 1.6, 10], [-1, 0, 0]], ['gamesBack', [8, 1.6, 14], [0, 0, -1]],
 ]) { GROUPS[key] = new THREE.Group(); scene.add(GROUPS[key]); WALL_INFO[key] = { p: new THREE.Vector3(...p), n: new THREE.Vector3(...n) }; }
 mesh(G.plane, mat.wood, GROUPS.main, 8, 0, 10, -Math.PI / 2, 0, 0, 8, 8, 1, false);
-B(gameWall, 12, 1.6, 10, 0.08, RH, 8, { group: 'gamesRight', cast: false });
+for (const [z, len] of wallRuns(6, 14, 'games')) B(gameWall, 12, 1.6, z, 0.08, RH, len, { group: 'gamesRight', cast: false });
+B(gameWall, 12, 2.75, FLOOR.games.z, 0.08, 0.9, CAB.door * 2, { group: 'gamesRight', cast: false });
 // Parede inteira para o lounge: cada sala fica num andar do prédio.
 B(gameWall, 8, 1.6, 14, 8, RH, 0.08, { group: 'gamesBack', cast: false });
 B(gameWall, 4.01, 1.6, 10, 0.02, RH, 8, { group: 'gamesLeft', cast: false });

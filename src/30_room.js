@@ -1,4 +1,24 @@
 
+/* ================= prédio: um andar por sala, ligados por elevador ================= */
+/* As salas não têm passagens entre si; cada uma tem a porta do elevador numa parede.
+   wx: superfície interna da parede; dir: sentido para dentro da sala (no eixo x).
+   A cabine fica do lado de fora da parede: CAB.depth de fundo e 2 × CAB.half de largura. */
+const FLOORS = [
+  { key: 'office', n: 40, name: 'Escritório', sub: 'PREGÃO', wx: 8, dir: -1, z: -4.8, group: 'wallRight' },
+  { key: 'games', n: 41, name: 'Sala de jogos', sub: 'SINUCA • 21', wx: 11.96, dir: -1, z: 8, group: 'gamesRight' },
+  { key: 'disco', n: 42, name: 'Discoteca', sub: 'PISTA • DJ', wx: -3.96, dir: 1, z: 8, group: 'clubLeft' },
+  { key: 'lounge', n: 43, name: 'Lounge', sub: 'COBERTURA', wx: 11.935, dir: -1, z: 16, group: 'loungeRight' },
+];
+for (const f of FLOORS) { f.x = f.wx + f.dir * 0.7; f.yaw = f.dir < 0 ? Math.PI / 2 : -Math.PI / 2; f.open = 0; f.openUntil = 0; }
+const floorAt = (x, z) => z < 6 ? 'office' : z < 14 ? (x < 4 ? 'disco' : 'games') : 'lounge';
+const FLOOR = Object.fromEntries(FLOORS.map(f => [f.key, f]));
+const CAB = { depth: 1.59, half: 0.75, door: 0.57, center: 0.84 };
+/* Trechos de parede (centro, comprimento) ao longo de z, com o vão da porta do elevador. */
+function wallRuns(z0, z1, key) {
+  const f = FLOOR[key], a = f.z - CAB.door, b = f.z + CAB.door;
+  return [[z0, a], [b, z1]].filter(([u, v]) => v - u > 0.001).map(([u, v]) => [(u + v) / 2, v - u]);
+}
+
 /* ================= arquitetura ================= */
 /* sala: x -8..8, z -6..6, pé-direito 3,2 m. Fundo (z=-6) = parede de ripas com telão. */
 const RW = 8, RD = 6, RH = 3.2;
@@ -50,8 +70,11 @@ const skyMid = new THREE.Mesh(new THREE.PlaneGeometry(130, 65), new THREE.MeshBa
 skyMid.position.set(-34, -8, 2); skyMid.rotation.y = Math.PI / 2; GROUPS.main.add(skyMid);
 
 /* parede direita (elevador) e parede da frente */
-mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, 0, 0, -Math.PI / 2, 0, 12, RH, 1, false);
-B(mat.base, 7.99, 0.05, 0, 0.02, 0.1, 12, { group: 'wallRight', cast: false });
+for (const [z, len] of wallRuns(-RD, RD, 'office')) {
+  mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, RH / 2, z, 0, -Math.PI / 2, 0, len, RH, 1, false);
+  B(mat.base, 7.99, 0.05, z, 0.02, 0.1, len, { group: 'wallRight', cast: false });
+}
+mesh(G.plane, mat.plasterLight, GROUPS.wallRight, RW, 2.75, FLOOR.office.z, 0, -Math.PI / 2, 0, CAB.door * 2, 0.9, 1, false);
 /* parede da frente inteira: cada sala fica num andar e só se chega pelo elevador */
 mesh(G.plane, mat.plasterLight, GROUPS.wallFront, 0, RH / 2, RD, 0, Math.PI, 0, 16, RH, 1, false);
 B(mat.base, 0, 0.05, 5.99, 16, 0.1, 0.02, { group: 'wallFront', cast: false });

@@ -6,14 +6,15 @@ Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, c
 
 ## O que dá para fazer
 
-- Entrar na sala em primeira pessoa: WASD e mouse no computador, joystick no celular. O botão **👤 3ª pessoa** (ou a tecla **V**) mostra o seu personagem andando, sentando, dançando, comendo e bebendo.
-- Andar pelo **prédio**: cada sala fica num andar (40º Escritório, 41º Sala de jogos, 42º Discoteca, 43º Lounge na cobertura). Chegue à porta do elevador e aperte **E**, ou use os atalhos; robôs e garçons também usam o elevador.
+- Entrar na sala em primeira pessoa: WASD e mouse no computador, joystick no celular. O botão **👤 3ª pessoa** (ou a tecla **V**) mostra o seu personagem andando, sentando, dançando, comendo e bebendo; ele vira para o lado em que anda, e a roda do mouse ou a pinça com dois dedos aproximam a câmera. No celular, o joystick empurrado até o fim corre.
+- Andar pelo **prédio**: cada sala fica num andar (40º Escritório, 41º Sala de jogos, 42º Discoteca, 43º Lounge na cobertura). As portas do elevador abrem quando você chega perto; entre na cabine (ou aperte **E** na porta), escolha o andar e veja o visor contar os andares até as portas abrirem no destino. Os atalhos também usam o elevador, e robôs e garçons viajam nele.
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
 - Jogar 21 contra os traders com fichas fictícias: use a mesa de cartas na **Sala de jogos** ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.
 - Visitar o **Smoking Lounge**, no último andar: sofás, balcão, música e duas mesas de narguilé virtual com bocal na mão e fumaça leve.
 - Pegar água, latas, suco, vinho, sanduíche ou maçã na geladeira. O **Cardápio** também oferece café e pizza: Caio (garçom) e Sofia (garçonete) caminham até você com bandejas para entregar.
 - Segurar bebidas e comidas, tomar goles e dar mordidas pelo botão ou pela tecla **F**. Outros visitantes veem os objetos e os gestos. Robôs em pausa também comem e bebem.
-- Ouvir música pelo botão **Música**: três estilos instrumentais gerados no navegador, volume, arquivo de áudio do aparelho ou **Spotify** (cole o link de uma playlist, álbum, artista ou música). O player do Spotify continua tocando com o painel fechado; com a conta do Spotify aberta no navegador toca as músicas inteiras, sem conta só prévias de 30 s. Cada visitante escolhe seu próprio som.
+- Ouvir a **📻 Rádio da sala** pelo botão **Música**: três estações instrumentais geradas no navegador. Ligar, desligar e trocar a estação vale para todos na sala, e todos ouvem a mesma nota ao mesmo tempo; cada um ajusta o próprio volume ou silencia a rádio só para si.
+- Ouvir só para você um arquivo do aparelho ou o **Spotify** (cole o link de uma playlist, álbum, artista ou música). O player do Spotify continua tocando com o painel fechado; com a conta do Spotify aberta no navegador toca as músicas inteiras, sem conta só prévias de 30 s.
 - Visitar a **Discoteca dos Robôs**: use o botão 🪩 Discoteca ou o elevador. O painel da pista fica fechado até você tocar em **🪩 Pista**. A pista tem luzes suaves, globo espelhado, DJ, bancos, três danças e emojis. Convide os robôs disponíveis; visitantes veem as danças e reações uns dos outros.
 - Conversar com os traders usando as perguntas prontas.
 - Encontrar outras pessoas que estão na sala e falar com elas:
