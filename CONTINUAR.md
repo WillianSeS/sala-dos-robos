@@ -2,6 +2,37 @@
 
 Leia este arquivo inteiro antes de mudar qualquer coisa.
 
+## 0. Nova direção: jogo 3D em `jogo/` (PROMPT MESTRE)
+
+Desde 08/10/2026 o projeto segue o "PROMPT MESTRE: Sala dos Robôs · Las Vegas Night". O jogo está sendo reconstruído **por fases** na pasta [`jogo/`](jogo/), com TypeScript, React, Vite, React Three Fiber, Drei, Rapier e Zustand. O guia completo está em [`jogo/README.md`](jogo/README.md), e as ferramentas, as versões e as substituições em [`jogo/docs/VIABILIDADE.md`](jogo/docs/VIABILIDADE.md).
+
+- **Fases (nesta ordem):**
+  1. movimentação;
+  2. prédio, recepção e elevador;
+  3. 40º andar com a Aurora e os 10 robôs;
+  4. demais ambientes;
+  5. minijogos;
+  6. interações;
+  7. multiplayer;
+  8. otimização;
+  9. testes finais.
+
+  Não comece uma fase sem a anterior validada.
+- **Fluxo de trabalho:**
+  - trabalhar em branch de desenvolvimento (`dev/...`);
+  - **não** publicar na produção (`gh-pages`) e **não** alterar a `main` sem autorização do responsável;
+  - prévias de teste no **Vercel**: o responsável pediu para não usar o Netlify.
+- **Restrições do prompt:**
+  - resultados financeiros sempre marcados como simulação;
+  - nada de dinheiro real, apostas ou gorjetas com valor;
+  - não fingir multiplayer nem contagem de usuários;
+  - não expor segredos;
+  - respeitar licenças;
+  - documentar as limitações;
+  - não declarar testes sem executá-los.
+- **Conteúdo:** o 44º andar é um clube "adulto não explícito", com figurinos elegantes (showgirls). Não há roupas íntimas nem cenas sexualizadas.
+- **Jogo antigo:** este guia, abaixo, descreve o jogo antigo (raiz do repositório). Ele continua publicado e funcionando enquanto a versão nova não cobre tudo.
+
 ## 1. O que é
 
 A **Sala dos Robôs** é uma sala de trading em 3D em Nova York, à noite.
