@@ -10,6 +10,10 @@ const EYE = 1.62, PR = 0.28;
 const keys = {};
 let locked = false, tween = null, inRoom = false;
 const btnView = $('btnView'), btnEnter = $('btnEnter'), help = $('help'), cross = $('cross'), joyEl = $('joy');
+/* Celular: controles de jogo na tela (joystick fixo no canto, botões redondos à direita). */
+const MOBILE = { run: false };
+if (isTouch) document.body.classList.add('touch');
+function joyHome() { joyEl.style.left = joyEl.style.top = ''; joyEl.firstElementChild.style.transform = ''; }
 
 function orbitPose(out) {
   const o = orbit, s = Math.sin(o.ph);
@@ -34,7 +38,7 @@ function enterRoom() {
   fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
     mode = 'fp'; cross.hidden = isTouch;
-    help.innerHTML = isTouch ? 'Joystick à esquerda para andar · arraste o dedo para olhar · botão à direita interage'
+    help.innerHTML = isTouch ? 'Joystick à esquerda anda · arraste à direita para olhar · 🏃 corre · botão verde interage'
       : '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar · mouse olha · <kbd>E</kbd> interage · <kbd>Shift</kbd> corre · <kbd>Esc</kbd> solta o mouse';
     help.hidden = false; help.style.opacity = '1'; setTimeout(() => { help.style.opacity = '0'; }, 7000);
   });
@@ -83,8 +87,12 @@ canvas.addEventListener('pointerdown', e => {
   if (mode === 'seat' && e.pointerType === 'mouse' && !locked) lockMouse();
   if (mode === 'fp' && e.pointerType === 'mouse' && !locked) lockMouse();
   if (mode === 'fp' && e.pointerType === 'touch' && !joy && e.clientX < innerWidth * 0.45 && e.clientY > innerHeight * 0.35) {
-    joy = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
-    joyEl.hidden = false; joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyEl.firstElementChild.style.transform = '';
+    /* Toque perto do joystick fixo usa o centro dele; longe, o joystick vai até o dedo. */
+    const r = joyEl.hidden ? null : joyEl.getBoundingClientRect(), cx = r ? r.left + r.width / 2 : 0, cy = r ? r.top + r.height / 2 : 0;
+    const home = r && Math.hypot(e.clientX - cx, e.clientY - cy) < 110;
+    joy = { id: e.pointerId, x0: home ? cx : e.clientX, y0: home ? cy : e.clientY, dx: 0, dy: 0 };
+    joyEl.hidden = false; joyEl.firstElementChild.style.transform = '';
+    if (!home) { joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; }
   } else ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: orbit.r, z: VIEW.zoom }; }
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
@@ -104,7 +112,7 @@ canvas.addEventListener('pointermove', e => {
   if (mode === 'fp' || mode === 'seat') { const k = e.pointerType === 'touch' ? 0.006 : 0.004; fp.yaw -= dx * k; fp.pitch = clamp(fp.pitch - dy * k, -1.3, 1.3); }
   else if (mode === 'orbit') { orbit.th -= dx * 0.005; orbit.ph = clamp(orbit.ph - dy * 0.004, 0.3, 1.38); orbit.idle = 0; }
 });
-const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyEl.hidden = true; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
+const ptrUp = e => { if (mode === 'pool' && e.type === 'pointerup') poolPointer('up', e); if (joy && e.pointerId === joy.id) { joy = null; joyHome(); joyEl.hidden = !isTouch || mode !== 'fp'; } ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
 canvas.addEventListener('pointerup', ptrUp); canvas.addEventListener('pointercancel', ptrUp);
 canvas.addEventListener('wheel', e => {
   if (mode === 'orbit') { e.preventDefault(); orbit.r = clamp(orbit.r * Math.exp(e.deltaY * 0.001), 6, 22); orbit.idle = 0; }
@@ -152,7 +160,7 @@ function stepFP(dt) {
   if (keys.KeyD || keys.ArrowRight) s += 1; if (keys.KeyA || keys.ArrowLeft) s -= 1;
   if (joy) { f -= joy.dy; s += joy.dx; }
   /* Joystick empurrado até o fim corre, como o Shift no teclado. */
-  const run = keys.ShiftLeft || keys.ShiftRight || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
+  const run = keys.ShiftLeft || keys.ShiftRight || MOBILE.run || (joy && Math.hypot(joy.dx, joy.dy) > 0.92), sp = run ? 3.2 : 1.6, len = Math.hypot(f, s);
   if (len > 1) { f /= len; s /= len; }
   const sy = Math.sin(fp.yaw), cy = Math.cos(fp.yaw);
   const tx = (-sy * f + cy * s) * sp, tz = (-cy * f - sy * s) * sp;

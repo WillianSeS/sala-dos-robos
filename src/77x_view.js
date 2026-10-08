@@ -16,7 +16,8 @@ function setThirdPerson(on) {
   updateViewButton();
 }
 function updateViewButton() {
-  const b = $('viewToggle'); b.textContent = VIEW.third ? '👁️ 1ª pessoa' : '👤 3ª pessoa';
+  const b = $('viewToggle'); b.innerHTML = VIEW.third ? '👁️<span class="lbl"> 1ª pessoa</span>' : '👤<span class="lbl"> 3ª pessoa</span>';
+  b.setAttribute('aria-label', VIEW.third ? 'Primeira pessoa' : 'Terceira pessoa');
   b.setAttribute('aria-pressed', String(VIEW.third)); b.title = VIEW.third ? 'Voltar para a primeira pessoa (V)' : 'Ver o seu personagem (V)';
 }
 function stepThirdCam(dt) {
@@ -41,4 +42,5 @@ function stepPlayerBody(dt, t) {
   if (s && A.isAvatar) A.root.position.y = s.kind === 'desk' ? 0 : -0.03;
 }
 $('viewToggle').onclick = () => setThirdPerson(!VIEW.third);
+$('mRun').onclick = () => { MOBILE.run = !MOBILE.run; $('mRun').setAttribute('aria-pressed', String(MOBILE.run)); };
 updateViewButton();

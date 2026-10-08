@@ -64,7 +64,7 @@ Partes de `src/`:
 | `56_consumables.js` | Nove bebidas/comidas 3D compartilhadas; IK da mão até a boca, fumar e limpeza de props. Tempos de animação em `performance.now()/1000`. |
 | `60_sim.js` | Mercado simulado (`PAIRS`), robôs, operações e rotas pela sala (`NODES`, `EDGES`, `SPOTS`). |
 | `65_screens.js` | Desenho dos monitores, do telão e do letreiro. Etiquetas de resultado. |
-| `70_controls.js` | Modos de câmera (`orbit`, `tween`, `fp`, `seat`, `talk`, `pool`), teclado, mouse, joystick, colisão. |
+| `70_controls.js` | Modos de câmera (`orbit`, `tween`, `fp`, `seat`, `talk`, `pool`), teclado, mouse, joystick, colisão. No celular (`body.touch`, `isTouch`): joystick fixo (`joyHome`), botão de correr (`MOBILE.run`, `#mRun`) e atalhos só com ícone. |
 | `75_interact.js` | Sentar e levantar (`SEATS`), geladeira, ação da tecla E. |
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |

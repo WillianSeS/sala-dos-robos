@@ -6,7 +6,7 @@ Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, c
 
 ## O que dá para fazer
 
-- Entrar na sala em primeira pessoa: WASD e mouse no computador, joystick no celular. O botão **👤 3ª pessoa** (ou a tecla **V**) mostra o seu personagem andando, sentando, dançando, comendo e bebendo; ele vira para o lado em que anda, e a roda do mouse ou a pinça com dois dedos aproximam a câmera. No celular, o joystick empurrado até o fim corre.
+- Entrar na sala em primeira pessoa: WASD e mouse no computador. No celular, controles de jogo na tela: joystick fixo no canto esquerdo, arrastar à direita para olhar, botão 🏃 para correr, botão verde para interagir e atalhos com ícones (funciona em pé e deitado). O botão **👤 3ª pessoa** (ou a tecla **V**) mostra o seu personagem andando, sentando, dançando, comendo e bebendo; ele vira para o lado em que anda, e a roda do mouse ou a pinça com dois dedos aproximam a câmera. No celular, o joystick empurrado até o fim corre.
 - Andar pelo **prédio**: cada sala fica num andar (40º Escritório, 41º Sala de jogos, 42º Discoteca, 43º Lounge na cobertura). As portas do elevador abrem quando você chega perto; entre na cabine (ou aperte **E** na porta), escolha o andar e veja o visor contar os andares até as portas abrirem no destino. Os atalhos também usam o elevador, e robôs e garçons viajam nele.
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
 - Jogar 21 contra os traders com fichas fictícias: use a mesa de cartas na **Sala de jogos** ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.

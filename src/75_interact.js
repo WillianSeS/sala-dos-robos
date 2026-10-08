@@ -71,6 +71,10 @@ function updateActUI() {
   $('discoPanel').hidden = !club || !DISCO.panelOpen;
   $('discoPanelOpen').hidden = !club || DISCO.panelOpen;
   $('viewToggle').hidden = !inRoom;
+  /* Celular: joystick fixo e botão de correr aparecem enquanto o visitante anda. */
+  const walking = isTouch && inRoom && mode === 'fp';
+  if (isTouch && !joy) joyEl.hidden = !walking;
+  $('mRun').hidden = !walking;
   $('gamesGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inGames(fp.pos.x, fp.pos.z);
   $('gamesBack').hidden = !inRoom || !['fp', 'seat'].includes(mode) || playerFloor() === 'office';
   $('discoGo').hidden = !inRoom || !['fp', 'seat'].includes(mode) || inDisco(fp.pos.x, fp.pos.z);

@@ -198,6 +198,47 @@ with sync_playwright() as p:
             other.close()
             page.bring_to_front()
 
+        if mobile:
+            # Controles de jogo no celular: joystick fixo, botão de correr e atalhos só com ícone, sem sobreposição.
+            def layout_ok():
+                return page.evaluate('''() => {
+                    const ids=['joy','mRun','btnAct','heldBar','mpToggle','vcToggle','musicOpen','btnView',...[...document.querySelectorAll('.disco-shortcuts .btn')].filter(b=>!b.hidden).map(b=>b.id)];
+                    const chips=[...document.querySelectorAll('#hud .chip')].filter(e=>e.getClientRects().length).map((e,i)=>['chip'+i,e.getBoundingClientRect()]);
+                    const boxes=ids.map(id=>[id,document.getElementById(id)]).filter(([,e])=>e && !e.hidden && e.getClientRects().length).map(([id,e])=>[id,e.getBoundingClientRect()]).concat(chips);
+                    const inside=boxes.every(([,r])=>r.left>=0 && r.top>=0 && r.right<=innerWidth+1 && r.bottom<=innerHeight+1);
+                    const hit=(a,b)=>a.left<b.right-1 && b.left<a.right-1 && a.top<b.bottom-1 && b.top<a.bottom-1;
+                    const overlaps=[];for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)if(hit(boxes[i][1],boxes[j][1]))overlaps.push(boxes[i][0]+'/'+boxes[j][0]);
+                    return {inside,overlaps,ids:boxes.map(b=>b[0])};
+                }''')
+            page.evaluate('__sala.setFP(0,1,0)')
+            page.wait_for_function('!document.getElementById("joy").hidden && !document.getElementById("mRun").hidden')
+            assert page.evaluate('getComputedStyle(document.querySelector("#gamesGo .lbl")).display==="none"')
+            for size in ({'width': 390, 'height': 760}, {'width': 844, 'height': 390}):
+                page.set_viewport_size(size); page.wait_for_timeout(300)
+                page.evaluate('__sala.setFP(8,7.9,Math.PI)')
+                page.wait_for_function('__sala.act==="Jogar sinuca" && !document.getElementById("btnAct").hidden')
+                result = layout_ok()
+                assert result['inside'] and not result['overlaps'] and 'joy' in result['ids'] and 'mRun' in result['ids'], (size, result)
+                page.evaluate('__drawSala(__sala.scene,__sala.camera)')
+                page.screenshot(path=AQUI + '/saida/controles-celular-' + str(size['width']) + '.png')
+            page.set_viewport_size({'width': 390, 'height': 760})
+            box = page.locator('#joy').bounding_box()
+            cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+            page.evaluate('__sala.setFP(0,1,0)')
+            page.click('#mRun')
+            assert page.evaluate('__sala.MOBILE.run') and page.get_attribute('#mRun', 'aria-pressed') == 'true'
+            # Arrasta o joystick para frente: com o botão de correr, o passo é mais rápido.
+            page.evaluate('''([x,y]) => {
+                const c=document.getElementById('gl'), ev=(t,yy)=>c.dispatchEvent(new PointerEvent(t,{pointerId:7,pointerType:'touch',clientX:x,clientY:yy,bubbles:true}));
+                ev('pointerdown',y); ev('pointermove',y-40); window.__joyEnd=()=>ev('pointerup',y-40);
+            }''', [cx, cy])
+            page.wait_for_function('Math.hypot(__sala.fp.vel.x,__sala.fp.vel.z)>2', timeout=30000)
+            page.evaluate('__joyEnd()')
+            page.click('#mRun')
+            assert not page.evaluate('__sala.MOBILE.run')
+            assert page.locator('#joy').is_visible()
+            print(nome + ': controles de jogo no celular OK', flush=True)
+
         page.evaluate('__sala.openElevator()')
         page.evaluate('__sala.leaveRoom()')
         page.wait_for_function('__sala.mode==="orbit"', timeout=30000)
