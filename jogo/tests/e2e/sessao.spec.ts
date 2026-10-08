@@ -78,7 +78,7 @@ async function gravarTrecho(page: Page, t: Trecho, destino: string) {
   }
   fs.mkdirSync(path.dirname(destino), { recursive: true });
   const tmp = `${destino}.tmp.mp4`;
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '30', '-i', path.join(pasta, 'q%05d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', '-r', '30', tmp]);
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '30', '-i', path.join(pasta, 'q%05d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', '-r', '30', tmp]);
   fs.renameSync(tmp, destino); // só vira "pronto" quando o arquivo está completo
   test.info().annotations.push({ type: 'trecho', description: `${destino} (${n} quadros)` });
 }
