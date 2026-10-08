@@ -20,13 +20,23 @@ const loadFBX = p => { const b = fs.readFileSync(p); return new FBXLoader().pars
 const [name, cat, g, out] = process.argv.slice(2);
 const RB = process.env.RB || 'rb';
 const ST = `${RB}/Assets/Animations/all_animations_max_motextr_static/`, XY = `${RB}/Assets/Animations/all_animations_max_motextr_xy/`;
-/* [nome, arquivo, locomoção?]. Os clipes 'motextr_xy' trazem o deslocamento da raiz (Bip01) para frente:
-   ele vira a velocidade natural do clipe e é retirado, para o controlador de física mover o personagem. */
+/* Modos dos clipes:
+   loco    – caminhada/corrida: o deslocamento da raiz vira a velocidade natural e sai do clipe
+   laco    – clipe curto que repete (fecha o laço com o primeiro quadro)
+   janela  – clipe longo: escolhe o trecho [min, max] s que fecha melhor o ciclo
+   sentar  – transição: a raiz termina no assento (0); guarda onde começa (em pé, à frente)
+   levantar– transição: começa no assento (0); guarda onde termina (em pé, à frente) */
+const XYZ = `${RB}/Assets/Animations/all_animations_max_motextr_xyz/`;
 const SPECS = [
-  ['idle', ST + g + '_idle_breathe_01.max.fbx', false],
-  ['lookAround', ST + g + '_idle_look_around_01.max.fbx', false],
-  ['walk', XY + g + '_walk_neutral_01.max.fbx', true],
-  ['run', XY + g + '_run_neutral_01.max.fbx', true],
+  { nome: 'idle', arq: ST + g + '_idle_breathe_01.max.fbx', modo: 'laco' },
+  { nome: 'lookAround', arq: ST + g + '_idle_look_around_01.max.fbx', modo: 'laco' },
+  { nome: 'walk', arq: XY + g + '_walk_neutral_01.max.fbx', modo: 'loco' },
+  { nome: 'run', arq: XY + g + '_run_neutral_01.max.fbx', modo: 'loco' },
+  { nome: 'sitDown', arq: XYZ + g + '_sit_down_chair_01.max.fbx', modo: 'sentar' },
+  { nome: 'sitIdle', arq: ST + g + '_sit_chair_idle_relaxed_01.max.fbx', modo: 'janela', janela: [8, 14] },
+  { nome: 'standUp', arq: XYZ + g + '_sit_stand_up_chair_01.max.fbx', modo: 'levantar' },
+  { nome: 'wave', arq: ST + g + '_wave_01.max.fbx', modo: 'laco' },
+  { nome: 'talk', arq: ST + g + '_gestic_talk_neutral_01.max.fbx', modo: 'janela', janela: [6, 12] },
 ];
 const FPS = 30;
 const BODY = /^Bip01(_Pelvis|_Spine\d?|_Neck|_Head|_[LR]_(Clavicle|UpperArm|Forearm|Hand|Finger\d+|Thigh|Calf|Foot|Toe0))?$/;
@@ -59,30 +69,54 @@ function sample(tr, t0, n, fps) {
   return o;
 }
 const clips = [], info = {};
-for (const [cname, file, loco] of SPECS) {
-  const src = loadFBX(file).animations[0];
+const CHAVE = ['Bip01_Spine1', 'Bip01_Neck', 'Bip01_Head', 'Bip01_L_UpperArm', 'Bip01_R_UpperArm', 'Bip01_L_Forearm', 'Bip01_R_Forearm', 'Bip01_L_Thigh', 'Bip01_R_Thigh', 'Bip01_L_Calf', 'Bip01_R_Calf'];
+for (const spec of SPECS) {
+  const src = loadFBX(spec.arq).animations[0];
   const keep = src.tracks.filter(t => {
     const bone = t.name.slice(0, t.name.lastIndexOf('.')), prop = t.name.split('.').pop();
     return BODY.test(bone) && (prop === 'quaternion' || (prop === 'position' && bone === 'Bip01'));
   });
-  const n = Math.max(2, Math.round(src.duration * FPS) + 1), T = (n - 1) / FPS;
+  const total = Math.max(2, Math.round(src.duration * FPS) + 1);
+  const full = keep.map(t => ({ t, v: sample(t, 0, total, FPS) }));
+  // trecho [s, e] do clipe original
+  let s0 = 0, e0 = total - 1;
+  if (spec.modo === 'janela') {
+    const feat = CHAVE.map(k => full.find(x => x.t.name === k + '.quaternion')).filter(Boolean);
+    const dist = (i, j) => { let d = 0; for (const f of feat) { let dot = 0; for (let c = 0; c < 4; c++) dot += f.v[i * 4 + c] * f.v[j * 4 + c]; d += 1 - Math.abs(dot); } return d; };
+    let best = Infinity; const lo = Math.round(spec.janela[0] * FPS), hi = Math.round(spec.janela[1] * FPS);
+    for (let i = 0; i + lo < total; i += 2) for (let j = i + lo; j <= Math.min(total - 1, i + hi); j++) { const d = dist(i, j); if (d < best) { best = d; s0 = i; e0 = j; } }
+  }
+  const n = e0 - s0 + 1, T = (n - 1) / FPS;
   const times = Array.from({ length: n }, (_, k) => k / FPS);
-  let natural = 0;
-  const tracks = keep.map(t => {
-    const sz = t.getValueSize(), vals = sample(t, 0, n, FPS);
+  const dados = { duration: 0, naturalSpeed: 0 };
+  const tracks = full.map(({ t, v }) => {
+    const sz = t.getValueSize(), vals = v.slice(s0 * sz, (e0 + 1) * sz);
     if (t.name === 'Bip01.position') {
-      /* deslocamento médio por ciclo (cm): sai da animação e vira velocidade */
       const dx = vals[(n - 1) * 3] - vals[0], dz = vals[(n - 1) * 3 + 2] - vals[2];
-      if (loco) { natural = Math.hypot(dx, dz) / 100 / T; for (let k = 0; k < n; k++) { vals[k * 3] -= dx * k / (n - 1); vals[k * 3 + 2] -= dz * k / (n - 1); } }
+      if (spec.modo === 'loco') {
+        /* deslocamento médio por ciclo (cm): sai da animação e vira velocidade */
+        dados.naturalSpeed = +(Math.hypot(dx, dz) / 100 / T).toFixed(3);
+        for (let k = 0; k < n; k++) { vals[k * 3] -= dx * k / (n - 1); vals[k * 3 + 2] -= dz * k / (n - 1); }
+      } else if (spec.modo === 'sentar') {
+        /* desloca para a raiz terminar em (0, 0) no plano; o começo fica à frente do assento */
+        const fx = vals[(n - 1) * 3], fz = vals[(n - 1) * 3 + 2];
+        for (let k = 0; k < n; k++) { vals[k * 3] -= fx; vals[k * 3 + 2] -= fz; }
+        dados.inicio = [+(vals[0] / 100).toFixed(3), +(vals[2] / 100).toFixed(3)];
+      } else if (spec.modo === 'levantar') {
+        const ix = vals[0], iz = vals[2];
+        for (let k = 0; k < n; k++) { vals[k * 3] -= ix; vals[k * 3 + 2] -= iz; }
+        dados.fim = [+(vals[(n - 1) * 3] / 100).toFixed(3), +(vals[(n - 1) * 3 + 2] / 100).toFixed(3)];
+      }
     }
-    vals.set(vals.slice(0, sz), (n - 1) * sz);   /* fecha o laço */
+    if (spec.modo !== 'sentar' && spec.modo !== 'levantar') vals.set(vals.slice(0, sz), (n - 1) * sz); /* fecha o laço */
     let constant = true; for (let k = sz; k < vals.length && constant; k++) if (Math.abs(vals[k] - vals[k % sz]) > 1e-4) constant = false;
     const K = t.name.endsWith('.quaternion') ? THREE.QuaternionKeyframeTrack : THREE.VectorKeyframeTrack;
     return constant ? new K(t.name, [0], Array.from(vals.slice(0, sz))) : new K(t.name, times, Array.from(vals));
   });
-  const clip = new THREE.AnimationClip(cname, T, tracks);
+  const clip = new THREE.AnimationClip(spec.nome, T, tracks);
   clips.push(clip);
-  info[cname] = { duration: +T.toFixed(3), naturalSpeed: +natural.toFixed(3) };
+  dados.duration = +T.toFixed(3);
+  info[spec.nome] = dados;
 }
 
 /* ---------- conferência: com o clipe no lugar, o pé de apoio desliza para trás na velocidade natural ---------- */
@@ -110,7 +144,7 @@ function measure(clip) {
   }
   return { footSpeed: cnt ? +(-sum / cnt).toFixed(3) : 0, headY: +Math.max(...F.map(f => f.h)).toFixed(3) };
 }
-for (const c of clips) Object.assign(info[c.name], measure(c));
+for (const c of clips) if (['walk', 'run'].includes(c.name)) Object.assign(info[c.name], measure(c));
 mixer.stopAllAction(); mixer.setTime(0);
 /* pose de referência (bind) para a altura dos olhos */
 root.updateMatrixWorld(true);

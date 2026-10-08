@@ -297,5 +297,77 @@ def tela():
     salvar('tela', np.asarray(img), None, None)
 
 
-for f in (marmore, nogueira, gesso, couro, veludo, latao, tapete, quadro, livros, folha, tela):
-    f()
+
+# ---------------------------------------------------------------- variações e texturas dos andares 41–44
+def veludo_cor(nome, base):
+    N = 512
+    n1, n2 = ruido(N, 1.0, 70), ruido(N, 2.2, 71)
+    cor = np.array(base) * (0.8 + 0.4 * n2[..., None])
+    salvar(nome, srgb(cor), orm(0.85 + 0.1 * n1), normal_de_altura(n1 * 0.5, 2.0))
+
+
+def couro_preto():
+    N = 1024
+    cel = ruido(N, 0.9, 160)
+    grao = 1 - np.clip(np.abs(cel - 0.5) * 6, 0, 1)
+    mancha = ruido(N, 2.4, 161)
+    cor = np.array([0.032, 0.03, 0.03]) * (0.85 + 0.35 * mancha[..., None]) * (1 - 0.2 * grao[..., None])
+    salvar('couro_preto', srgb(cor), orm(0.38 + 0.25 * grao), normal_de_altura(-grao * 0.8 + ruido(N, 1.2, 162) * 0.3, 3.0))
+
+
+def carpete():
+    """Carpete de cassino: vinho com losangos e arabescos dourados (tile de 2 m)."""
+    N = 1024
+    u, v = np.meshgrid(np.linspace(0, 1, N, endpoint=False), np.linspace(0, 1, N, endpoint=False))
+    d = np.abs(((u * 4) % 1) - 0.5) + np.abs(((v * 4) % 1) - 0.5)
+    losango = np.exp(-((d - 0.42) / 0.02) ** 2)
+    ponto = np.exp(-(d / 0.06) ** 2)
+    giro = np.sin((u * 8 + v * 8) * math.pi * 2) * np.sin((u * 8 - v * 8) * math.pi * 2)
+    arabesco = np.clip(giro * 0.5 + 0.5, 0, 1) ** 6 * 0.6
+    fibras = ruido(N, 0.3, 170)
+    cor = np.array([0.24, 0.025, 0.04]) * (0.85 + 0.3 * fibras[..., None])
+    cor = mix(cor, np.array([0.62, 0.45, 0.16]), np.clip(losango + ponto + arabesco * 0.5, 0, 1))
+    salvar('carpete', srgb(cor), orm(0.95 - 0.1 * fibras), normal_de_altura(fibras * 0.8, 2.5))
+
+
+def pista():
+    """Piso de LED da discoteca: placas de 50 cm com brilho nas bordas (a cor é animada no jogo)."""
+    N = 1024
+    u, v = np.meshgrid(np.linspace(0, 1, N, endpoint=False), np.linspace(0, 1, N, endpoint=False))
+    fu, fv = (u * 4) % 1, (v * 4) % 1
+    borda = np.minimum(np.minimum(fu, 1 - fu), np.minimum(fv, 1 - fv))
+    placa = np.clip(1 - np.exp(-borda / 0.08), 0, 1)
+    junta = borda < 0.012
+    cor = np.stack([0.85 * placa + 0.15, 0.85 * placa + 0.15, 0.85 * placa + 0.15], -1)
+    cor[junta] = 0.02
+    rough = np.where(junta, 0.8, 0.15)
+    salvar('pista', srgb(cor), orm(rough), normal_de_altura(np.where(junta, -1.0, 0.0), 3.0))
+
+
+def janelas_fachada():
+    """Fachada de vidro: grade de janelas (2 x 1 andar por quadro) com luzes acesas ao acaso."""
+    W, H = 1024, 1024
+    rng = np.random.default_rng(180)
+    img = np.zeros((H, W, 3))
+    lin, col = 16, 16
+    for i in range(lin):
+        for j in range(col):
+            y0, x0 = i * H // lin, j * W // col
+            y1, x1 = (i + 1) * H // lin, (j + 1) * W // col
+            acesa = rng.random() < 0.55
+            tom = np.array([1.0, 0.78, 0.48]) if rng.random() < 0.75 else np.array([0.7, 0.82, 1.0])
+            brilho = rng.uniform(0.35, 1.0) if acesa else rng.uniform(0.02, 0.06)
+            img[y0 + 3:y1 - 3, x0 + 2:x1 - 2] = tom * brilho
+            img[y0:y0 + 3, x0:x1] = 0.012
+            img[y0:y1, x0:x0 + 2] = 0.02
+    rough = np.full((H, W), 0.08)
+    salvar('janelas', srgb(img), orm(rough, 0.6), None)
+
+
+FASE2 = (lambda: veludo_cor('veludo_verde', [0.02, 0.10, 0.055]), lambda: veludo_cor('veludo_vermelho', [0.20, 0.012, 0.03]),
+          couro_preto, carpete, pista, janelas_fachada)
+
+
+if __name__ == '__main__':
+    for f in (marmore, nogueira, gesso, couro, veludo, latao, tapete, quadro, livros, folha, tela) + FASE2:
+        f()

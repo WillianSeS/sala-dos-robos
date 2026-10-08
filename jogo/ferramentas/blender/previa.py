@@ -10,7 +10,8 @@ args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
 GLB, OUT = args[0], args[1]
 cam = [float(v) for v in args[2:8]] if len(args) >= 8 else [3.8, 1.65, 3.3, -2.5, 1.0, -1.5]
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.gltf(filepath=GLB)
+for arq in GLB.split(','):
+    bpy.ops.import_scene.gltf(filepath=arq)
 for o in list(bpy.data.objects):
     if o.name.startswith('COL_'):
         bpy.data.objects.remove(o)
