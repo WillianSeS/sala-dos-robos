@@ -111,6 +111,7 @@ robots.forEach((r, i) => {
 function stepRobots(dt) {
   const away = robots.filter(r => r.mode !== 'seated').length;
   for (const r of robots) {
+    if (r.inCasino) continue;
     if (r.mode === 'seated') {
       if (r.trade) updTrade(r);
       else if ((r.wait -= dt) <= 0) {

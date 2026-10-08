@@ -11,7 +11,7 @@ A **Sala dos Robôs** é uma sala de trading em 3D em Nova York, à noite.
 - **Outras pessoas:** quem está no site encontra os outros visitantes (avatares ao vivo), com chat de texto e chat de voz em 3D.
 
 Links:
-- Site: https://williansess.github.io/sala-dos-robos/
+- Site: https://willianses.github.io/sala-dos-robos/
 - Repositório: https://github.com/WillianSeS/sala-dos-robos
 - Existe também uma versão no claude.ai (artefato). Ela usa `window.claude` em vez do Supabase (ver item 7).
 
@@ -63,6 +63,7 @@ Partes de `src/`:
 | `75_interact.js` | Sentar e levantar (`SEATS`), geladeira, ação da tecla E. |
 | `76_pool.js` | Sinuca: física 2D, regras, jogada do robô, HUD e câmera. |
 | `77_chat.js` | Conversa com os traders: perguntas prontas; conversa livre só no claude.ai. |
+| `77_leisure.js` | Clube do 21 contra os traders (fichas fictícias) e música local por Web Audio ou arquivo do aparelho. |
 | `78_multi.js` | Várias pessoas na sala: visitantes, chat de texto, ranking. Tem dois backends (item 7). |
 | `78v_voice.js` | Chat de voz (WebRTC + som 3D). Também chama `mpInit()`. |
 | `79_traffic.js` | Avenida e carros lá embaixo. |
@@ -76,9 +77,9 @@ Tudo roda num único módulo JavaScript: uma parte enxerga as variáveis das out
 1. Edite os arquivos em `src/`.
 2. Rode `./build.sh`, que recria o `index.html`.
 3. Teste (item 5).
-4. Faça commit e push na branch `main`. O GitHub Pages publica em cerca de 1 minuto.
+4. Faça commit e push na branch `main` (código-fonte) e atualize a branch `gh-pages` com a versão testada. O GitHub Pages está configurado para `gh-pages`, pasta `/`, e publica em cerca de 1 minuto.
 
-Para o site funcionar, o GitHub Pages precisa estar ligado uma vez: em *Settings → Pages*, escolha *Deploy from a branch*, depois `main` e `/ (root)`.
+Para o site funcionar, o GitHub Pages precisa estar ligado uma vez: em *Settings → Pages*, escolha *Deploy from a branch*, depois `gh-pages` e `/ (root)`.
 
 ## 5. Como testar
 
@@ -95,6 +96,7 @@ python3 -m http.server 8766
 ```
 
 Testes:
+- `python3 testes/teste_lazer.py` valida 21 (ás, vitória, derrota, empate, fichas e saída), música (estilos, volume, arquivo e parada) e interface em desktop/celular. Usa Supabase falso.
 - `python3 testes/teste_multiplayer.py` testa duas pessoas na sala com um Supabase falso. Ele confere:
   - presença;
   - chat ao vivo e gravado;
@@ -115,6 +117,7 @@ Testes:
 - robôs e simulação: `robots`, `fast(seg)`, `openTrade`, `closeTrade`;
 - movimento: `enterRoom`, `setFP(x, z, yaw)`;
 - interações: `sitDown`, `standUp`, `startPool`, `shoot`, `openTalk`, `ask`;
+- lazer: `CASINO`, `startCasino`, `exitCasino`, `casinoDeal`, `casinoHit`, `casinoStand`, `handValue`, `MUSIC`, `openMusic`, `closeMusic`;
 - multiplayer: `MP`, `VOICE`, `voiceJoin`, `voiceLeave`, `saveRanking`, `myId`.
 
 O ambiente de teste não tem placa de vídeo, então roda a 1–2 quadros por segundo e os avatares andam devagar. Isso não é erro.
@@ -175,7 +178,7 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 
 ## 9. Limitações e pendências conhecidas
 
-- O GitHub Pages precisa ser ligado uma vez pelo dono do repositório (item 4).
+- O GitHub Pages está ativo na branch `gh-pages`, pasta `/` (item 4).
 - O teste real, com o Supabase e a voz entre dois aparelhos diferentes, ainda precisa ser feito no site publicado.
 - Sem servidor TURN, algumas redes muito fechadas não conectam a voz.
 - Com alto-falante pode haver eco. O recomendado é fone de ouvido.
@@ -184,5 +187,6 @@ O `mpInit()`, em `78_multi.js`, escolhe o modo:
 
 - Pessoas 3D: Microsoft Rocketbox, licença MIT (`people/LICENSE-Rocketbox.txt`).
 - Three.js r160 (MIT).
+- As fichas do 21 são fictícias e ficam apenas na sessão aberta. A música toca localmente, sem sincronização entre visitantes.
 - Os nomes dos traders são fictícios e a cidade é desenhada.
 - É uma simulação, não é recomendação de investimento.

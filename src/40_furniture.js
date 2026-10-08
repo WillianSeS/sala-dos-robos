@@ -138,6 +138,10 @@ for (const [dx, dz] of [[-0.54, -0.24], [0.54, -0.24], [-0.54, 0.24], [0.54, 0.2
 B(mat.paper, -5.3, 0.425, 4.5, 0.3, 0.01, 0.22, { cast: false }, 0.3);
 S(G.cyl, mat.mugDark, -4.8, 0.47, 4.6, 0, 0, 0, 0.06, 0.12, 0.06);
 C(-5.75, -4.45, 4.2, 4.9);
+/* cartas e fichas do clube do 21 na mesa de centro */
+B(mat.felt, -5.1, 0.431, 4.55, 0.66, 0.008, 0.43, { cast: false });
+for (const dx of [-0.13, 0, 0.13]) B(mat.paper, -5.1 + dx, 0.438, 4.55, 0.095, 0.006, 0.14, { cast: false });
+for (let k = 0; k < 4; k++) S(G.cyl, mat.pillowA, -4.9, 0.439 + k * 0.009, 4.7, 0, 0, 0, 0.027, 0.008, 0.027);
 /* poltrona */
 {
   const m = mtx(-2.75, 0, 4.45, 0, -Math.PI / 2 - 0.25, 0);

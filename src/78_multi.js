@@ -146,8 +146,8 @@ async function mpInit() {
 /* minha presença: onde estou e o que estou fazendo (8x por segundo, só quando muda) */
 function myPresence() {
   let x = fp.pos.x, z = fp.pos.z, yaw = fp.yaw + Math.PI, m = 'w', sy = 0;
-  if (mode === 'seat' && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
-  else if (mode === 'talk') m = 't';
+  if ((mode === 'seat' || mode === 'music') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
+  else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
   return { v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }

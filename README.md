@@ -2,12 +2,14 @@
 
 Sala de trading em 3D em Nova York. Cada robô aparece como um trader na mesa, com o resultado flutuando sobre a cabeça e um telão com a curva da carteira. Todos os dados são simulados.
 
-**Abrir a sala:** https://williansess.github.io/sala-dos-robos/
+**Abrir a sala:** https://willianses.github.io/sala-dos-robos/
 
 ## O que dá para fazer
 
 - Entrar na sala em primeira pessoa: WASD e mouse no computador, joystick no celular.
 - Sentar na mesa ou no sofá, abrir a geladeira e jogar sinuca com os traders.
+- Jogar 21 contra os traders com fichas fictícias: use a mesa de centro perto do sofá ou pergunte “Bora jogar 21?” na conversa. O robô fica reservado durante a partida.
+- Ouvir música pelo botão **Música**: três estilos instrumentais gerados no navegador, volume e arquivo de áudio do aparelho. Cada visitante escolhe seu próprio som.
 - Conversar com os traders usando as perguntas prontas.
 - Encontrar outras pessoas que estão na sala e falar com elas:
   - chat de texto;

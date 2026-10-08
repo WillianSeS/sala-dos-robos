@@ -98,6 +98,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 @media (max-width:600px){.mp{left:auto;right:16px;top:calc(60px + env(safe-area-inset-top,0px));justify-items:end}.mp-row{flex-direction:column;align-items:flex-end}.pool-top{top:calc(12px + env(safe-area-inset-top,0px))}.hud .chip{font-size:11px;padding:5px 8px}#hPeople{display:none}}
 @media (max-width:600px){.card h1{font-size:28px}.hud .opt{display:none}}
 @media (prefers-reduced-motion:reduce){.live{animation:none}}
+.leisure{max-height:75dvh;overflow:auto;z-index:5}
+.leisure p{margin:0;font-size:12px;line-height:1.6;color:var(--muted)}
+.card-hand{display:flex;gap:6px;flex-wrap:wrap;min-height:54px}
+.play-card{background:#eee9dc;color:#18291f;border-radius:6px;padding:10px 8px;min-width:26px;text-align:center;font:700 20px var(--display);box-shadow:0 2px 6px #0005}
+.play-card.red{color:#b52d38}.play-card.back{background:#1d6b49;color:#fff}
+.leisure label{display:grid;gap:6px;font-size:12px}.leisure select,.leisure input{max-width:100%;box-sizing:border-box;font:inherit}
+.leisure select{padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.leisure button:disabled{opacity:.4;cursor:default}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -110,7 +118,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hLoad">Pessoas <b>0%</b></span>
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
-<div class="ctrl"><button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
+<div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
 <div class="cross" id="cross" hidden></div>
 <div class="help" id="help" hidden></div>
 <div class="joy" id="joy" hidden><i></i></div>
@@ -123,6 +131,23 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <div class="talk-chips" id="talkChips"></div>
   <form class="talk-form" id="talkForm" hidden><input id="talkInput" autocomplete="off" maxlength="300" placeholder="Escreva para ele…"><button class="btn sm" id="talkSend" type="submit">Enviar</button></form>
 </div>
+<section class="talk leisure" id="casino" hidden role="dialog" aria-label="Cassino: jogo de 21">
+  <div class="talk-h"><div><b>Clube do 21</b><span id="casinoOpp"></span></div><button class="btn sm" id="casinoClose">Sair</button></div>
+  <p>Fichas fictícias · rodada: 10 fichas · chegue perto de 21 sem passar. Ás vale 1 ou 11; figuras valem 10. O robô para em 17. Vitória paga 20; 21 inicial paga 25; empate devolve 10.</p>
+  <p id="casinoBalance"></p>
+  <b id="casinoBotScore"></b><div class="card-hand" id="casinoBot"></div>
+  <b id="casinoYouScore"></b><div class="card-hand" id="casinoYou"></div>
+  <p id="casinoMsg" role="status"></p>
+  <div class="pool-row"><button class="btn sm" id="casinoDeal">Nova rodada</button><button class="btn sm" id="casinoHit">Pedir carta</button><button class="btn sm" id="casinoStand">Parar</button><button class="btn sm" id="casinoReset" hidden>Repor fichas</button></div>
+</section>
+<section class="talk leisure" id="music" hidden role="dialog" aria-label="Música da sala">
+  <div class="talk-h"><div><b>Música da sala</b><span>Som ambiente neste aparelho</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
+  <label>Estilo<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo</option></select></label>
+  <label>Escolher música do aparelho<input id="musicFile" type="file" accept="audio/*"></label>
+  <label>Volume<input id="musicVolume" type="range" min="0" max="100" value="25"></label>
+  <p id="musicMsg" role="status">Escolha um estilo e toque em Reproduzir.</p>
+  <div class="pool-row"><button class="btn sm" id="musicPlay">Reproduzir</button><button class="btn sm" id="musicStop">Parar música</button></div>
+</section>
 <div class="poolhud" id="poolHud" hidden>
   <div class="pool-top"><div class="pool-score" id="poolScore"></div><div class="pool-msg" id="poolMsg"></div></div>
   <div class="pool-bottom">

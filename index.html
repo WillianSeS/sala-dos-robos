@@ -99,6 +99,14 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
 @media (max-width:600px){.mp{left:auto;right:16px;top:calc(60px + env(safe-area-inset-top,0px));justify-items:end}.mp-row{flex-direction:column;align-items:flex-end}.pool-top{top:calc(12px + env(safe-area-inset-top,0px))}.hud .chip{font-size:11px;padding:5px 8px}#hPeople{display:none}}
 @media (max-width:600px){.card h1{font-size:28px}.hud .opt{display:none}}
 @media (prefers-reduced-motion:reduce){.live{animation:none}}
+.leisure{max-height:75dvh;overflow:auto;z-index:5}
+.leisure p{margin:0;font-size:12px;line-height:1.6;color:var(--muted)}
+.card-hand{display:flex;gap:6px;flex-wrap:wrap;min-height:54px}
+.play-card{background:#eee9dc;color:#18291f;border-radius:6px;padding:10px 8px;min-width:26px;text-align:center;font:700 20px var(--display);box-shadow:0 2px 6px #0005}
+.play-card.red{color:#b52d38}.play-card.back{background:#1d6b49;color:#fff}
+.leisure label{display:grid;gap:6px;font-size:12px}.leisure select,.leisure input{max-width:100%;box-sizing:border-box;font:inherit}
+.leisure select{padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.leisure button:disabled{opacity:.4;cursor:default}
 </style>
 
 <canvas id="gl" tabindex="0" aria-label="Sala de trading em 3D com 10 robôs"></canvas>
@@ -111,7 +119,7 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <span class="chip" id="hLoad">Pessoas <b>0%</b></span>
   <span class="chip" id="hPeople" hidden>Na sala <b>1</b></span>
 </div>
-<div class="ctrl"><button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
+<div class="ctrl"><button id="musicOpen" class="btn sm" hidden>Música</button> <button id="btnView" class="btn sm" hidden>Vista aérea</button></div>
 <div class="cross" id="cross" hidden></div>
 <div class="help" id="help" hidden></div>
 <div class="joy" id="joy" hidden><i></i></div>
@@ -124,6 +132,23 @@ body{background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--mon
   <div class="talk-chips" id="talkChips"></div>
   <form class="talk-form" id="talkForm" hidden><input id="talkInput" autocomplete="off" maxlength="300" placeholder="Escreva para ele…"><button class="btn sm" id="talkSend" type="submit">Enviar</button></form>
 </div>
+<section class="talk leisure" id="casino" hidden role="dialog" aria-label="Cassino: jogo de 21">
+  <div class="talk-h"><div><b>Clube do 21</b><span id="casinoOpp"></span></div><button class="btn sm" id="casinoClose">Sair</button></div>
+  <p>Fichas fictícias · rodada: 10 fichas · chegue perto de 21 sem passar. Ás vale 1 ou 11; figuras valem 10. O robô para em 17. Vitória paga 20; 21 inicial paga 25; empate devolve 10.</p>
+  <p id="casinoBalance"></p>
+  <b id="casinoBotScore"></b><div class="card-hand" id="casinoBot"></div>
+  <b id="casinoYouScore"></b><div class="card-hand" id="casinoYou"></div>
+  <p id="casinoMsg" role="status"></p>
+  <div class="pool-row"><button class="btn sm" id="casinoDeal">Nova rodada</button><button class="btn sm" id="casinoHit">Pedir carta</button><button class="btn sm" id="casinoStand">Parar</button><button class="btn sm" id="casinoReset" hidden>Repor fichas</button></div>
+</section>
+<section class="talk leisure" id="music" hidden role="dialog" aria-label="Música da sala">
+  <div class="talk-h"><div><b>Música da sala</b><span>Som ambiente neste aparelho</span></div><button class="btn sm" id="musicClose">Fechar</button></div>
+  <label>Estilo<select id="musicStyle"><option value="lofi">Lo-fi do pregão</option><option value="lounge">Lounge noturno</option><option value="electro">Eletrônica dos robôs</option><option value="file" disabled>Meu arquivo</option></select></label>
+  <label>Escolher música do aparelho<input id="musicFile" type="file" accept="audio/*"></label>
+  <label>Volume<input id="musicVolume" type="range" min="0" max="100" value="25"></label>
+  <p id="musicMsg" role="status">Escolha um estilo e toque em Reproduzir.</p>
+  <div class="pool-row"><button class="btn sm" id="musicPlay">Reproduzir</button><button class="btn sm" id="musicStop">Parar música</button></div>
+</section>
 <div class="poolhud" id="poolHud" hidden>
   <div class="pool-top"><div class="pool-score" id="poolScore"></div><div class="pool-msg" id="poolMsg"></div></div>
   <div class="pool-bottom">
@@ -790,6 +815,10 @@ for (const [dx, dz] of [[-0.54, -0.24], [0.54, -0.24], [-0.54, 0.24], [0.54, 0.2
 B(mat.paper, -5.3, 0.425, 4.5, 0.3, 0.01, 0.22, { cast: false }, 0.3);
 S(G.cyl, mat.mugDark, -4.8, 0.47, 4.6, 0, 0, 0, 0.06, 0.12, 0.06);
 C(-5.75, -4.45, 4.2, 4.9);
+/* cartas e fichas do clube do 21 na mesa de centro */
+B(mat.felt, -5.1, 0.431, 4.55, 0.66, 0.008, 0.43, { cast: false });
+for (const dx of [-0.13, 0, 0.13]) B(mat.paper, -5.1 + dx, 0.438, 4.55, 0.095, 0.006, 0.14, { cast: false });
+for (let k = 0; k < 4; k++) S(G.cyl, mat.pillowA, -4.9, 0.439 + k * 0.009, 4.7, 0, 0, 0, 0.027, 0.008, 0.027);
 /* poltrona */
 {
   const m = mtx(-2.75, 0, 4.45, 0, -Math.PI / 2 - 0.25, 0);
@@ -1356,6 +1385,7 @@ robots.forEach((r, i) => {
 function stepRobots(dt) {
   const away = robots.filter(r => r.mode !== 'seated').length;
   for (const r of robots) {
+    if (r.inCasino) continue;
     if (r.mode === 'seated') {
       if (r.trade) updTrade(r);
       else if ((r.wait -= dt) <= 0) {
@@ -1570,7 +1600,7 @@ const _tmpV = new THREE.Vector3();
 function startTween(toPos, toQ, dur, done) { if (DEBUG) dur *= 0.1; tween = { p0: camera.position.clone(), q0: camera.quaternion.clone(), p1: toPos, q1: toQ, t: 0, dur, done }; mode = 'tween'; }
 
 function enterRoom() {
-  inRoom = true; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
+  inRoom = true; $('musicOpen').hidden = false; finalName(); $('intro').hidden = true; btnView.hidden = false; btnView.textContent = 'Vista aérea';
   fp.pos.set(6.6, 0, -4.6); fp.yaw = 1.78; fp.pitch = -0.06; fp.vel.set(0, 0, 0);
   startTween(new THREE.Vector3(fp.pos.x, EYE, fp.pos.z), fpQuat(fp.yaw, fp.pitch), reduceMotion ? 0.01 : 2.2, () => {
     mode = 'fp'; cross.hidden = isTouch;
@@ -1581,6 +1611,7 @@ function enterRoom() {
   if (!isTouch) lockMouse();
 }
 function leaveRoom() {
+  if (CASINO.active) exitCasino(); if (mode === 'music') closeMusic(); $('musicOpen').hidden = true;
   if (mode === 'talk') closeTalk(); if (POOL.active) { POOL.active = false; $('poolHud').hidden = true; $('hud').hidden = false; $('mp').classList.remove('off'); if (lampMeshes) for (const m of lampMeshes) m.visible = true; aimLine.visible = objLine.visible = ghost.visible = cueStick.visible = false; if (POOL.opp) { POOL.opp.inPool = false; POOL.opp.t1 = simT + 3; } POOL.opp = null; }
   if (seatState.s) { if (seatState.s.st) seatState.s.st.playerSeated = false; if (SPOTS.sofa.busy === 'player') SPOTS.sofa.busy = null; seatState.s = null; }
   inRoom = false; if (document.pointerLockElement) document.exitPointerLock();
@@ -1595,7 +1626,7 @@ btnView.addEventListener('click', () => { inRoom ? leaveRoom() : enterRoom(); })
 /* teclado */
 addEventListener('keydown', e => {
   const typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
-  if (e.code === 'Escape') { if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
+  if (e.code === 'Escape') { if (mode === 'casino') exitCasino(); else if (mode === 'music') closeMusic(); else if (mode === 'talk') closeTalk(); else if (mode === 'pool') exitPool(); else if (mode === 'seat') standUp(); if (typing) e.target.blur(); return; }
   if (typing) return;
   if (e.code === 'KeyE' && !e.repeat && (mode === 'fp' || mode === 'seat')) { doAct(); return; }
   if (mode === 'seat' && e.code === 'Space') { e.preventDefault(); standUp(); return; }
@@ -1697,6 +1728,7 @@ function findAct() {
     const dot = d < 0.3 ? 1 : (dx * fx + dz * fz) / d; if (dot < minDot) return;
     const sc = d * (1.7 - dot); if (sc < bs) { bs = sc; best = { label, run }; }
   };
+  consider(-5.1, 4.55, 1.8, 0.35, 'Jogar 21 com os robôs', () => startCasino(null));
   for (const r of robots) consider(r.P.root.position.x, r.P.root.position.z, 2.1, 0.75, 'Conversar com ' + r.person, () => openTalk(r));
   const ex = Math.max(Math.abs(px - POOL.cx) - 1.37, 0), ez = Math.max(Math.abs(pz - POOL.cz) - 0.77, 0);
   if (Math.hypot(ex, ez) < 1.1) consider(POOL.cx, POOL.cz, 4, 0.3, 'Jogar sinuca', () => startPool(null));
@@ -1731,6 +1763,7 @@ function stepSeat() {
 }
 const shortLabel = l => isTouch ? l.replace('Conversar com ', 'Falar com ').replace(' a geladeira', '') : l;
 function updateActUI() {
+  $('musicOpen').hidden = !inRoom || !['fp', 'seat', 'music'].includes(mode);
   let label = null;
   if (mode === 'fp') { curAct = findAct(); label = curAct && curAct.label; }
   else if (mode === 'seat') { curAct = { label: 'Levantar', run: () => standUp() }; label = 'Levantar'; }
@@ -2032,10 +2065,11 @@ function scripted(r, q) {
   if (q === 'strategy') return (STRAT_TXT[r.name] || 'Tenho meu método.') + ` Opero ${r.pair}.`;
   if (q === 'today') return r.ops ? `Hoje fiz ${r.ops} ${r.ops > 1 ? 'operações' : 'operação'}, ${r.wins} no lucro, resultado ${money(r.today)}.` : 'Hoje ainda não fechei nenhuma operação.';
   if (q === 'pool') return r.trade ? 'Agora não dá, tô posicionado. Me chama depois que eu fechar essa.' : 'Bora! Te espero na mesa de sinuca.';
+  if (q === 'casino') return r.trade ? 'Tô posicionado agora. Vamos jogar 21 depois que eu fechar?' : 'Bora jogar 21! Só fichas de brincadeira.';
   if (q === 'room') { const tot = equity() - BASE, n = robots.filter(x => x.trade).length; return `A sala está ${money(tot)} no total, com ${n} de 10 robôs operando agora.`; }
   return 'Até mais!';
 }
-const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?']];
+const CHIPS = [['status', 'Como está a operação?'], ['strategy', 'Qual sua estratégia?'], ['today', 'Quanto fez hoje?'], ['room', 'Como está a sala?'], ['pool', 'Bora jogar sinuca?'], ['casino', 'Bora jogar 21?']];
 function addMsg(cls, text) { const p = document.createElement('p'); p.className = cls; p.textContent = text; const log = $('talkLog'); log.appendChild(p); log.scrollTop = 1e6; return p; }
 function greet(r) { const h = r.trade ? (r.trade.pnl >= 0 ? 'Opa! Dia bom até agora.' : 'E aí. Essa operação está me dando trabalho.') : 'Fala! Tô esperando o próximo sinal.'; return h + ' Sou ' + r.person.split(' ')[0] + ', robô de ' + r.name + '.'; }
 function openTalk(r) {
@@ -2055,6 +2089,7 @@ function ask(k, label) {
   const r = talk.r; if (!r) return;
   addMsg('you', label); const ans = scripted(r, k); addMsg('bot', ans);
   r.chat.push({ role: 'user', content: label }, { role: 'assistant', content: ans });
+  if (k === 'casino' && !r.trade) { closeTalk(); startCasino(r); }
   if (k === 'pool' && !r.trade) setTimeout(() => { if (talk.r === r) { closeTalk(); startPool(r); } }, 900);
 }
 function rules(r) {
@@ -2107,6 +2142,154 @@ function stepTalk(dt) {
   fp.yaw = angDamp(fp.yaw, Math.atan2(-dx, -dz), 4, dt); fp.pitch = damp(fp.pitch, Math.atan2(dy, Math.hypot(dx, dz)), 4, dt);
   camera.position.set(fp.pos.x, EYE, fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch));
 }
+
+/* ================= lazer: clube do 21 e música local ================= */
+const CASINO = { active: false, opp: null, balance: 100, deck: [], you: [], bot: [], state: 'idle', msg: '' };
+function handValue(cards) {
+  let total = 0, aces = 0;
+  for (const c of cards) { total += c.rank === 1 ? 11 : Math.min(c.rank, 10); if (c.rank === 1) aces++; }
+  while (total > 21 && aces-- > 0) total -= 10;
+  return total;
+}
+function leisureOpen(id, nextMode) {
+  if (document.pointerLockElement) document.exitPointerLock();
+  for (const k in keys) keys[k] = false;
+  fp.vel.set(0, 0, 0); joy = null; joyEl.hidden = true; ptr.clear();
+  $(id).hidden = false; cross.hidden = true; help.hidden = true; mode = nextMode;
+  $(id).querySelector('button').focus();
+}
+function startCasino(pref) {
+  if (CASINO.active) return;
+  if (mode === 'music') closeMusic();
+  if (mode === 'talk') closeTalk();
+  if (seatState.s) { standUp(() => startCasino(pref)); return; }
+  const available = r => !r.trade && !r.inPool && !r.inCasino && !r.talking;
+  const r = pref ? (available(pref) ? pref : null) : robots.find(available);
+  if (!r) { $('status').textContent = 'Todos estão ocupados. Chame um robô sem operação para jogar 21.'; help.textContent = 'Todos os robôs estão ocupados. Tente novamente em instantes.'; help.hidden = false; help.style.opacity = '1'; return; }
+  CASINO.active = true; CASINO.opp = r; r.inCasino = true; r.talking = true;
+  CASINO.state = 'idle'; CASINO.you = []; CASINO.bot = [];
+  CASINO.msg = 'Bora! Toque em Nova rodada para distribuir as cartas.';
+  $('casinoOpp').textContent = 'Você contra ' + r.person;
+  leisureOpen('casino', 'casino'); casinoRender();
+}
+function casinoRender() {
+  const playing = CASINO.state === 'playing';
+  const draw = (id, cards, hide) => {
+    const row = $(id); row.replaceChildren();
+    cards.forEach((c, i) => {
+      const el = document.createElement('span'), hidden = hide && i === 1;
+      el.className = 'play-card' + (hidden ? ' back' : c.suit === '♥' || c.suit === '♦' ? ' red' : '');
+      el.textContent = hidden ? '?' : ({ 1: 'A', 11: 'J', 12: 'Q', 13: 'K' }[c.rank] || c.rank) + c.suit;
+      el.setAttribute('aria-label', hidden ? 'Carta fechada' : el.textContent); row.appendChild(el);
+    });
+  };
+  draw('casinoYou', CASINO.you, false); draw('casinoBot', CASINO.bot, playing);
+  $('casinoYouScore').textContent = 'Você · ' + handValue(CASINO.you);
+  $('casinoBotScore').textContent = CASINO.opp.person.split(' ')[0] + ' · ' + (playing ? 'carta fechada' : handValue(CASINO.bot));
+  $('casinoBalance').textContent = 'Suas fichas: ' + CASINO.balance;
+  $('casinoMsg').textContent = CASINO.msg;
+  $('casinoHit').disabled = $('casinoStand').disabled = !playing;
+  $('casinoDeal').disabled = playing || CASINO.balance < 10;
+  $('casinoReset').hidden = playing || CASINO.balance >= 10;
+}
+function casinoFinish(outcome, msg, natural = false) {
+  if (CASINO.state !== 'playing') return;
+  if (outcome === 'win') CASINO.balance += natural ? 25 : 20;
+  else if (outcome === 'draw') CASINO.balance += 10;
+  CASINO.state = 'over'; CASINO.msg = msg;
+  if (outcome === 'loss') CASINO.opp.react = 'sitCheer'; else CASINO.opp.react = 'sitRelax';
+  CASINO.opp.reactT = simT + 3; casinoRender();
+}
+function casinoDeal() {
+  if (!CASINO.active || CASINO.state === 'playing' || CASINO.balance < 10) return;
+  CASINO.deck = [];
+  for (const suit of ['♠', '♥', '♦', '♣']) for (let rank = 1; rank <= 13; rank++) CASINO.deck.push({ rank, suit });
+  for (let i = 51; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [CASINO.deck[i], CASINO.deck[j]] = [CASINO.deck[j], CASINO.deck[i]]; }
+  CASINO.balance -= 10; CASINO.you = [CASINO.deck.pop(), CASINO.deck.pop()]; CASINO.bot = [CASINO.deck.pop(), CASINO.deck.pop()]; CASINO.state = 'playing';
+  CASINO.msg = 'Sua vez: peça uma carta ou pare.';
+  const y = handValue(CASINO.you), b = handValue(CASINO.bot);
+  if (y === 21 || b === 21) casinoFinish(y === b ? 'draw' : y === 21 ? 'win' : 'loss', y === b ? 'Dois 21! Empate.' : y === 21 ? '21 de primeira! Você ganhou 25 fichas.' : 'O robô fez 21 de primeira.', y === 21);
+  else casinoRender();
+}
+function casinoHit() {
+  if (!CASINO.active || CASINO.state !== 'playing') return;
+  CASINO.you.push(CASINO.deck.pop());
+  if (handValue(CASINO.you) > 21) casinoFinish('loss', 'Passou de 21! O robô venceu.');
+  else if (handValue(CASINO.you) === 21) casinoStand();
+  else casinoRender();
+}
+function casinoStand() {
+  if (!CASINO.active || CASINO.state !== 'playing') return;
+  while (handValue(CASINO.bot) < 17) CASINO.bot.push(CASINO.deck.pop());
+  const y = handValue(CASINO.you), b = handValue(CASINO.bot);
+  casinoFinish(b > 21 || y > b ? 'win' : y === b ? 'draw' : 'loss', b > 21 ? 'O robô passou de 21. Você venceu!' : y > b ? 'Você venceu!' : y === b ? 'Empate! Suas fichas voltaram.' : 'O robô venceu. Vamos mais uma?');
+}
+function exitCasino() {
+  if (!CASINO.active) return;
+  // Sair durante uma rodada mantém o custo de 10 fichas já descontado.
+  CASINO.active = false; CASINO.state = 'idle';
+  CASINO.opp.inCasino = false; CASINO.opp.talking = false; CASINO.opp = null;
+  $('casino').hidden = true; if (mode === 'casino') { mode = 'fp'; cross.hidden = isTouch; }
+}
+$('casinoClose').onclick = exitCasino; $('casinoDeal').onclick = casinoDeal;
+$('casinoHit').onclick = casinoHit; $('casinoStand').onclick = casinoStand;
+$('casinoReset').onclick = () => { if (CASINO.state !== 'playing' && CASINO.balance < 10) { CASINO.balance = 100; CASINO.msg = 'Mais 100 fichas de brincadeira para continuar!'; casinoRender(); } };
+
+const MUSIC = { ctx: null, gain: null, timer: null, nodes: new Set(), audio: new Audio(), url: null, playing: false, returnMode: 'fp', beat: 0, request: 0 };
+MUSIC.audio.loop = true; MUSIC.audio.volume = 0.25;
+function openMusic() {
+  if (!inRoom || !['fp', 'seat'].includes(mode)) return;
+  MUSIC.returnMode = mode; leisureOpen('music', 'music');
+}
+function closeMusic() {
+  $('music').hidden = true;
+  if (mode === 'music') { mode = MUSIC.returnMode; cross.hidden = mode !== 'fp' || isTouch; }
+  $('musicOpen').focus();
+}
+function musicStop() {
+  MUSIC.request++; MUSIC.playing = false; clearInterval(MUSIC.timer); MUSIC.timer = null;
+  for (const osc of MUSIC.nodes) { osc.onended = null; osc.stop(); osc.disconnect(); }
+  MUSIC.nodes.clear(); MUSIC.audio.pause();
+  $('musicPlay').textContent = 'Reproduzir'; $('musicMsg').textContent = 'Música parada.';
+}
+function musicBeat() {
+  if (!MUSIC.playing || !MUSIC.ctx || MUSIC.ctx.state !== 'running') return;
+  const style = $('musicStyle').value;
+  const notes = style === 'electro' ? [48, 55, 60, 63, 48, 58, 55, 63] : style === 'lounge' ? [60, 64, 67, 71, 62, 65, 69, 72] : [48, 60, 63, 67, 53, 60, 65, 67];
+  const time = MUSIC.ctx.currentTime, duration = style === 'electro' ? 0.22 : 0.65;
+  const osc = MUSIC.ctx.createOscillator(), env = MUSIC.ctx.createGain();
+  osc.type = style === 'electro' ? 'triangle' : 'sine'; osc.frequency.value = 440 * 2 ** ((notes[MUSIC.beat++ % notes.length] - 69) / 12);
+  env.gain.setValueAtTime(0, time); env.gain.linearRampToValueAtTime(0.18, time + 0.025); env.gain.exponentialRampToValueAtTime(0.001, time + duration);
+  osc.connect(env); env.connect(MUSIC.gain); MUSIC.nodes.add(osc);
+  osc.onended = () => { MUSIC.nodes.delete(osc); osc.disconnect(); env.disconnect(); };
+  osc.start(time); osc.stop(time + duration + 0.03);
+}
+async function musicPlay() {
+  musicStop();
+  const style = $('musicStyle').value, request = MUSIC.request;
+  try {
+    if (style === 'file') { if (!MUSIC.url) throw new Error('Escolha um arquivo de áudio.'); await MUSIC.audio.play(); if (request !== MUSIC.request) { if (!MUSIC.playing) MUSIC.audio.pause(); return; } MUSIC.playing = true; }
+    else {
+      if (!MUSIC.ctx) { MUSIC.ctx = new AudioContext(); MUSIC.gain = MUSIC.ctx.createGain(); MUSIC.gain.connect(MUSIC.ctx.destination); }
+      await MUSIC.ctx.resume(); if (request !== MUSIC.request) return; MUSIC.gain.gain.value = +$('musicVolume').value / 100;
+      MUSIC.playing = true; MUSIC.beat = 0; musicBeat(); MUSIC.timer = setInterval(musicBeat, style === 'electro' ? 260 : style === 'lounge' ? 430 : 520);
+    }
+    $('musicMsg').textContent = 'Tocando: ' + (style === 'file' ? $('musicFile').files[0].name : $('musicStyle').selectedOptions[0].textContent);
+    $('musicPlay').textContent = 'Recomeçar';
+  } catch (e) { if (request !== MUSIC.request) return; musicStop(); $('musicMsg').textContent = 'Não consegui tocar esse áudio. Escolha outro arquivo ou um estilo da sala.'; }
+}
+$('musicOpen').onclick = openMusic; $('musicClose').onclick = closeMusic;
+$('musicPlay').onclick = musicPlay; $('musicStop').onclick = musicStop;
+$('musicStyle').onchange = () => { if (MUSIC.playing) musicPlay(); };
+$('musicVolume').oninput = () => { const v = +$('musicVolume').value / 100; MUSIC.audio.volume = v; if (MUSIC.gain) MUSIC.gain.gain.setTargetAtTime(v, MUSIC.ctx.currentTime, 0.03); };
+$('musicFile').onchange = () => {
+  const file = $('musicFile').files[0]; if (!file) return;
+  musicStop(); if (MUSIC.url) URL.revokeObjectURL(MUSIC.url);
+  MUSIC.url = URL.createObjectURL(file); MUSIC.audio.src = MUSIC.url;
+  $('musicStyle').querySelector('[value="file"]').disabled = false; $('musicStyle').value = 'file';
+  $('musicMsg').textContent = file.name + ' pronto. Toque em Reproduzir.';
+};
+MUSIC.audio.onerror = () => { musicStop(); $('musicMsg').textContent = 'Esse arquivo não pôde ser reproduzido. Escolha outro áudio.'; };
 
 
 /* ================= várias pessoas na sala (sala ao vivo + banco de dados da página) ================= */
@@ -2256,8 +2439,8 @@ async function mpInit() {
 /* minha presença: onde estou e o que estou fazendo (8x por segundo, só quando muda) */
 function myPresence() {
   let x = fp.pos.x, z = fp.pos.z, yaw = fp.yaw + Math.PI, m = 'w', sy = 0;
-  if (mode === 'seat' && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
-  else if (mode === 'talk') m = 't';
+  if ((mode === 'seat' || mode === 'music') && seatState.s) { const s = seatState.s; x = s.x; z = s.z; yaw = s.yaw + Math.PI; m = 's'; sy = s.kind === 'desk' ? 0 : -0.03; }
+  else if (mode === 'talk' || mode === 'casino') m = 't';
   else if (mode === 'pool' && POOL.back) { x = POOL.back.x; z = POOL.back.z; yaw = Math.atan2(POOL.cx - x, POOL.cz - z); }
   return { v: 1, n: myName, a: myLook, x: +x.toFixed(2), z: +z.toFixed(2), yaw: +yaw.toFixed(2), m, sy, vc: VOICE.on ? 1 : 0 };
 }
@@ -2597,8 +2780,8 @@ function frame(now) {
   moveRobots(dt);
   for (const r of robots) r.P.isAvatar ? r.P.update(dt, t) : animatePerson(r.P, dt, t);
   /* câmera */
-  if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
-  setWalls(mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
+  if (mode === 'casino' || mode === 'music') { camera.position.set(seatState.s ? seatState.s.x : fp.pos.x, seatState.s ? seatState.s.eye : EYE, seatState.s ? seatState.s.z : fp.pos.z); camera.quaternion.copy(fpQuat(fp.yaw, fp.pitch)); } else if (mode === 'fp') stepFP(dt); else if (mode === 'tween') stepTween(dt); else if (mode === 'seat') stepSeat(); else if (mode === 'talk') stepTalk(dt); else if (mode === 'pool') stepPoolCam(dt); else stepOrbit(dt);
+  setWalls(mode === 'casino' || mode === 'music' || mode === 'fp' || mode === 'seat' || mode === 'talk' || mode === 'pool' || (mode === 'tween' && inRoom && tween && tween.t > 0.55));
   stepFridge(dt); stepPool(dt); stepTraffic(dt); stepMulti(dt, t); stepVoice(dt, t); updateActUI();
   /* telas: um monitor a cada 70 ms; telão e placas a cada 1 s */
   scrT += dt; if (scrT > 0.07) { scrT = 0; const s = SCREENS[scrI++ % SCREENS.length], r = robots[s.st.i]; s.kind === 'chart' ? drawChartScreen(s.tex, r) : drawPanelScreen(s.tex, r); }
@@ -2627,7 +2810,7 @@ loadAvatars((n, tot) => { const p = Math.round(n / tot * 100) + '%'; hLoad.lastE
   .then(() => { hLoad.hidden = true; $('status').textContent = isTouch ? 'Pronto. Use o joystick para andar.' : 'Pronto. W A S D para andar.'; })
   .catch(e => { console.warn('Pessoas realistas indisponíveis:', e && e.message); hLoad.hidden = true; });
 btnEnter.disabled = false; $('status').textContent = isTouch ? 'Dica: use o joystick para andar.' : 'Dica: W A S D para andar.';
-if (DEBUG) window.__sala = { THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
+if (DEBUG) window.__sala = { CASINO, startCasino, exitCasino, casinoDeal, casinoHit, casinoStand, handValue, MUSIC, openMusic, closeMusic, THREE, scene, camera, renderer, AV, closeTrade, openTrade, POOL, balls, stepBalls, onRest, FRIDGE, SEATS, sitDown, standUp, startPool, exitPool, shoot, openTalk, closeTalk, ask, MP, cars, doAct, VOICE, voiceJoin, voiceLeave, saveRanking, get myId() { return myId; }, get act() { return curAct && curAct.label; }, robots, fp, orbit, SPOTS, goBreak, enterRoom, leaveRoom, fast(sec) { for (let i = 0; i < sec * 4; i++) { simT += 0.25; stepMarket(); stepRobots(0.25); moveRobots(0.25); } return robots.map(r => [r.id, r.mode, r.spot, +r.P.root.position.x.toFixed(2), +r.P.root.position.z.toFixed(2), r.trade ? 1 : 0]); }, stats() { return { realized, todayPnl, gains, losses, simT }; }, setFP(x, z, yaw, pitch = 0) { inRoom = true; $('intro').hidden = true; mode = 'fp'; fp.pos.set(x, 0, z); fp.yaw = yaw; fp.pitch = pitch; }, get mode() { return mode; } };
 
 </script>
 </html>
