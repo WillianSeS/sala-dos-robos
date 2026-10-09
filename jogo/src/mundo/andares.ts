@@ -12,7 +12,7 @@ export interface InfoAndar {
 }
 
 export const INFO_ANDAR: Record<NumeroAndar, InfoAndar> = {
-  40: { numero: 40, nome: 'Escritório e Recepção', resumo: 'Lounge da recepção, bar e mesa de trabalho.', atividades: ['Recepção', 'Bar', 'Sentar e conversar'], cor: '#f3d79a', icone: '💼' },
+  40: { numero: 40, nome: 'Escritório e Recepção', resumo: 'Recepção com a Aurora, dez traders, telão e lounge.', atividades: ['Conversar com a Aurora', 'Dez traders (mercado simulado)', 'Telão e lounge'], cor: '#f3d79a', icone: '💼' },
   41: { numero: 41, nome: 'Sala de Jogos', resumo: 'Salão de jogos com bar e poltronas de veludo.', atividades: ['Sinuca, 21 e dardos (Fase 4/5)', 'Bar', 'Sofás'], cor: '#4cff8a', icone: '🎱' },
   42: { numero: 42, nome: 'Discoteca', resumo: 'Pista de LED, globo espelhado e cabine de DJ.', atividades: ['Pista de dança', 'Bar', 'Sofás'], cor: '#b34dff', icone: '🪩' },
   43: { numero: 43, nome: 'Smoking Lounge', resumo: 'Lounge âmbar com couro, mesas baixas e bar.', atividades: ['Narguilé virtual (Fase 4)', 'Bar', 'Sofás de couro'], cor: '#ff9d3d', icone: '🥃' },

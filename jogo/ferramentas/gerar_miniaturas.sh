@@ -8,7 +8,7 @@ PY="${BPY_PYTHON:-python3}"
 mkdir -p public/mapa "$TMP/tex"
 [ -f "$TMP/tex/.pronto" ] || { python3 ferramentas/texturas/gerar.py "$TMP/tex" && touch "$TMP/tex/.pronto"; }
 declare -A CAMERA=(
-  [40]="3.8 1.65 3.3 -2.5 1.0 -1.5"
+  [40]="6.0 2.4 3.5 -2.5 0.8 -4.0"
   [41]="5.6 1.9 3.3 -3.0 0.9 -4.8"
   [42]="5.8 2.2 3.0 -1.0 0.5 -4.0"
   [43]="5.6 1.8 3.3 -3.0 0.8 -4.5"

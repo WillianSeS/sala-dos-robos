@@ -147,15 +147,15 @@ test('3. mapa interativo e atalhos: 41º, 43º e 44º pelo elevador', async ({ p
 test('4. sentar e levantar num sofá (tecla C) e na poltrona (tecla E)', async ({ page }) => {
   const msgs = vigiarConsole(page);
   await abrir(page, { quadro: true });
-  // sofá de veludo do 40º: assento em (-4.30, 0) virado para +x
-  await posicionar(page, -3.4, 0.05, -Math.PI / 2);
+  // sofá de couro do lounge do 40º: assento do meio em (-6.28, 0.6) virado para +x
+  await posicionar(page, -5.4, 0.65, -Math.PI / 2);
   let e = await avancarAte(page, (s) => s.ui.podeSentar, { max: 20, msg: 'assento perto' });
   expect(e.ui.dica).toBe('Sentar');
   await page.keyboard.press('KeyC');
   e = await avancarAte(page, (s) => s.fase === 'sentado', { max: 200, msg: 'sentar' });
   expect(e.ui.sentado).toBe(true);
-  perto(e.grupo.x, -4.3, 0.12);
-  perto(e.grupo.z, 0, 0.12);
+  perto(e.grupo.x, -6.28, 0.12);
+  perto(e.grupo.z, 0.6, 0.12);
   await passos(page, 30);
   e = await estado(page);
   expect(e.pesos.sitIdle).toBeGreaterThan(0.9);
@@ -168,19 +168,21 @@ test('4. sentar e levantar num sofá (tecla C) e na poltrona (tecla E)', async (
   e = await avancarAte(page, (s) => s.fase === 'livre', { max: 200, msg: 'levantar' });
   expect(e.ui.sentado).toBe(false);
   // de pé à frente do sofá, com o personagem de volta sobre a cápsula (sem salto)
-  expect(e.pos.x).toBeGreaterThan(-4.3 + 0.4);
-  expect(e.pos.x).toBeLessThan(-4.3 + 0.9);
+  expect(e.pos.x).toBeGreaterThan(-6.28 + 0.4);
+  expect(e.pos.x).toBeLessThan(-6.28 + 0.9);
   perto(e.grupo.x, e.pos.x, 0.05);
   perto(e.grupo.z, e.pos.z, 0.05);
   await passos(page, 10);
   expect((await estado(page)).ossos.cabeca.y).toBeGreaterThan(1.45);
-  // anda normalmente depois de levantar
-  await segurar(page, ['KeyD'], 30);
+  // anda normalmente depois de levantar (para o sul, saindo do vão entre o sofá e a mesa de café)
+  const antes = e.pos;
+  await page.evaluate(() => window.__jogo.definirCamera(Math.PI, 0.25));
+  await segurar(page, ['KeyW'], 40);
   e = await estado(page);
-  expect(e.velocidade).toBeGreaterThan(0.5);
+  expect(Math.hypot(e.pos.x - antes.x, e.pos.z - antes.z)).toBeGreaterThan(0.6);
   // poltrona, pela interação comum (E): aproxima pela frente, voltada para oeste.
   // O ponto atrás do encosto fica dentro do colisor e a física o empurra para fora do alcance.
-  await posicionar(page, -2.15, -0.72, Math.PI / 2);
+  await posicionar(page, -4.1, -0.65, Math.PI / 2);
   await avancarAte(page, (s) => s.ui.dica === 'Sentar', { max: 20, msg: 'poltrona perto' });
   await page.keyboard.press('KeyE');
   await avancarAte(page, (s) => s.fase === 'sentado', { max: 200, msg: 'sentar na poltrona' });

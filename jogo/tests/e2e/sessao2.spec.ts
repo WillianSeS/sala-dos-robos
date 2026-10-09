@@ -193,7 +193,7 @@ const COMPUTADOR: Trecho[] = [
     legenda: 'C senta no sofá (anda até ele e vira de costas)',
     antes: async (page) => {
       await abrir(page, pc);
-      await posicionar(page, -2.7, 0.4, -Math.PI / 2);
+      await posicionar(page, -5.4, 0.7, -Math.PI / 2);
     },
     passos: [
       { quadros: 10 },
@@ -228,7 +228,7 @@ const CELULAR: Trecho[] = [
     legenda: 'Celular: 🪑 senta e levanta',
     antes: async (page) => {
       await abrir(page, { quadro: true, qualidade: 'economico' });
-      await posicionar(page, -3.2, 0.25, -Math.PI / 2);
+      await posicionar(page, -5.4, 0.65, -Math.PI / 2);
     },
     passos: [
       { quadros: 8 },

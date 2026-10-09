@@ -12,6 +12,8 @@ import { modeloAndar, type NumeroAndar } from './andares';
 import { aplicarCorte, comandosJogador, type Assento, type Ponto } from './comandos';
 import { Especiais } from './Especiais';
 import { Equipe40 } from './Equipe40';
+import { Telas40 } from './Telas40';
+import { Protecao } from '../motor/Protecao';
 import { materialIndicador } from './indicador';
 import { candidatar, retirar } from './interacoes';
 
@@ -31,6 +33,8 @@ export interface DadosAndar {
   pista: THREE.Mesh | null;
   globo: THREE.Object3D | null;
   centro: [number, number, number];
+  marcos: Record<string, Ponto & { y: number }>;
+  malhas: Record<string, THREE.Mesh>;
 }
 
 const _p = new THREE.Vector3();
@@ -60,7 +64,7 @@ export function prepararCena(scene: THREE.Object3D) {
       return;
     }
     if (o.name.startsWith('LUZ_')) luzes[o.name] = o.getWorldPosition(new THREE.Vector3());
-    if (/^(SPAWN_|PONTO_|MIRA_|SENTAR_)/.test(o.name)) {
+    if (/^(SPAWN_|PONTO_|MIRA_|SENTAR_|TRADER_|PESSOA_)/.test(o.name)) {
       o.matrixWorld.decompose(_p, _q, _s);
       const yaw = _e.setFromQuaternion(_q, 'YXZ').y;
       marcos[o.name] = { x: _p.x, y: _p.y, z: _p.z, yaw };
@@ -113,9 +117,9 @@ export function useAndar(n: NumeroAndar, preset: Preset): DadosAndar {
     const s = marcos.SPAWN_jogador;
     const partida: Ponto = s ? { x: s.x, z: s.z, yaw: s.yaw } : { x: 3.2, z: 8.5, yaw: Math.PI };
     // ponto de captura dos reflexos: meio da sala principal
-    const centro: [number, number, number] = n === 40 ? [0, 1.55, 0] : [0, 1.7, -2];
-    return { cena: raiz, colisores, luzes, partida, porta, assentos, pista: malhas.TELA_pista ?? null, globo: malhas.MOVEL_globo ?? null, centro };
-  }, [scene, n]);
+    const centro: [number, number, number] = [0, 1.7, -2];
+    return { cena: raiz, colisores, luzes, partida, porta, assentos, pista: malhas.TELA_pista ?? null, globo: malhas.MOVEL_globo ?? null, centro, marcos, malhas };
+  }, [scene]);
 }
 
 /** Cada assento vira um ponto de interação "Sentar" (no lugar onde o personagem fica em pé, à frente dele). */
@@ -167,7 +171,12 @@ export function Andar({ n, preset }: { n: NumeroAndar; preset: Preset }) {
       <Assentos assentos={dados.assentos} />
       <Luzes luzes={dados.luzes} preset={preset} tema={TEMAS[n]} />
       <Especiais n={n} dados={dados} preset={preset} />
-      {n === 40 && <Equipe40 />}
+      {n === 40 && (
+        <Protecao nome="equipe do 40º">
+          <Equipe40 marcos={dados.marcos} />
+        </Protecao>
+      )}
+      {n === 40 && <Telas40 malhas={dados.malhas} />}
     </>
   );
 }

@@ -44,8 +44,11 @@ function falarAurora(frase: string) {
   }
 }
 
-function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
+type Marco = { x: number; z: number; yaw: number };
+
+function Pessoa({ pessoa, indice, lugar }: { pessoa: Pessoa40; indice: number; lugar: Marco }) {
   const { scene } = useModelo('people/' + pessoa.modelo + '.json');
+  const anim = useModelo('people/anim_' + (pessoa.modelo.includes('Female') ? 'f' : 'm') + '.json');
   const rig = useMemo(() => {
     const c = clonarComEsqueleto(scene);
     c.traverse((obj) => {
@@ -53,21 +56,25 @@ function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
       if (!m.isMesh) return;
       m.castShadow = true; m.receiveShadow = true;
     });
+    const mixer = new THREE.AnimationMixer(c);
+    const acoes: Record<string, THREE.AnimationAction> = {};
+    for (const clip of anim.animations) acoes[clip.name] = mixer.clipAction(clip);
     const spine = c.getObjectByName('Bip01_Spine');
     const neck = c.getObjectByName('Bip01_Neck');
     const arm = c.getObjectByName('Bip01_R_Forearm');
     return {
-      c, spine, neck, arm,
+      c, mixer, acoes, atual: null as THREE.AnimationAction | null, nomeAtual: '', ate: 0, troca: 0, falandoAte: 0,
+      spine, neck, arm,
       spineBase: spine?.quaternion.clone(), neckBase: neck?.quaternion.clone(),
       armBase: arm?.quaternion.clone(), q: new THREE.Quaternion(),
     };
-  }, [scene]);
+  }, [scene, anim.animations]);
   const etiqueta = useMemo(() => cracha(pessoa, 0), [pessoa]);
   const ultimo = useRef(-1);
 
   useEffect(() => {
     ATIVOS.add(pessoa.id);
-    const [x, z] = pessoa.pos;
+    const { x, z } = lugar;
     candidatar({
       id: 'pessoa40-' + pessoa.id, rotulo: pessoa.funcao === 'aurora' ? 'Conversar com Aurora' : 'Conversar com ' + pessoa.nome,
       x, z, alcance: 1.45, prioridade: pessoa.funcao === 'aurora' ? 0.25 : 0,
@@ -77,6 +84,7 @@ function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
           const frase = boasVindas40(nome);
           useJogo.getState().avisar(frase);
           falarAurora(frase);
+          rig.falandoAte = performance.now() / 1000 + 6;
         } else {
           const ganho = resultadoSimulado(indice, performance.now() / 1000);
           useJogo.getState().avisar(`${pessoa.nome}: mercado de demonstração, resultado ${ganho >= 0 ? '+' : ''}${ganho.toFixed(2)} fictício.`);
@@ -87,12 +95,34 @@ function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
       ATIVOS.delete(pessoa.id);
       retirar('pessoa40-' + pessoa.id);
     };
-  }, [pessoa, indice]);
+  }, [pessoa, indice, lugar, rig]);
 
   useEffect(() => () => etiqueta.dispose(), [etiqueta]);
 
-  useFrame((state) => {
+  useFrame((state, dt) => {
     const t = state.clock.elapsedTime;
+    // clipe de captura de movimento: traders trabalham sentados (às vezes comemoram ou se frustram com a
+    // simulação); Aurora fica de pé e gesticula quando conversa
+    let nome: string;
+    if (pessoa.funcao === 'aurora') nome = performance.now() / 1000 < rig.falandoAte ? 'talk' : t % 24 > 20 ? 'lookAround' : 'idle';
+    else {
+      if (t > rig.troca) {
+        const delta = resultadoSimulado(indice, t) - resultadoSimulado(indice, t - 6);
+        rig.ate = t + (Math.abs(delta) > 9 ? 3.5 : 12 + (indice % 5) * 3);
+        rig.nomeAtual = Math.abs(delta) > 9 ? (delta > 0 ? 'cheer' : 'frustr') : Math.floor(t / 12) % 3 === indice % 3 ? 'sitLook' : 'sitWork';
+        rig.troca = rig.ate;
+      }
+      nome = rig.nomeAtual || 'sitWork';
+    }
+    const acao = rig.acoes[nome] ?? rig.acoes.idle;
+    if (acao && acao !== rig.atual) {
+      rig.atual?.fadeOut(0.5);
+      acao.reset();
+      acao.time = Math.random() * acao.getClip().duration;
+      acao.setEffectiveWeight(1).fadeIn(0.5).play();
+      rig.atual = acao;
+    }
+    rig.mixer.update(Math.min(dt, 0.1));
     // O movimento é nos ossos, sem deslocar o personagem através das paredes.
     // Respiração, olhar e pequenas ações de braços são independentes para cada avatar.
     if (rig.spine && rig.spineBase) {
@@ -126,10 +156,10 @@ function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
   });
 
   return (
-    <group position={[pessoa.pos[0], 0, pessoa.pos[1]]} rotation={[0, pessoa.yaw, 0]}
+    <group position={[lugar.x, 0, lugar.z]} rotation={[0, lugar.yaw, 0]}
       userData={{ pessoa40: pessoa.id, semReflexo: true }}>
       <primitive object={rig.c} />
-      <sprite position={[0, 2.23, 0]} scale={[1.45, 0.42, 1]} userData={{ semReflexo: true }}>
+      <sprite position={[0, pessoa.funcao === 'aurora' ? 2.1 : 1.62, 0]} scale={[0.82, 0.24, 1]} userData={{ semReflexo: true }}>
         <spriteMaterial map={etiqueta} transparent depthWrite={false} toneMapped={false} />
       </sprite>
     </group>
@@ -137,11 +167,16 @@ function Pessoa({ pessoa, indice }: { pessoa: Pessoa40; indice: number }) {
 }
 
 /** Reserva visual durante download dos modelos realistas. */
-function Reservas() {
+function lugarDe(p: Pessoa40, i: number, marcos: Record<string, Marco>): Marco {
+  const m = p.funcao === 'aurora' ? marcos.PESSOA_aurora : marcos[`TRADER_${i - 1}`];
+  return m ?? { x: p.pos[0], z: p.pos[1], yaw: p.yaw };
+}
+
+function Reservas({ marcos }: { marcos: Record<string, Marco> }) {
   return (
     <group userData={{ equipe40Carregando: true }}>
-      {PESSOAS40.map((p) => (
-        <group key={p.id} position={[p.pos[0], 0, p.pos[1]]}>
+      {PESSOAS40.map((p, i) => (
+        <group key={p.id} position={[lugarDe(p, i, marcos).x, 0, lugarDe(p, i, marcos).z]}>
           <mesh position={[0, 0.9, 0]}><capsuleGeometry args={[0.24, 1.15, 3, 8]} />
             <meshStandardMaterial color={p.funcao === 'aurora' ? '#c7a66f' : '#434a5c'} roughness={0.8} />
           </mesh>
@@ -154,7 +189,7 @@ function Reservas() {
   );
 }
 
-export function Equipe40() {
+export function Equipe40({ marcos }: { marcos: Record<string, Marco> }) {
   useEffect(() => {
     if (new URLSearchParams(location.search).has('teste')) {
       (window as unknown as { __equipe40?: unknown }).__equipe40 = {
@@ -169,8 +204,8 @@ export function Equipe40() {
     };
   }, []);
   return (
-    <Suspense fallback={<Reservas />}>
-      {PESSOAS40.map((p, i) => <Pessoa key={p.id} pessoa={p} indice={i} />)}
+    <Suspense fallback={<Reservas marcos={marcos} />}>
+      {PESSOAS40.map((p, i) => <Pessoa key={p.id} pessoa={p} indice={i} lugar={lugarDe(p, i, marcos)} />)}
     </Suspense>
   );
 }

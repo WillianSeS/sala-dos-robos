@@ -150,6 +150,7 @@ export function Jogador({ preset }: { preset: Preset }) {
     tFase: 0,
     grupo: new THREE.Vector3(),
     residuo: { x: 0, z: 0, calculado: false },
+    virando: false,
     tempo: 0,
   }).current;
 
@@ -255,6 +256,7 @@ export function Jogador({ preset }: { preset: Preset }) {
       if (cmd.fase === 'livre' && livre) {
         s.assento = cmd.sentar;
         s.tFase = 0;
+        s.virando = false;
         cmd.fase = 'aproximando';
       }
       cmd.sentar = null;
@@ -278,11 +280,13 @@ export function Jogador({ preset }: { preset: Preset }) {
       const d = Math.hypot(fx, fz);
       if (eixo.forca > 0.5 || !livre) {
         voltarLivre();
-      } else if (d > 0.05 && s.tFase < 2.5) {
+      } else if (d > 0.05 && s.tFase < 2.5 && !s.virando && !(s.tFase > 0.5 && s.velReal < 0.08)) {
         alvoV = Math.min(VEL_ANDAR, d * 4);
         alvoX = (fx / d) * alvoV;
         alvoZ = (fz / d) * alvoV;
       } else if (Math.abs(diferencaAngular(s.yawCorpo, a.yaw)) > 0.06) {
+        // chegou (ou o móvel não deixa chegar mais perto): para e vira de costas para o assento
+        s.virando = true;
         s.yawCorpo = girarPara(s.yawCorpo, a.yaw, 9, dt);
       } else {
         s.yawCorpo = a.yaw;
@@ -302,7 +306,7 @@ export function Jogador({ preset }: { preset: Preset }) {
     }
     cmd.levantar = false;
 
-    if (cmd.fase === 'livre' || cmd.fase === 'aproximando') {
+    if (cmd.fase === 'livre' || (cmd.fase === 'aproximando' && !s.virando)) {
       const taxa = alvoV > 0 ? 8 : 11;
       s.vel.x = aproximar(s.vel.x, alvoX, taxa, dt);
       s.vel.z = aproximar(s.vel.z, alvoZ, taxa, dt);
@@ -339,7 +343,7 @@ export function Jogador({ preset }: { preset: Preset }) {
     if (cmd.fase === 'livre' || cmd.fase === 'aproximando' || !a) {
       // direção do corpo
       if (primeira && cmd.fase === 'livre') s.yawCorpo = s.yawCam + Math.PI;
-      else if (s.velReal > 0.12) s.yawCorpo = girarPara(s.yawCorpo, anguloDe(s.vel.x, s.vel.z), 10, dt);
+      else if (s.velReal > 0.12 && !(cmd.fase === 'aproximando' && s.virando)) s.yawCorpo = girarPara(s.yawCorpo, anguloDe(s.vel.x, s.vel.z), 10, dt);
       g.position.set(p.x, p.y, p.z);
       g.rotation.y = s.yawCorpo;
 

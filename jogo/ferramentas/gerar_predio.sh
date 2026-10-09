@@ -13,8 +13,7 @@ mkdir -p "$TMP/tex"
 otimizar() { node ferramentas/otimizar.mjs "$1" "$2" --geo draco --tex ktx2 --max "$3" | tail -1; }
 for alvo in "${ALVOS[@]}"; do
   case "$alvo" in
-    andar40) "$PY" ferramentas/blender/andar40.py "$TMP/tex" "$TMP/$alvo.glb" > "$TMP/$alvo.log" 2>&1 ;;
-    andar4[1-4]) "$PY" ferramentas/blender/andares.py "${alvo#andar}" "$TMP/tex" "$TMP/$alvo.glb" > "$TMP/$alvo.log" 2>&1 ;;
+    andar4[0-4]) "$PY" ferramentas/blender/andares.py "${alvo#andar}" "$TMP/tex" "$TMP/$alvo.glb" > "$TMP/$alvo.log" 2>&1 ;;
     elevador|predio) "$PY" "ferramentas/blender/$alvo.py" "$TMP/tex" "$TMP/$alvo.glb" > "$TMP/$alvo.log" 2>&1 ;;
     *) echo "alvo desconhecido: $alvo"; exit 1 ;;
   esac || { tail -30 "$TMP/$alvo.log"; exit 1; }

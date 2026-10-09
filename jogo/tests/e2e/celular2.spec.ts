@@ -14,7 +14,7 @@ test('celular: sentar pelo 🪑, elevador pelo ✋ e pelo painel de toque, mapa 
 
   // 🪑: só acende perto de um assento; senta e levanta
   await expect(page.getByTestId('botao-sentar')).toBeDisabled();
-  await posicionar(page, -3.4, 0.05, -Math.PI / 2);
+  await posicionar(page, -5.4, 0.65, -Math.PI / 2);
   await avancarAte(page, (s) => s.ui.podeSentar, { max: 20, msg: 'assento perto' });
   await expect(page.getByTestId('botao-sentar')).toBeEnabled();
   await page.getByTestId('botao-sentar').tap();

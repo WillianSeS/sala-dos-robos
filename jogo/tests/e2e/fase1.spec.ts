@@ -162,20 +162,20 @@ test.describe('controles (quadro a quadro, entradas reais de teclado e mouse)', 
 
   test('7. não atravessa paredes nem móveis; a porta fechada bloqueia e abre com E', async ({ page }) => {
     test.setTimeout(900_000);
-    // janela (parede norte, face interna em z = -4)
-    await posicionar(page, -2.8, -2.5, Math.PI);
-    await segurar(page, ['KeyW'], 90);
+    // janela panorâmica do escritório (norte, face interna em z ≈ -8), pelo corredor livre a leste das mesas
+    await posicionar(page, 5.4, -1.0, Math.PI);
+    await segurar(page, ['KeyW'], 150);
     let p = (await estado(page)).pos;
-    expect(p.z).toBeGreaterThan(-3.75);
-    expect(p.z).toBeLessThan(-3.5);
-    // parede leste (x = 5)
+    expect(p.z).toBeGreaterThan(-7.95);
+    expect(p.z).toBeLessThan(-6.9); // peitoril da janela
+    // parede leste (x = 7)
     await posicionar(page, 2.0, 3.0, Math.PI / 2);
-    await segurar(page, ['KeyW'], 90);
+    await segurar(page, ['KeyW'], 120);
     p = (await estado(page)).pos;
-    expect(p.x).toBeLessThan(4.75);
-    expect(p.x).toBeGreaterThan(4.5);
-    // sofá (frente sul do colisor em z = 1,24)
-    await posicionar(page, -4.4, 2.6, Math.PI);
+    expect(p.x).toBeLessThan(6.85);
+    expect(p.x).toBeGreaterThan(6.3);
+    // mesa de café do lounge (frente sul do colisor em z ≈ 1,26)
+    await posicionar(page, -4.55, 2.8, Math.PI);
     await segurar(page, ['KeyW'], 75);
     p = (await estado(page)).pos;
     expect(p.z).toBeGreaterThan(1.45);

@@ -1,4 +1,4 @@
-"""Andares 41 a 44: salão temático (14 x 12 m, pé-direito 3,6 m), corredor e hall do elevador.
+"""Andares 40 a 44: salão temático (14 x 12 m, pé-direito 3,6 m), corredor e hall do elevador.
 Os conteúdos completos de cada ambiente (sinuca, DJ, narguilés, show) entram na Fase 4.
 Uso: <python com bpy> andares.py <numero> <pasta das texturas> <saida.glb>"""
 import math
@@ -28,6 +28,7 @@ DX0, DX1, DH = 2.4, 4.0, 2.6            # vão aberto para o corredor
 CX0, CX1, CZ1, CH = 2.2, 4.2, 6.6, 2.8
 
 TEMAS = {
+    40: dict(nome='Escritório e Recepção', piso='marmore', parede='nogueira', neon=(1.0, 0.82, 0.5)),
     41: dict(nome='Sala de Jogos', piso='nogueira', parede='gesso', neon=(0.2, 1.0, 0.45)),
     42: dict(nome='Discoteca', piso='pedra_preta', parede='metal_preto', neon=(0.75, 0.25, 1.0)),
     43: dict(nome='Smoking Lounge', piso='marmore', parede='nogueira', neon=(1.0, 0.62, 0.25)),
@@ -114,9 +115,79 @@ def cortina(nome, x0, x1, z, y0, y1, mat, prof=0.18):
         caixa(f'{nome}_{i}', (x, (y0 + y1) / 2, z + dz), ((x1 - x0) / n + 0.02, y1 - y0, prof * 0.4), mat, 0.03, seg=2)
 
 
+def mesa_trader(i, x, z):
+    """Estação de trader: mesa, dois monitores (TELA_monitor_i_k), teclado, cadeira giratória e assento olhando para -Z."""
+    caixa(f'mt{i}_tampo', (x, 0.735, z), (1.6, 0.04, 0.8), M['nogueira'], 0.008)
+    for sx in (-0.74, 0.74):
+        caixa(f'mt{i}_perna_{sx}', (x + sx, 0.36, z), (0.05, 0.72, 0.7), M['metal_preto'], 0.006)
+    caixa(f'mt{i}_painel', (x, 0.5, z - 0.3), (1.45, 0.35, 0.02), M['nogueira'])
+    colisor((x, 0.38, z), (0.82, 0.38, 0.42), nome=f'mt{i}')
+    for k, dx in enumerate((-0.37, 0.37)):
+        yaw = 0.18 if dx < 0 else -0.18
+        caixa(f'mt{i}_monitor_pe_{k}', (x + dx, 0.76, z - 0.2), (0.22, 0.012, 0.16), M['metal_preto'], 0.004)
+        caixa(f'mt{i}_monitor_haste_{k}', (x + dx, 0.93, z - 0.24), (0.04, 0.34, 0.03), M['metal_preto'], 0.004)
+        caixa(f'mt{i}_monitor_moldura_{k}', (x + dx, 1.08, z - 0.22), (0.66, 0.4, 0.03), M['metal_preto'], 0.006, yaw)
+        C.plano(f'TELA_monitor_{i}_{k}', (x + dx + math.sin(yaw) * 0.017, 1.08, z - 0.22 + math.cos(yaw) * 0.017), 0.63, 0.36, M['tela'], yaw)
+    caixa(f'mt{i}_teclado', (x, 0.765, z + 0.12), (0.44, 0.018, 0.14), M['tecla'], 0.004)
+    caixa(f'mt{i}_mouse', (x + 0.34, 0.765, z + 0.13), (0.06, 0.02, 0.1), M['tecla'], 0.008)
+    cx, cz = x, z + 0.72
+    for k in range(5):
+        a = k * 2 * math.pi / 5
+        caixa(f'mt{i}_cad_raio_{k}', (cx + 0.17 * math.cos(a), 0.06, cz + 0.17 * math.sin(a)), (0.34, 0.035, 0.05), M['metal_preto'], 0.008, -a)
+    cilindro(f'mt{i}_cad_coluna', (cx, 0.27, cz), 0.025, 0.38, M['latao'], 16)
+    caixa(f'mt{i}_cad_assento', (cx, 0.49, cz), (0.52, 0.09, 0.5), M['couro'], 0.04, seg=4)
+    caixa(f'mt{i}_cad_encosto', (cx, 0.86, cz + 0.26), (0.48, 0.6, 0.08), M['couro'], 0.04, seg=4, rot=C.Euler((math.radians(8), 0, 0)))
+    colisor((cx, 0.5, cz + 0.03), (0.3, 0.5, 0.32), nome=f'mt{i}_cadeira')
+    vazio(f'TRADER_{i}', (cx, 0, cz + 0.02), yaw=math.pi)
+
+
 casca()
 
-if NUM == 41:
+if NUM == 40:
+    # porta de nogueira (pivô na esquerda) na entrada do escritório; abre para o corredor
+    import bpy
+    FW, FH, FT = DX1 - DX0 - 0.02, DH - 0.02, 0.05
+    folha = caixa('PORTA_folha', (DX0 + 0.01 + FW / 2, FH / 2 + 0.01, Z1 + E / 2), (FW, FH, FT), M['nogueira'], 0.006)
+    C.mover_origem(folha, (DX0 + 0.01, 0, Z1 + E / 2))
+    bpy.context.view_layer.update()
+    for lado in (-1, 1):
+        pux = caixa(f'PORTA_puxador_{lado}', (DX0 + 0.01 + FW - 0.12, 1.05, Z1 + E / 2 + lado * (FT / 2 + 0.03)), (0.025, 0.8, 0.025), M['latao'], 0.008)
+        pux.parent = folha
+        pux.matrix_parent_inverse = folha.matrix_world.inverted()
+    # 10 estações em duas fileiras, de frente para a janela; telão na parede oeste
+    for i in range(10):
+        mesa_trader(i, -4.2 + (i % 5) * 2.0, -5.6 if i < 5 else -3.0)
+    caixa('telao_moldura', (X0 + 0.08, 2.0, -4.3), (0.12, 2.3, 4.2), M['metal_preto'], 0.01)
+    C.plano('TELA_telao', (X0 + 0.15, 2.0, -4.3), 4.0, 2.1, M['tela'], math.pi / 2)
+    # recepção da Aurora, à direita de quem entra
+    caixa('recepcao_corpo', (5.4, 0.55, 1.9), (2.6, 1.1, 0.6), M['nogueira'], 0.02)
+    caixa('recepcao_tampo', (5.4, 1.12, 2.0), (2.8, 0.05, 0.8), M['marmore'], 0.01)
+    caixa('recepcao_led', (5.4, 0.15, 2.21), (2.5, 0.02, 0.01), M['led_ouro'])
+    texto('recepcao_nome', 'SALA DOS ROBÔS', (5.4, 0.72, 2.215), 0.13, M['latao'], profundidade=0.01, fonte=SERIF)
+    colisor((5.4, 0.56, 1.95), (1.42, 0.56, 0.42), nome='recepcao')
+    vazio('PESSOA_aurora', (5.4, 0, 1.15), yaw=0.0)
+    # lounge: sofás, mesa de café e poltronas no lado oeste
+    C.sofa('sofa_a', -6.4, 0.6, 0.0, 2.6, M['couro'])
+    C.poltrona('poltrona_a', -3.3, -0.3, math.radians(-20), M['veludo'])
+    C.poltrona('poltrona_b', -3.3, 1.6, math.radians(20), M['veludo'])
+    caixa('mesa_cafe', (-4.55, 0.4, 0.6), (0.7, 0.04, 1.3), M['marmore'], 0.01)
+    caixa('mesa_cafe_base', (-4.55, 0.19, 0.6), (0.5, 0.38, 1.0), M['latao'], 0.004)
+    colisor((-4.55, 0.21, 0.6), (0.36, 0.21, 0.66), nome='mesa_cafe')
+    caixa('tapete_lounge', (-4.8, 0.006, 0.6), (3.6, 0.012, 3.4), M['tapete'], 0.003)
+    # copa: máquina de café e geladeira na parede leste
+    caixa('copa_balcao', (X1 - 0.35, 0.45, -2.0), (0.6, 0.9, 2.2), M['nogueira'], 0.01)
+    caixa('copa_tampo', (X1 - 0.35, 0.92, -2.0), (0.66, 0.04, 2.26), M['marmore'], 0.01)
+    colisor((X1 - 0.35, 0.47, -2.0), (0.33, 0.47, 1.13), nome='copa')
+    caixa('MOVEL_cafeteira', (X1 - 0.38, 1.15, -2.5), (0.4, 0.42, 0.36), M['aco'], 0.02)
+    caixa('cafeteira_bico', (X1 - 0.6, 1.05, -2.5), (0.06, 0.08, 0.06), M['metal_preto'], 0.01)
+    for k in range(3):
+        cilindro(f'xicara_{k}', (X1 - 0.5, 0.97, -1.7 + k * 0.18), 0.04, 0.08, M['ceramica'], 16)
+    caixa('MOVEL_geladeira', (X1 - 0.42, 0.95, -4.4), (0.75, 1.9, 0.8), M['aco'], 0.02)
+    caixa('geladeira_puxador', (X1 - 0.81, 1.1, -4.1), (0.03, 0.6, 0.03), M['metal_preto'], 0.005)
+    colisor((X1 - 0.42, 0.95, -4.4), (0.4, 0.95, 0.42), nome='geladeira')
+    for i, (x, z) in enumerate(((X0 + 0.5, Z0 + 0.5), (X1 - 0.5, Z0 + 0.5), (X0 + 0.5, Z1 - 0.6), (X1 - 0.6, -0.4))):
+        C.planta(f'planta_{i}', x, z, 1.5, 55)
+elif NUM == 41:
     C.sofa('sofa_a', -6.4, -1.5, 0.0, 2.6, M['couro'])
     C.sofa('sofa_b', -6.4, 1.6, 0.0, 2.0, M['couro'])
     for i, (x, z, a) in enumerate([(-4.6, -2.6, 25), (-4.6, -0.4, -25), (-4.6, 1.6, 0)]):
