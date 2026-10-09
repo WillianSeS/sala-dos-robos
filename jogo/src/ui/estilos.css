@@ -404,3 +404,16 @@ kbd {
 .doca-barra span { flex: 1; color: #1ed760; font-weight: 700; }
 .doca-barra button { background: none; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 2px 8px; font-size: 0.75rem; }
 @media (max-width: 720px) { .barra-item { bottom: calc(max(22px, env(safe-area-inset-bottom)) + 180px); } }
+
+/* fase 7: chat, pessoas e indicador online */
+.chat-log { max-height: 240px; overflow-y: auto; padding: 8px 10px; border-radius: 12px; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--ouro-linha); margin: 10px 0; user-select: text; }
+.chat-log p { margin: 4px 0; line-height: 1.35; overflow-wrap: anywhere; }
+.chat-log p.minha b { color: var(--ouro); }
+.chat-log .silenciar { margin-left: 6px; background: none; border: 0; color: var(--texto-suave); font-size: 0.7rem; text-decoration: underline; cursor: pointer; }
+.lista-pessoas { list-style: none; padding: 0; display: grid; gap: 8px; }
+.lista-pessoas li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); }
+.lista-pessoas small { grid-column: 1; color: var(--texto-suave); }
+.lista-pessoas button { grid-row: 1 / span 2; grid-column: 2; }
+.indicador-online { position: absolute; left: max(14px, env(safe-area-inset-left)); top: calc(max(14px, env(safe-area-inset-top)) + 64px); z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--vidro-forte); border: 1px solid var(--ouro-linha); font-size: 0.82rem; }
+.ponto-verde { width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; }
+.botao-simples.ligado { border-color: #3ddc84; color: #3ddc84; }

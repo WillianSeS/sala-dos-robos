@@ -2,11 +2,11 @@
 
 Nova versão do jogo, em **TypeScript + React + Vite + Three.js + React Three Fiber + Drei + Rapier + Zustand**.
 
-Estado atual: **Fase 3 em validação: Aurora e dez traders 3D no 40º andar.** Fases 1 e 2 estão validadas.
+Estado atual (09/10/2026): **Fases 1 a 7 implementadas e testadas; Fase 8 (otimização) iniciada.** Veja "Fases 3 a 8" no fim deste arquivo.
 
 **Abrir a versão de teste:** https://willianses.github.io/sala-dos-robos/jogo3d/
 
-Esta versão está sendo reconstruída por fases. A Fase 3 inclui dez traders Rocketbox com gestos sutis, etiquetas e resultados fictícios, além da recepcionista Aurora interativa. Os minijogos e o multiplayer da versão nova entram nas fases seguintes; o jogo antigo continua disponível em https://willianses.github.io/sala-dos-robos/.
+Esta versão foi reconstruída por fases e já tem o que o jogo antigo tinha: traders, Aurora, sinuca, dardos, 21, discoteca, lounge, show, bar, cardápio, música, chat, voz e visitantes ao vivo. O jogo antigo continua disponível em https://willianses.github.io/sala-dos-robos/.
 
 O que a Fase 2 traz:
 - **Entrada cinematográfica.**
@@ -96,6 +96,9 @@ npx playwright test --project=celular           # Fase 1: teste 9 (toque, retrat
 npx playwright test --project=fase2             # Fase 2: entrada, elevador, mapa, sentar, vistas, menu, teclas
 npx playwright test --project=celular2          # Fase 2 no celular: 🪑, ✋ no elevador, painel, mapa
 npx playwright test --project=video             # vídeos da Fase 1 (evidencias/*.mp4)
+npx playwright test --project=fase5             # sinuca, dardos, 21, danças, narguilé, show
+npx playwright test --project=fase6             # bar, cardápio, item na mão, copa, geladeira, música
+npx playwright test --project=fase7             # multiplayer com duas abas (Supabase falso local), chat, moderação
 npx playwright test --project=video2            # vídeos da Fase 2
 URL_JOGO=https://<prévia>/ npx playwright test  # roda contra uma URL publicada
 ```
@@ -198,7 +201,54 @@ As janelas da torre são desenhadas no shader (`src/mundo/fachada.ts`), a partir
 
 Veja também [`docs/VIABILIDADE.md`](docs/VIABILIDADE.md), com as ferramentas verificadas, as versões, as substituições e as limitações conhecidas.
 
-## Fase 3: recepção e traders (em validação)
+## Fases 3 a 8
 
-No 40º andar, Aurora e dez traders aparecem como modelos Rocketbox. Use **E** ou **✋** perto deles para conversar. Aurora fala pelo sintetizador de voz do navegador quando disponível. O valor em cada crachá é **simulado, não é cotação nem dinheiro real**. Atores respiram e movem cabeça e braços; caminhada autônoma e novas estações de trabalho permanecem pendentes. Teste automático: `npm run check && npm run build`, seguido do teste Playwright de fase 3.
+**Fase 3 · 40º andar.** Escritório com porta, 10 mesas de trader com monitores e telão (gráficos de um mercado
+**simulado**, sempre marcado "SIMULAÇÃO · SEM DINHEIRO REAL"), recepção com a Aurora, lounge, copa e geladeira.
+Traders sentados animados (trabalhar, olhar, comemorar ou se frustrar com o resultado simulado).
 
+**Fase 4 · ambientes.**
+- 42º discoteca: DJ Nexus (robô) e quatro dançarinos sincronizados na batida.
+- 43º lounge: narguilé **virtual**, que é só um efeito visual de fumaça.
+- 44º Las Vegas Night: show de 64 s a cada 90 s, com três artistas em figurinos de palco, não explícito, e o botão "Aplaudir".
+
+**Fase 5 · minijogos (41º).**
+- Sinuca contra o robô Orion, com física, regras, vez do robô e ranking no banco.
+- Dardos: 9 por partida, pontuação e troféus guardados no navegador.
+- 21 com a crupiê Vega, **só com fichas de brincadeira**.
+
+**Fase 6 · interações.**
+- Dançar: Balanço, Disco e Festa, no 42º e no 44º.
+- Bar com atendentes robôs: Caio no 41º e 43º, Sofia no 42º e 44º.
+- Cardápio com itens virtuais e gratuitos. O pedido fica pronto em ~3 s e vai para a mão do avatar, onde dá para beber, comer ou largar.
+- Copa e geladeira no 40º.
+- Música:
+  - rádio sintetizada no navegador, sem músicas de terceiros;
+  - arquivo do próprio aparelho;
+  - player oficial do Spotify.
+
+**Fase 7 · multiplayer** (Supabase Realtime, `src/rede/`).
+- **Presença e posição.** Os dados são enviados ~5×/s e o ritmo cai com mais gente, para caber no plano gratuito. Quem está no mesmo andar aparece como avatar com o crachá "nome · visitante", andando, sentado ou dançando.
+- **Chat.**
+  - Histórico na tabela `chat_messages`, guardado por 7 dias, com RLS e limites de tamanho no banco.
+  - Moderação: palavrões viram ***, e links, e-mails e telefones são escondidos.
+  - Limite anti-spam e botão Silenciar.
+  - Lista de pessoas conectadas com o andar de cada uma.
+- **Voz ao vivo** opcional, por WebRTC direto e com som posicional.
+- **Contador "N online"** a partir da presença real. Sem conexão, ele não aparece.
+- **Chave.** Só a chave **publicável** fica no navegador; o ranking muda apenas pela função `record_pool_result`.
+- **Chat compartilhado.** O canal é o mesmo do jogo antigo, então o chat é comum às duas versões. Os avatares só aparecem entre versões iguais.
+- **NPCs.** Todos têm "(robô)" no nome e nunca contam como pessoas.
+- **Testes.** O contêiner de testes não acessa a internet, por isso o teste `fase7` usa um Supabase falso que liga duas abas. A conexão real foi conferida pelo conector do Supabase: projeto ativo, tabelas com RLS e chave publicável válida. Pela internet, ela só pode ser vista no navegador.
+
+**Fase 8 · otimização (em andamento).**
+- O JavaScript foi dividido: código do jogo com ~160 kB; three, React, R3F e física em arquivos próprios, que ficam em cache; o Supabase só baixa ao conectar.
+- **Pendente:**
+  - física (Rapier) mais leve: hoje 4,3 MB, porque o pacote `compat` embute o WebAssembly;
+  - lightmaps nos andares;
+  - compartilhar texturas entre andares.
+
+**Limitações conhecidas.**
+- Vídeo da Fase 2 não gravado (o job `video2` é lento sem GPU).
+- Voz testada só no código; a ligação real precisa de duas pessoas com microfone.
+- Conversa livre por IA com os traders, que existia no claude.ai, não foi portada: precisaria de um serviço pago e de autorização.

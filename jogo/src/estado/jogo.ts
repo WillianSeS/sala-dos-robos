@@ -6,7 +6,7 @@ import type { FaseElevador } from '../mundo/elevador';
 
 export type ModoCamera = 'terceira' | 'primeira';
 export type Qualidade = 'economico' | 'equilibrado' | 'ultra';
-export type Painel = null | 'menu' | 'configuracoes' | 'ajuda' | 'mapa' | 'elevador' | 'musica' | 'cardapio';
+export type Painel = null | 'menu' | 'configuracoes' | 'ajuda' | 'mapa' | 'elevador' | 'musica' | 'cardapio' | 'conversar' | 'amigos';
 /** entrada: fachada com o nome do visitante · chegando: câmera voando até a porta · jogo: dentro do prédio */
 export type Etapa = 'entrada' | 'chegando' | 'jogo';
 export type Vista = 'normal' | 'aerea' | 'externa';

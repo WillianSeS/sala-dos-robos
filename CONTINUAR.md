@@ -18,22 +18,16 @@ Desde 08/10/2026 o projeto segue o "PROMPT MESTRE: Sala dos Robôs · Las Vegas 
   9. testes finais.
 
   Não comece uma fase sem a anterior validada.
-- **Onde parou (08/10/2026):**
-  - Fase 1 validada no branch `dev/fase-1-movimento`.
-  - Fase 2 validada (entrada, elevador, cinco andares, mapa, menus, sentar, vistas) no branch `dev/fase-2-predio`.
-  - **Fase 3: primeira implementação no branch `dev/fase-3-aurora-traders` (PR #2).** Aurora + dez traders Rocketbox com movimentos de cabeça/braço/respiração, crachás, números fictícios e interação E/✋; voz da Aurora opcional. A fase ainda não está integralmente concluída: falta ampliar a área para dez mesas reais, caminhar sem deslizar e testar em aparelhos físicos.
-  - **Validação desta entrega:** `npm ci`, `npm run check` (TypeScript, ESLint e Vitest), `npm run build` e teste Playwright `fase3` concluídos com sucesso no GitHub Actions: https://github.com/WillianSeS/sala-dos-robos/actions/runs/37835425279.
-  - **Próximo passo:** terminar os cenários/postos dos traders e suas animações/deslocamentos na Fase 3; depois avançar à Fase 4, sem pular os testes da anterior.
-  - A publicação de teste em `gh-pages/jogo3d/` foi autorizada pelo responsável em 08/10/2026. Endereço: https://willianses.github.io/sala-dos-robos/jogo3d/.
-  - Conectar o GitHub na conta Vercel continua opcional para as prévias automáticas (veja `jogo/docs/VIABILIDADE.md`).
-- **Validação em 08/10/2026:**
-  - Build de produção, TypeScript e ESLint aprovados; 30 testes unitários passaram.
-  - Playwright, em rodadas retomadas: os 7 casos de `fase2`, os 9 de `computador` e os casos de `celular` e `celular2` passaram. Os casos que falharam foram corrigidos e repetidos.
-  - A vista externa agora espera o primeiro quadro da fachada antes de abrir a cortina, inclusive com carregamento lento.
-  - Fixtures atualizadas para aproximar a poltrona pela frente, renderizar um quadro após mudar a orientação do celular e verificar a porta fechada do elevador no fim do novo hall.
-  - Recursos conferidos no caminho `/jogo3d/`: build idêntico a `jogo/dist/`, licenças incluídas e jogo antigo preservado.
-- **Publicação da prévia:** `gh-pages/jogo3d/`, conforme autorização explícita do responsável, **mostra apenas a Fase 2**. As fontes da Fase 3 ficam em `dev/fase-3-aurora-traders`, **não foram publicadas**; o jogo antigo e a `main` continuam preservados.
-- **Pendente da Fase 2:** gravar o vídeo demonstrativo (`npx playwright test --project=video2`, retomável; sai em `jogo/evidencias/fase2-sessao-*.mp4`) e entregar ao responsável. O vídeo não foi executado nesta tarefa de publicação.
+- **Onde parou (09/10/2026):**
+  - Fases 1–7 prontas no branch `dev/fase-2-predio`, que também contém a Fase 3 do PR #2, e publicadas em https://willianses.github.io/sala-dos-robos/jogo3d/.
+  - Resumo de cada fase em `jogo/README.md` ("Fases 3 a 8").
+  - Testes: `npm run check` e as suítes Playwright `computador`, `celular`, `fase2`, `celular2`, `fase5`, `fase6` e `fase7`.
+  - Publicar a prévia: build de `jogo/` e cópia de `jogo/dist` para `gh-pages/jogo3d/`, sem `sala.glb`.
+  - **Pendente:**
+    - Fase 8: Rapier sem `compat` (WASM separado), lightmaps, texturas compartilhadas;
+    - Fase 9: testes finais em aparelhos reais e com duas pessoas de verdade, incluindo a voz;
+    - vídeo da Fase 2 (`--project=video2`);
+    - trocar o jogo antigo pelo novo na raiz do site, só com autorização do responsável.
 - **Fluxo de trabalho:**
   - trabalhar em branch de desenvolvimento (`dev/...`);
   - **não** publicar na produção (`gh-pages`) e **não** alterar a `main` sem autorização do responsável;

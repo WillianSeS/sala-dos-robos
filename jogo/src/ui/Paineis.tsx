@@ -9,6 +9,7 @@ import { chamarElevador, voltarAoInicio } from '../mundo/navegacao';
 import { Mapa } from './Mapa';
 import { PainelElevador } from './PainelElevador';
 import { PainelMusica } from './PainelServico';
+import { PainelAmigos, PainelConversa } from './PainelConversa';
 import { ITENS } from '../jogos/itens';
 
 function Menu() {
@@ -21,6 +22,8 @@ function Menu() {
     { id: 'mapa', icone: '🗺️', titulo: 'Mapa', texto: 'Corte do prédio e onde você está', acao: () => setPainel('mapa') },
     { id: 'musica', icone: '🎵', titulo: 'Música', texto: 'Rádio da sala, arquivo seu ou Spotify', acao: () => setPainel('musica') },
     { id: 'cardapio', icone: '🍸', titulo: 'Cardápio', texto: 'Bebidas e comidas virtuais, sem custo', acao: () => setPainel('cardapio') },
+    { id: 'conversar', icone: '💬', titulo: 'Conversar', texto: 'Chat e voz com quem está na sala', acao: () => setPainel('conversar') },
+    { id: 'amigos', icone: '👥', titulo: 'Pessoas', texto: 'Quem está conectado agora e em que andar', acao: () => setPainel('amigos') },
     { id: 'configuracoes', icone: '⚙️', titulo: 'Configurações', texto: 'Gráficos, câmera e teclado', acao: () => setPainel('configuracoes') },
     { id: 'ajuda', icone: '❔', titulo: 'Controles', texto: 'Teclado, mouse e toque', acao: () => setPainel('ajuda') },
   ];
@@ -37,7 +40,6 @@ function Menu() {
           </button>
         ))}
       </div>
-      <p className="em-breve">Conversar e Amigos chegam com o multiplayer (Fase 7).</p>
     </>
   );
 }
@@ -215,6 +217,8 @@ export function Paineis() {
         {painel === 'elevador' && <PainelElevador />}
         {painel === 'musica' && <PainelMusica />}
         {painel === 'cardapio' && <InfoCardapio />}
+        {painel === 'conversar' && <PainelConversa />}
+        {painel === 'amigos' && <PainelAmigos />}
         <button type="button" className="botao-ouro" data-testid="fechar-painel" onClick={() => setPainel(null)}>
           {TITULO_VOLTAR[painel] ?? 'Voltar ao jogo'}
         </button>

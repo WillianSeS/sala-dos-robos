@@ -9,6 +9,7 @@ import { Cidade } from '../ambientes/Cidade';
 import { useJogo } from '../estado/jogo';
 import { Jogador } from '../jogador/Jogador';
 import { Andar } from '../mundo/Andar';
+import { Visitantes } from '../rede/Visitantes';
 import { Elevador } from '../mundo/Elevador';
 import { alturaAndar, Exterior } from '../mundo/Exterior';
 import { Cliques, Interacoes } from '../mundo/Interacoes';
@@ -62,6 +63,7 @@ function Interior({ preset }: { preset: Preset }) {
       <group visible={vista !== 'externa'}>
         <Suspense fallback={null}>
           <Andar key={andar} n={andar} preset={preset} />
+          <Visitantes />
         </Suspense>
         <Suspense fallback={null}>
           <Elevador />

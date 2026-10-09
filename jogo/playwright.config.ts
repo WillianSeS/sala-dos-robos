@@ -22,6 +22,7 @@ export default defineConfig({
     { name: 'celular', testMatch: /celular\.spec\.ts/, use: { ...devices['Pixel 7'] } },
     { name: 'video', testMatch: /sessao\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } } },
     { name: 'fase2', testMatch: /fase2\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
+    { name: 'fase7', testMatch: /fase7\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
     { name: 'fase6', testMatch: /fase6\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
     { name: 'fase5', testMatch: /fase5\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 960, height: 540 } } },
     { name: 'celular2', testMatch: /celular2\.spec\.ts/, use: { ...devices['Pixel 7'] } },

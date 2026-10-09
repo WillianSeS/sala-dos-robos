@@ -10,6 +10,7 @@ import { candidatar, retirar } from '../mundo/interacoes';
 import { telemetria } from '../testes/telemetria';
 import { DARDOS_POR_PARTIDA, NUMEROS, pontuar, TROFEUS, tremor } from './dardos';
 import { comandosJogo, useJogos } from './estado';
+import { registrarSinuca } from '../rede/sala';
 import { aoParar, novaPartida, passoFisica, planoRobo, R, tacar, tracarMira, type Partida } from './sinuca';
 import { Pessoa } from './Pessoa';
 
@@ -181,6 +182,10 @@ function Sinuca({ mesa }: { mesa: Marco }) {
       if (P.fase === 'rolando' && !passoFisica(P, dt)) {
         aoParar(P, ROBO_SINUCA);
         s.roboT = 1.2;
+        if ((P.fase as Partida['fase']) === 'fim' && !P.solo) {
+          const { voce, robo } = P.placar;
+          void registrarSinuca(voce > robo ? 'win' : voce < robo ? 'loss' : 'draw').then((r) => r && useJogo.getState().avisar(r));
+        }
       }
       // vez do robô: pensa, mira devagar e taca
       if (P.fase === 'roboPensa') {
