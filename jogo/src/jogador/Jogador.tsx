@@ -37,6 +37,7 @@ import { RECUO_SENTAR } from '../mundo/Andar';
 import { comandosElevador, comandosJogador, dentroDaCabine, PONTO_CABINE, planoCorte, type Assento } from '../mundo/comandos';
 import { acoesTeste, telemetria } from '../testes/telemetria';
 import { Cracha } from './Cracha';
+import { ItemNaMao } from '../jogos/Itens3D';
 import { amostrar, deslocamentoMundo, extrairRaiz, type CurvaRaiz } from './sentar';
 
 const ALTURA_OLHOS = 1.62;
@@ -129,6 +130,7 @@ export function Jogador({ preset }: { preset: Preset }) {
 
   const sombra = useMemo(() => sombraFalsa(), []);
   const ossosDanca = useMemo(() => ossosDeDanca(avatar), [avatar]);
+  const maoDireita = useMemo(() => avatar.getObjectByName('Bip01_R_Hand'), [avatar]);
 
   const s = useRef({
     vel: { x: 0, z: 0 },
@@ -572,6 +574,7 @@ export function Jogador({ preset }: { preset: Preset }) {
         <primitive object={avatar} />
       </group>
       <Cracha cabeca={ossos.cabeca} />
+      <ItemNaMao mao={maoDireita} />
       <mesh ref={sombraRef} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1} userData={{ semReflexo: true }}>
         <planeGeometry args={[0.9, 0.9]} />
         <meshBasicMaterial map={sombra} transparent depthWrite={false} opacity={preset.sombras ? 0.55 : 0.9} />

@@ -12,6 +12,7 @@ import { Andar } from '../mundo/Andar';
 import { Elevador } from '../mundo/Elevador';
 import { alturaAndar, Exterior } from '../mundo/Exterior';
 import { Cliques, Interacoes } from '../mundo/Interacoes';
+import { Consumo } from '../jogos/Servico';
 import { GanchosFisica, GanchosTeste } from '../testes/GanchosTeste';
 import { modoGravacao, modoTeste, telemetria } from '../testes/telemetria';
 import { Ambiente } from './Ambiente';
@@ -70,6 +71,7 @@ function Interior({ preset }: { preset: Preset }) {
         </Suspense>
       </group>
       <Interacoes />
+      <Consumo />
       <ProntoJogo />
       {modoTeste && <GanchosFisica />}
     </Physics>

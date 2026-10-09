@@ -15,6 +15,7 @@ import { Equipe40 } from './Equipe40';
 import { Telas40 } from './Telas40';
 import { Jogos41 } from '../jogos/Jogos41';
 import { Disco42, Lounge43, Show44 } from '../jogos/Ambientes';
+import { Bar, Copa40 } from '../jogos/Servico';
 import { Protecao } from '../motor/Protecao';
 import { materialIndicador } from './indicador';
 import { candidatar, retirar } from './interacoes';
@@ -185,6 +186,8 @@ export function Andar({ n, preset }: { n: NumeroAndar; preset: Preset }) {
       {n === 42 && <Disco42 marcos={dados.marcos} />}
       {n === 43 && <Lounge43 marcos={dados.marcos} />}
       {n === 44 && <Show44 marcos={dados.marcos} />}
+      {n >= 41 && <Bar n={n} marcos={dados.marcos} />}
+      {n === 40 && <Copa40 malhas={dados.malhas} />}
     </>
   );
 }

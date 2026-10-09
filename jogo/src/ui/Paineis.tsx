@@ -8,6 +8,8 @@ import { PRESETS } from '../motor/qualidade';
 import { chamarElevador, voltarAoInicio } from '../mundo/navegacao';
 import { Mapa } from './Mapa';
 import { PainelElevador } from './PainelElevador';
+import { PainelMusica } from './PainelServico';
+import { ITENS } from '../jogos/itens';
 
 function Menu() {
   const setPainel = useJogo((s) => s.setPainel);
@@ -17,6 +19,8 @@ function Menu() {
     { id: 'elevador', icone: '🛗', titulo: 'Elevador', texto: 'Leva você à cabine, com o painel aberto', acao: chamarElevador },
     { id: 'ambientes', icone: '🏢', titulo: 'Ambientes', texto: 'Os cinco andares e como chegar', acao: () => setPainel('mapa') },
     { id: 'mapa', icone: '🗺️', titulo: 'Mapa', texto: 'Corte do prédio e onde você está', acao: () => setPainel('mapa') },
+    { id: 'musica', icone: '🎵', titulo: 'Música', texto: 'Rádio da sala, arquivo seu ou Spotify', acao: () => setPainel('musica') },
+    { id: 'cardapio', icone: '🍸', titulo: 'Cardápio', texto: 'Bebidas e comidas virtuais, sem custo', acao: () => setPainel('cardapio') },
     { id: 'configuracoes', icone: '⚙️', titulo: 'Configurações', texto: 'Gráficos, câmera e teclado', acao: () => setPainel('configuracoes') },
     { id: 'ajuda', icone: '❔', titulo: 'Controles', texto: 'Teclado, mouse e toque', acao: () => setPainel('ajuda') },
   ];
@@ -33,7 +37,7 @@ function Menu() {
           </button>
         ))}
       </div>
-      <p className="em-breve">Música, Cardápio, Conversar e Amigos chegam nas próximas fases (6 e 7), junto com as interações e o multiplayer.</p>
+      <p className="em-breve">Conversar e Amigos chegam com o multiplayer (Fase 7).</p>
     </>
   );
 }
@@ -177,6 +181,22 @@ function Ajuda() {
   );
 }
 
+function InfoCardapio() {
+  return (
+    <>
+      <h2>Cardápio</h2>
+      <p className="nota">Peça no bar de qualquer andar de lazer (Caio ou Sofia atendem) ou use a copa e a geladeira do 40º. Tudo é virtual e de graça.</p>
+      <ul className="lista-cardapio">
+        {ITENS.map((i) => (
+          <li key={i.id}>
+            {i.emoji} {i.nome}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 const TITULO_VOLTAR: Record<string, string> = { elevador: 'Fechar o painel' };
 
 export function Paineis() {
@@ -193,6 +213,8 @@ export function Paineis() {
         {painel === 'ajuda' && <Ajuda />}
         {painel === 'mapa' && <Mapa />}
         {painel === 'elevador' && <PainelElevador />}
+        {painel === 'musica' && <PainelMusica />}
+        {painel === 'cardapio' && <InfoCardapio />}
         <button type="button" className="botao-ouro" data-testid="fechar-painel" onClick={() => setPainel(null)}>
           {TITULO_VOLTAR[painel] ?? 'Voltar ao jogo'}
         </button>

@@ -12,6 +12,7 @@ import { Hud } from './ui/Hud';
 import { Paineis } from './ui/Paineis';
 import { PainelJogos } from './ui/PainelJogos';
 import { BarraDanca } from './ui/BarraDanca';
+import { BarraItem, DocaSpotify, PainelCardapio } from './ui/PainelServico';
 
 aplicarInicioDaUrl();
 
@@ -31,6 +32,10 @@ export default function App() {
       <Paineis />
       <PainelJogos />
       <BarraDanca />
+      <BarraItem />
+      <PainelCardapio />
+      <DocaSpotify />
+      <audio id="audio-local" loop hidden />
       <Entrada />
       <Cortina />
       <Carregando />
