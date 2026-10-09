@@ -53,6 +53,7 @@ test('9. controles de celular: joystick, olhar, pinça, correr, câmera e intera
   await passos(page, 24);
   st = await estado(page);
   await toque(cdp, 'touchEnd', []);
+  await passos(page, 4); // o navegador fecha o gesto do joystick antes do próximo toque
   expect(st.locomocao).toBe('correndo');
   expect(st.velocidade).toBeGreaterThan(2.6);
   await page.getByTestId('botao-correr').tap();
