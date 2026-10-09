@@ -10,6 +10,7 @@ import { Cortina } from './ui/Cortina';
 import { Entrada } from './ui/Entrada';
 import { Hud } from './ui/Hud';
 import { Paineis } from './ui/Paineis';
+import { PainelJogos } from './ui/PainelJogos';
 
 aplicarInicioDaUrl();
 
@@ -27,6 +28,7 @@ export default function App() {
       <Hud />
       <ControlesToque />
       <Paineis />
+      <PainelJogos />
       <Entrada />
       <Cortina />
       <Carregando />

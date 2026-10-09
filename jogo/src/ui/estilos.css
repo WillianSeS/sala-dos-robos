@@ -333,3 +333,43 @@ kbd {
   .botao-andar { grid-template-columns: 1fr; justify-items: center; border-radius: 14px; padding: 6px; }
   .botao-andar .nome { font-size: 0.68rem; text-align: center; }
 }
+
+/* minijogos (sinuca, dardos, 21) */
+.jogo-topo {
+  position: absolute; left: 50%; top: max(12px, env(safe-area-inset-top)); transform: translateX(-50%); z-index: 6;
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 10px; max-width: calc(100% - 24px);
+  padding: 10px 18px; border-radius: 14px; background: var(--vidro-forte); border: 1px solid var(--ouro-linha); font-variant-numeric: tabular-nums;
+}
+.jogo-topo strong { color: var(--ouro-claro); letter-spacing: 0.06em; }
+.jogo-topo .vez { color: #8bfcdf; font-weight: 700; }
+.jogo-topo small { color: var(--texto-suave); }
+.jogo-base {
+  position: absolute; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 6;
+  width: min(560px, calc(100% - 24px)); padding: 12px 16px; border-radius: 16px; background: var(--vidro-forte); border: 1px solid var(--ouro-linha);
+}
+.jogo-base p { margin: 0 0 8px; font-size: 0.9rem; }
+.barra-forca { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); overflow: hidden; margin-bottom: 8px; }
+.barra-forca div { height: 100%; background: linear-gradient(90deg, #3ee08f, #ffd166, #ff5c6c); transition: width 0.05s linear; }
+.jogo-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.jogo-botoes .botao-ouro { margin: 0; flex: 1; min-width: 160px; }
+.jogo-botoes .botao-simples { min-height: 46px; }
+.botao-ouro.segurar { touch-action: none; user-select: none; }
+.trofeus { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; font-size: 0.72rem; color: var(--texto-suave); }
+.trofeus span { padding: 4px 7px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); }
+.trofeus .ganho { color: var(--ouro-claro); border-color: var(--ouro); background: rgba(216, 179, 106, 0.12); }
+.painel.vinteum { width: min(520px, 100%); background: linear-gradient(160deg, rgba(8, 24, 52, 0.96), rgba(6, 10, 22, 0.97)); }
+.mao h3 { margin: 10px 0 6px; }
+.cartas { display: flex; flex-wrap: wrap; gap: 8px; min-height: 76px; }
+.carta {
+  display: grid; place-items: center; width: 52px; height: 74px; border-radius: 8px; background: #fbf8f1; color: #161616;
+  font: 700 1.1rem Georgia, serif; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45); animation: carta-entra 0.25s ease;
+}
+.carta.vermelha { color: #c0262d; }
+.carta.fechada { background: repeating-linear-gradient(45deg, #7a1420 0 6px, #5e0f18 6px 12px); color: #f3d79a; }
+.fichas { font-variant-numeric: tabular-nums; color: var(--ouro-claro); }
+@media (max-height: 480px) {
+  .jogo-base { padding: 8px 12px; }
+  .jogo-base .nota, .trofeus { display: none; }
+}
+
+@keyframes carta-entra { from { opacity: 0; transform: translateY(-8px); } }

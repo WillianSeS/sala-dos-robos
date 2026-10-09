@@ -1,5 +1,6 @@
 /* Estado lido pelo HUD (FPS) e pelos testes automatizados. Os testes acessam window.__jogo quando a URL tem ?teste. */
 import { useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 
 export const telemetria = {
   pos: { x: 0, y: 0, z: 0 },
@@ -51,6 +52,7 @@ if (modoTeste && typeof window !== 'undefined') {
     estatisticas: () => acoesTeste.estatisticas?.(),
     avancar: (quadros: number, dt = 1 / 30) => acoesTeste.avancar?.(quadros, dt),
     loja: useJogo,
+    jogos: useJogos,
     navegar: acoesTeste,
   };
 }

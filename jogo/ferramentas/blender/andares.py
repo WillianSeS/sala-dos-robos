@@ -20,6 +20,9 @@ M.update({
     'couro_preto': material('couro_preto', 'couro_preto', tile=0.5),
     'carpete': material('carpete', 'carpete', tile=2.0),
     'pista': material('pista', 'pista', emissao='textura', forca=1.0, tile=0, rough=0.15),
+    'feltro': material('feltro', cor=(0.02, 0.22, 0.12), rough=0.95),
+    'feltro_azul': material('feltro_azul', cor=(0.02, 0.09, 0.22), rough=0.95),
+    'cacapa': material('cacapa', cor=(0.01, 0.01, 0.012), rough=0.9),
 })
 
 X0, X1, Z0, Z1, H = -7.0, 7.0, -8.0, 4.0, 3.6
@@ -195,6 +198,47 @@ elif NUM == 41:
     caixa('tapete', (0.3, 0.006, -3.0), (5.0, 0.012, 3.4), M['tapete'], 0.003)
     for i, x in enumerate((-1.0, 0.3, 1.6)):
         C.pendente(f'jogo_{i}', x, -3.0, H, y=2.4)
+    # mesa de sinuca oficial (campo 2,44 x 1,22 m, feltro a 0,80 m); o jogo desenha bolas e taco
+    SX, SZ, SY = 0.3, -3.0, 0.80
+    caixa('sinuca_feltro', (SX, SY - 0.02, SZ), (2.44, 0.04, 1.22), M['feltro'])
+    for lado in (-1, 1):
+        caixa(f'sinuca_tabela_x_{lado}', (SX, SY + 0.02, SZ + lado * 0.65), (2.6, 0.06, 0.08), M['feltro'], 0.01)
+        caixa(f'sinuca_tabela_z_{lado}', (SX + lado * 1.26, SY + 0.02, SZ), (0.08, 0.06, 1.3), M['feltro'], 0.01)
+        caixa(f'sinuca_borda_x_{lado}', (SX, SY + 0.01, SZ + lado * 0.74), (2.78, 0.1, 0.12), M['nogueira'], 0.02)
+        caixa(f'sinuca_borda_z_{lado}', (SX + lado * 1.35, SY + 0.01, SZ), (0.12, 0.1, 1.6), M['nogueira'], 0.02)
+    for px, pz in ((-1.22, -0.61), (0, -0.64), (1.22, -0.61), (-1.22, 0.61), (0, 0.64), (1.22, 0.61)):
+        cilindro(f'sinuca_cacapa_{px}_{pz}', (SX + px, SY + 0.005, SZ + pz), 0.065, 0.06, M['cacapa'], 20)
+    caixa('sinuca_saia', (SX, SY - 0.17, SZ), (2.7, 0.3, 1.52), M['nogueira'], 0.02)
+    for px in (-1.15, 1.15):
+        for pz in (-0.6, 0.6):
+            caixa(f'sinuca_perna_{px}_{pz}', (SX + px, 0.32, SZ + pz), (0.14, 0.64, 0.14), M['nogueira'], 0.02)
+    for k in range(-3, 4):
+        for lado in (-1, 1):
+            esfera(f'sinuca_diamante_{k}_{lado}', (SX + k * 0.305, SY + 0.065, SZ + lado * 0.74), 0.008, M['latao'], 8)
+    colisor((SX, 0.45, SZ), (1.42, 0.45, 0.82), nome='sinuca')
+    vazio('JOGO_sinuca', (SX, SY, SZ))
+    # suporte de tacos na parede norte
+    caixa('suporte_tacos', (3.4, 1.2, Z0 + 0.12), (0.9, 1.4, 0.06), M['nogueira'], 0.01)
+    for k in range(5):
+        cilindro(f'taco_parede_{k}', (3.05 + k * 0.17, 1.2, Z0 + 0.17), 0.012, 1.45, M['nogueira'], 10)
+    # alvo de dardos na parede sul (oeste do vão), linha de arremesso a 2,37 m
+    AX, AY, AZ = -4.2, 1.73, Z1 - 0.06
+    caixa('dardos_armario', (AX, AY, Z1 - 0.04), (0.82, 0.86, 0.06), M['nogueira'], 0.01)
+    cilindro('dardos_aro', (AX, AY, AZ - 0.02), 0.25, 0.04, M['metal_preto'], 48, eixo='z')
+    C.plano('TELA_dardos', (AX, AY, AZ - 0.045), 0.46, 0.46, M['tela'], math.pi)
+    caixa('dardos_linha', (AX, 0.004, AZ - 2.37), (0.6, 0.008, 0.04), M['latao'])
+    vazio('JOGO_dardos', (AX, AY, AZ - 0.045))
+    vazio('JOGO_dardos_linha', (AX, 0, AZ - 2.37 - 0.25), yaw=math.pi)
+    # mesa do Clube do 21 (meia-lua com feltro azul) e lugar do crupiê
+    VX, VZ = -2.2, 1.4
+    cilindro('vinteum_tampo', (VX, 0.76, VZ), 0.95, 0.05, M['nogueira'], 48)
+    cilindro('vinteum_feltro', (VX, 0.79, VZ), 0.86, 0.012, M['feltro_azul'], 48)
+    cilindro('vinteum_pe', (VX, 0.38, VZ), 0.12, 0.74, M['metal_preto'], 20)
+    cilindro('vinteum_base', (VX, 0.02, VZ), 0.45, 0.04, M['metal_preto'], 32)
+    colisor((VX, 0.4, VZ), (0.8, 0.4, 0.8), nome='vinteum')
+    vazio('JOGO_vinteum', (VX, 0.8, VZ))
+    vazio('PESSOA_crupie', (VX, 0, VZ - 1.25), yaw=0.0)
+    vazio('JOGO_vinteum_jogador', (VX, 0, VZ + 1.3), yaw=math.pi)
     bar(6.0, -3.0, 2.0)
     C.planta('planta_a', X0 + 0.5, Z0 + 0.5, 1.6, 60)
     C.planta('planta_b', X1 - 0.5, Z0 + 0.5, 1.6, 60)

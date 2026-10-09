@@ -45,6 +45,7 @@ declare global {
       estatisticas: () => Record<string, number>;
       avancar: (quadros: number, dt?: number) => void;
       loja: { getState: () => { versaoCena: number; teclas: Record<string, string>; setPreferencia: (k: string, v: unknown) => void; setPainel: (p: string | null) => void } };
+      jogos: { getState: () => { ativo: string | null; hud: Record<string, string | number | boolean> } };
       navegar: {
         irPara?: (n: number) => void;
         chamarElevador?: () => void;

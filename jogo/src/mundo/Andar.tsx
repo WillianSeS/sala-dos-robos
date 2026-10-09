@@ -13,6 +13,7 @@ import { aplicarCorte, comandosJogador, type Assento, type Ponto } from './coman
 import { Especiais } from './Especiais';
 import { Equipe40 } from './Equipe40';
 import { Telas40 } from './Telas40';
+import { Jogos41 } from '../jogos/Jogos41';
 import { Protecao } from '../motor/Protecao';
 import { materialIndicador } from './indicador';
 import { candidatar, retirar } from './interacoes';
@@ -64,7 +65,7 @@ export function prepararCena(scene: THREE.Object3D) {
       return;
     }
     if (o.name.startsWith('LUZ_')) luzes[o.name] = o.getWorldPosition(new THREE.Vector3());
-    if (/^(SPAWN_|PONTO_|MIRA_|SENTAR_|TRADER_|PESSOA_)/.test(o.name)) {
+    if (/^(SPAWN_|PONTO_|MIRA_|SENTAR_|TRADER_|PESSOA_|JOGO_)/.test(o.name)) {
       o.matrixWorld.decompose(_p, _q, _s);
       const yaw = _e.setFromQuaternion(_q, 'YXZ').y;
       marcos[o.name] = { x: _p.x, y: _p.y, z: _p.z, yaw };
@@ -177,6 +178,7 @@ export function Andar({ n, preset }: { n: NumeroAndar; preset: Preset }) {
         </Protecao>
       )}
       {n === 40 && <Telas40 malhas={dados.malhas} />}
+      {n === 41 && <Jogos41 marcos={dados.marcos} malhas={dados.malhas} />}
     </>
   );
 }

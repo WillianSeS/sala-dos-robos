@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useJogos } from '../jogos/estado';
 import { TECLAS_PADRAO, type MapaTeclas } from '../controles/teclas';
 import type { NumeroAndar } from '../mundo/andares';
 import type { FaseElevador } from '../mundo/elevador';
@@ -152,5 +153,5 @@ export const useJogo = create<EstadoJogo>((set, get) => ({
 /** O jogador pode andar e olhar? (nenhum painel aberto, dentro do prédio, sem transição em curso) */
 export function controleLivre() {
   const s = useJogo.getState();
-  return !s.painel && s.etapa === 'jogo' && s.vista !== 'externa' && !s.cortina;
+  return !s.painel && s.etapa === 'jogo' && s.vista !== 'externa' && !s.cortina && !useJogos.getState().ativo;
 }

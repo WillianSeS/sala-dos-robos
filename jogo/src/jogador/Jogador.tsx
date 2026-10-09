@@ -29,6 +29,7 @@ import {
   velocidadeAlvo,
 } from '../controles/movimento';
 import { controleLivre, useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 import { useModelo } from '../motor/carregar';
 import type { Preset } from '../motor/qualidade';
 import { RECUO_SENTAR } from '../mundo/Andar';
@@ -417,7 +418,10 @@ export function Jogador({ preset }: { preset: Preset }) {
     // primeira pessoa: esconde a cabeça (o corpo continua visível ao olhar para baixo)
     ossos.cabeca.scale.setScalar(primeira ? 0.001 : 1);
 
-    if (jogo.vista !== 'externa') atualizarCamera(w, dt, cmd.fase === 'livre' || cmd.fase === 'aproximando' ? p : s.grupo, primeira, cmd.fase);
+    const cameraDoJogo = useJogos.getState().ativo === 'sinuca' || useJogos.getState().ativo === 'dardos';
+    // nos minijogos com câmera própria o avatar sai da frente (a câmera fica sobre a mesa ou na linha de arremesso)
+    if (cameraDoJogo) g.visible = false;
+    if (jogo.vista !== 'externa' && !cameraDoJogo) atualizarCamera(w, dt, cmd.fase === 'livre' || cmd.fase === 'aproximando' ? p : s.grupo, primeira, cmd.fase);
 
     // telemetria para HUD e testes
     const atual = acoes[CLIPE[s.estado]];

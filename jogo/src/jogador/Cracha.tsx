@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 
 const _v = new THREE.Vector3();
 
@@ -44,7 +45,7 @@ export function Cracha({ cabeca }: { cabeca: THREE.Object3D }) {
     const sp = sprite.current;
     if (!sp) return;
     const jogo = useJogo.getState();
-    sp.visible = jogo.mostrarNome && !(jogo.modoCamera === 'primeira' && jogo.vista === 'normal') && jogo.vista !== 'externa';
+    sp.visible = !useJogos.getState().ativo && jogo.mostrarNome && !(jogo.modoCamera === 'primeira' && jogo.vista === 'normal') && jogo.vista !== 'externa';
     cabeca.getWorldPosition(_v);
     sp.position.set(_v.x, _v.y + 0.38, _v.z);
   });

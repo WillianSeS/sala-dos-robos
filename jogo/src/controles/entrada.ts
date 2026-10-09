@@ -1,6 +1,7 @@
 /* Entrada do jogador: teclado, mouse e toque escrevem aqui; o laço do jogo lê e consome a cada quadro. */
 import { useEffect } from 'react';
 import { useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 
 export const entrada = {
   teclas: new Set<string>(),
@@ -52,6 +53,10 @@ export function useTeclado() {
       if (digitando(e)) return;
       const jogo = useJogo.getState();
       if (jogo.etapa !== 'jogo') return;
+      if (e.code === 'Escape' && useJogos.getState().ativo) {
+        useJogos.getState().fechar();
+        return;
+      }
       if (e.code === 'Escape') {
         if (jogo.vista === 'externa') jogo.setVista('normal');
         else jogo.setPainel(jogo.painel ? null : 'menu');

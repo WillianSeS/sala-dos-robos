@@ -4,6 +4,7 @@ import { useProgress } from '@react-three/drei';
 import { useEffect, useState } from 'react';
 import { rotuloTecla } from '../controles/teclas';
 import { useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 import { INFO_ANDAR, type NumeroAndar } from '../mundo/andares';
 import { vistaExterna } from '../mundo/navegacao';
 import { telemetria } from '../testes/telemetria';
@@ -51,6 +52,7 @@ export function Hud() {
   const toque = useJogo((s) => s.toque);
   const mostrarFps = useJogo((s) => s.mostrarFps);
   const teclas = useJogo((s) => s.teclas);
+  const minijogo = useJogos((s) => s.ativo);
   const [ajudaRapida, setAjudaRapida] = useState(true);
   useEffect(() => {
     if (etapa !== 'jogo') return;
@@ -58,7 +60,7 @@ export function Hud() {
     const id = setTimeout(() => setAjudaRapida(false), 10000);
     return () => clearTimeout(id);
   }, [etapa]);
-  if (etapa !== 'jogo') return null;
+  if (etapa !== 'jogo' || minijogo) return null;
   const info = INFO_ANDAR[andar as NumeroAndar];
   const k = (a: keyof typeof teclas) => rotuloTecla(teclas[a]);
 

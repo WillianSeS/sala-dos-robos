@@ -2,6 +2,7 @@
 import { useRef, useState } from 'react';
 import { entrada } from '../controles/entrada';
 import { useJogo } from '../estado/jogo';
+import { useJogos } from '../jogos/estado';
 
 const RAIO = 52;
 
@@ -67,7 +68,8 @@ export function ControlesToque() {
   const painel = useJogo((s) => s.painel);
   const etapa = useJogo((s) => s.etapa);
   const vista = useJogo((s) => s.vista);
-  if (!toque || painel || etapa !== 'jogo' || vista === 'externa') return null;
+  const minijogo = useJogos((s) => s.ativo);
+  if (!toque || painel || etapa !== 'jogo' || vista === 'externa' || minijogo) return null;
   const parar = (e: React.PointerEvent) => e.stopPropagation();
   return (
     <div className="controles-toque">
