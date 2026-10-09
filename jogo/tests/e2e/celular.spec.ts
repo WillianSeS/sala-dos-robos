@@ -58,6 +58,18 @@ test('9. controles de celular: joystick, olhar, pinça, correr, câmera e intera
   expect(st.velocidade).toBeGreaterThan(2.6);
   await page.getByTestId('botao-correr').tap();
   expect((await estado(page)).ui.correndoToque).toBe(false);
+  // segundo dedo no botão de correr enquanto o primeiro segura o joystick (gesto de vários dedos)
+  const bc = await centro(page.getByTestId('botao-correr'));
+  await toque(cdp, 'touchStart', [{ ...j, id: 7 }]);
+  await toque(cdp, 'touchMove', [{ x: j.x, y: j.y - 60, id: 7 }]);
+  await toque(cdp, 'touchStart', [{ x: j.x, y: j.y - 60, id: 7 }, { ...bc, id: 8 }]);
+  await toque(cdp, 'touchEnd', [{ x: j.x, y: j.y - 60, id: 7 }]);
+  await passos(page, 2);
+  expect((await estado(page)).ui.correndoToque).toBe(true);
+  await toque(cdp, 'touchEnd', []);
+  await passos(page, 4);
+  await page.getByTestId('botao-correr').tap();
+  expect((await estado(page)).ui.correndoToque).toBe(false);
 
   // botão de câmera
   await page.getByTestId('botao-camera-toque').tap();

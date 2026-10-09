@@ -71,6 +71,21 @@ export function ControlesToque() {
   const minijogo = useJogos((s) => s.ativo);
   if (!toque || painel || etapa !== 'jogo' || vista === 'externa' || minijogo) return null;
   const parar = (e: React.PointerEvent) => e.stopPropagation();
+  /* Com o dedo no joystick o navegador não gera "click" para um segundo toque (gesto de vários dedos): no toque a
+     ação acontece ao soltar o dedo; mouse e teclado continuam pelo click. */
+  const acao = (f: () => void) => ({
+    onPointerDown: parar,
+    onPointerUp: (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (e.pointerType === 'mouse' || e.currentTarget.disabled) return;
+      e.currentTarget.dataset.toque = String(e.timeStamp);
+      f();
+    },
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+      const t = Number(e.currentTarget.dataset.toque ?? -1e9);
+      if (e.timeStamp - t < 800) return; // já tratado no pointerup do mesmo toque
+      f();
+    },
+  });
   return (
     <div className="controles-toque">
       <Joystick />
@@ -81,10 +96,9 @@ export function ControlesToque() {
           data-testid="botao-interagir"
           disabled={!podeInteragir}
           aria-label={dica ?? 'Interagir'}
-          onPointerDown={parar}
-          onClick={() => {
+          {...acao(() => {
             entrada.interagir = true;
-          }}
+          })}
         >
           <span aria-hidden>✋</span>
           <small>{dica && dica !== 'Sentar' && dica !== 'Levantar' ? dica : 'Interagir'}</small>
@@ -95,10 +109,9 @@ export function ControlesToque() {
           data-testid="botao-sentar"
           disabled={!podeSentar}
           aria-label={sentado ? 'Levantar' : 'Sentar'}
-          onPointerDown={parar}
-          onClick={() => {
+          {...acao(() => {
             entrada.sentar = true;
-          }}
+          })}
         >
           <span aria-hidden>🪑</span>
           <small>{sentado ? 'Levantar' : 'Sentar'}</small>
@@ -109,8 +122,7 @@ export function ControlesToque() {
           data-testid="botao-correr"
           aria-pressed={correndo}
           aria-label="Correr"
-          onPointerDown={parar}
-          onClick={alternarCorrida}
+          {...acao(alternarCorrida)}
         >
           <span aria-hidden>🏃</span>
           <small>{correndo ? 'Correndo' : 'Correr'}</small>
@@ -120,8 +132,7 @@ export function ControlesToque() {
           className="botao-redondo"
           data-testid="botao-camera-toque"
           aria-label="Trocar câmera"
-          onPointerDown={parar}
-          onClick={alternarCamera}
+          {...acao(alternarCamera)}
         >
           <span aria-hidden>{modo === 'terceira' ? '👁️' : '🎥'}</span>
           <small>{modo === 'terceira' ? '1ª pessoa' : '3ª pessoa'}</small>
