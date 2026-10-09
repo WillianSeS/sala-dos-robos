@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { clone as clonarComEsqueleto } from 'three/addons/utils/SkeletonUtils.js';
 import { useModelo } from '../motor/carregar';
 import { Protecao } from '../motor/Protecao';
+import { aplicarDanca, BATIDA, guardarPose, ossosDeDanca, pose, restaurarPose, type Estilo } from './danca';
 
 export interface PropsPessoa {
   modelo: string;
@@ -16,6 +17,10 @@ export interface PropsPessoa {
   /** Movimento opcional do corpo (deslocamento e giro), chamado a cada quadro. */
   mover?: (t: number, g: THREE.Group) => void;
   altura?: number;
+  /** Estilo de dança agora (ou null), aplicado por cima do clipe. */
+  danca?: (t: number) => Estilo | null;
+  /** Deslocamento de fase da dança (dançarinos fora de sincronia). */
+  fase?: number;
 }
 
 function cracha(nome: string) {
@@ -40,7 +45,7 @@ function cracha(nome: string) {
   return t;
 }
 
-function Corpo({ modelo, lugar, nome, clipe, mover, altura = 2.05 }: PropsPessoa) {
+function Corpo({ modelo, lugar, nome, clipe, mover, altura = 2.05, danca, fase = 0 }: PropsPessoa) {
   const { scene } = useModelo('people/' + modelo + '.json');
   const anim = useModelo('people/anim_' + (modelo.includes('Female') ? 'f' : 'm') + '.json');
   const rig = useMemo(() => {
@@ -59,15 +64,16 @@ function Corpo({ modelo, lugar, nome, clipe, mover, altura = 2.05 }: PropsPessoa
     const mixer = new THREE.AnimationMixer(c);
     const acoes: Record<string, THREE.AnimationAction> = {};
     for (const a of anim.animations) acoes[a.name] = mixer.clipAction(a);
-    return { c, mixer, acoes, atual: null as THREE.AnimationAction | null };
+    return { c, mixer, acoes, atual: null as THREE.AnimationAction | null, ossos: ossosDeDanca(c), base: c.position.clone(), guarda: [] as (THREE.Quaternion | null)[], dancou: false };
   }, [scene, anim.animations]);
   const etiqueta = useMemo(() => (nome ? cracha(nome) : null), [nome]);
   useEffect(() => () => etiqueta?.dispose(), [etiqueta]);
   const grupo = useRef<THREE.Group>(null);
   const tempo = useRef(Math.random() * 10);
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     tempo.current += Math.min(dt, 0.1);
-    const nomeClipe = clipe(tempo.current);
+    const relogio = state.clock.elapsedTime; // relógio comum a todos (shows e danças sincronizados)
+    const nomeClipe = clipe(relogio);
     const a = rig.acoes[nomeClipe] ?? rig.acoes.idle;
     if (a && a !== rig.atual) {
       rig.atual?.fadeOut(0.45);
@@ -76,7 +82,19 @@ function Corpo({ modelo, lugar, nome, clipe, mover, altura = 2.05 }: PropsPessoa
       a.setEffectiveWeight(1).fadeIn(0.45).play();
       rig.atual = a;
     }
+    if (rig.dancou) restaurarPose(rig.ossos, rig.guarda);
     rig.mixer.update(Math.min(dt, 0.1));
+    const estilo = danca?.(relogio) ?? null;
+    rig.dancou = !!estilo;
+    if (estilo) {
+      guardarPose(rig.ossos, rig.guarda);
+      const r = aplicarDanca(rig.ossos, pose(estilo, relogio / BATIDA + fase));
+      rig.c.position.set(rig.base.x + r.passo, rig.base.y + r.pulo, rig.base.z);
+      rig.c.rotation.y = r.giro;
+    } else if (rig.c.rotation.y !== 0) {
+      rig.c.position.copy(rig.base);
+      rig.c.rotation.y = 0;
+    }
     if (mover && grupo.current) mover(tempo.current, grupo.current);
   });
   return (

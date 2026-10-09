@@ -373,3 +373,12 @@ kbd {
 }
 
 @keyframes carta-entra { from { opacity: 0; transform: translateY(-8px); } }
+
+/* danças */
+.barra-danca {
+  position: absolute; left: 50%; top: calc(max(12px, env(safe-area-inset-top)) + 120px); transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 3;
+}
+@media (max-width: 720px), (max-height: 480px) {
+  .barra-danca { top: auto; bottom: calc(max(22px, env(safe-area-inset-bottom)) + 170px); right: max(18px, env(safe-area-inset-right)); left: auto; transform: none; flex-direction: column; }
+}

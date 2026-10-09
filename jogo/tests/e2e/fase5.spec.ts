@@ -77,3 +77,36 @@ test('Clube do 21: rodada com aposta de fichas de brincadeira, pedir, parar e re
   await foto(page, 'vinteum');
   expect(msgs).toEqual([]);
 });
+
+test('ambientes: dançar na discoteca (3 danças), narguilé virtual no lounge e aplausos no show', async ({ page }) => {
+  const msgs = vigiarConsole(page);
+  await abrir(page, { quadro: true, andar: 42 });
+  await expect(page.getByTestId('barra-danca')).toBeVisible();
+  for (const d of ['balanco', 'disco', 'festa']) {
+    await page.getByTestId(`danca-${d}`).click();
+    await passos(page, 20);
+    expect(await page.evaluate(() => window.__jogo.jogos.getState().danca)).toBe(d);
+  }
+  await foto(page, 'dancando');
+  // andar interrompe a dança
+  await page.keyboard.down('KeyW');
+  await passos(page, 10);
+  await page.keyboard.up('KeyW');
+  expect(await page.evaluate(() => window.__jogo.jogos.getState().danca)).toBeNull();
+  expect(msgs).toEqual([]);
+});
+
+test('narguilé virtual e aplauso no show', async ({ page }) => {
+  const msgs = vigiarConsole(page);
+  await abrir(page, { quadro: true, andar: 43 });
+  await posicionar(page, -3.0, -1.6, -2.4);
+  await avancarAte(page, (s) => s.ui.dica === 'Usar o narguilé (virtual)', { max: 20, msg: 'narguilé perto' });
+  await page.keyboard.press('KeyE');
+  await avancarAte(page, (s) => !!s.ui.aviso && s.ui.aviso.includes('sem tabaco'), { max: 10, msg: 'aviso do narguilé' });
+  await abrir(page, { quadro: true, andar: 44 });
+  await posicionar(page, 0, -2.5, Math.PI);
+  await avancarAte(page, (s) => s.ui.dica === 'Aplaudir o show', { max: 20, msg: 'perto do palco' });
+  await page.keyboard.press('KeyE');
+  await avancarAte(page, (s) => !!s.ui.aviso && s.ui.aviso.includes('aplaudiu'), { max: 10, msg: 'aplauso' });
+  expect(msgs).toEqual([]);
+});

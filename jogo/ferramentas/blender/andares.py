@@ -78,6 +78,8 @@ def bar(x, z0, z1, mat_corpo=None):
     caixa('bar_tampo', (x - 0.06, 1.065, (z0 + z1) / 2), (0.72, 0.05, z1 - z0 + 0.12), M['marmore'], 0.01)
     caixa('bar_led', (x - 0.29, 1.03, (z0 + z1) / 2), (0.012, 0.012, z1 - z0), N_NEON)
     colisor((x - 0.04, 0.54, (z0 + z1) / 2), (0.36, 0.54, (z1 - z0) / 2 + 0.06), nome='bar')
+    vazio('PESSOA_bar', (x + 0.6, 0, (z0 + z1) / 2), yaw=-math.pi / 2)
+    vazio('PONTO_balcao', (x - 1.1, 0, (z0 + z1) / 2), yaw=math.pi / 2)
     n = int((z1 - z0) / 0.9)
     for i in range(n):
         C.banqueta(f'banqueta_{i}', x - 0.72, z0 + 0.45 + i * 0.9)
@@ -258,6 +260,9 @@ elif NUM == 42:
     C.sofa('sofa_o', -6.4, 0.5, 0.0, 3.0, M['couro_preto'])
     C.sofa('sofa_l', 4.8, -4.5, math.pi, 2.4, M['couro_preto'])
     bar(6.0, -1.5, 3.0, M['metal_preto'])
+    vazio('PESSOA_dj', (0, 0.3, -7.15), yaw=0.0)
+    for i, (x, z) in enumerate(((-1.7, -3.9), (1.7, -3.9), (-1.0, -1.5), (1.3, -1.4))):
+        vazio(f'DANCA_{i}', (x, 0, z), yaw=math.pi if z > -2 else 0.0)
 elif NUM == 43:
     caixa('tapete_a', (-3.5, 0.006, -2.5), (4.0, 0.012, 3.2), M['tapete'], 0.003)
     caixa('tapete_b', (2.0, 0.006, -4.5), (3.4, 0.012, 2.8), M['tapete'], 0.003)
@@ -272,6 +277,16 @@ elif NUM == 43:
     bar(6.0, -2.0, 2.5)
     for i, (x, z) in enumerate(((-3.8, -2.5), (2.0, -4.6))):
         C.pendente(f'lounge_{i}', x, z, H, y=2.5)
+        # narguilé de vidro e latão sobre a mesa baixa (uso virtual, sem fumaça real)
+        y0 = 0.44
+        cilindro(f'narguile_{i}_base', (x, y0 + 0.11, z), 0.09, 0.22, M['vidro'], 24, 0.05)
+        cilindro(f'narguile_{i}_agua', (x, y0 + 0.07, z), 0.075, 0.12, M['garrafa_verde'], 24, 0.05)
+        cilindro(f'narguile_{i}_haste', (x, y0 + 0.42, z), 0.014, 0.42, M['latao'], 12)
+        cilindro(f'narguile_{i}_prato', (x, y0 + 0.5, z), 0.07, 0.008, M['latao'], 24)
+        cilindro(f'narguile_{i}_fornilho', (x, y0 + 0.66, z), 0.035, 0.07, M['ceramica'], 16, 0.025)
+        esfera(f'narguile_{i}_brasa', (x, y0 + 0.705, z), 0.02, M['led_ouro'], 10)
+        cilindro(f'narguile_{i}_mangueira', (x + 0.16, y0 + 0.28, z + 0.05), 0.012, 0.42, M['couro_preto'], 10)
+        vazio(f'NARGUILE_{i}', (x, y0 + 0.72, z))
     C.planta('planta_a', X0 + 0.5, Z0 + 0.5, 1.6, 60)
     C.planta('planta_b', X0 + 0.5, Z1 - 0.6, 1.4, 55)
 elif NUM == 44:
@@ -290,6 +305,8 @@ elif NUM == 44:
     bar(6.0, 0.4, 3.4)
     for i, x in enumerate((-3, 0, 3)):
         vazio(f'LUZ_palco_{i}', (x, 3.3, -5.0))
+    for i, x in enumerate((-1.7, 0.0, 1.7)):
+        vazio(f'PESSOA_artista_{i}', (x, 0.6, -6.55), yaw=0.0)
     C.planta('planta_a', X0 + 0.5, Z1 - 0.6, 1.5, 55)
 
 C.hall_elevador(NUM, T['nome'], fonte=SERIF, cor_neon=T['neon'])

@@ -30,6 +30,7 @@ import {
 } from '../controles/movimento';
 import { controleLivre, useJogo } from '../estado/jogo';
 import { useJogos } from '../jogos/estado';
+import { aplicarDanca, BATIDA, guardarPose, ossosDeDanca, pose, restaurarPose } from '../jogos/danca';
 import { useModelo } from '../motor/carregar';
 import type { Preset } from '../motor/qualidade';
 import { RECUO_SENTAR } from '../mundo/Andar';
@@ -127,6 +128,7 @@ export function Jogador({ preset }: { preset: Preset }) {
   );
 
   const sombra = useMemo(() => sombraFalsa(), []);
+  const ossosDanca = useMemo(() => ossosDeDanca(avatar), [avatar]);
 
   const s = useRef({
     vel: { x: 0, z: 0 },
@@ -152,6 +154,8 @@ export function Jogador({ preset }: { preset: Preset }) {
     grupo: new THREE.Vector3(),
     residuo: { x: 0, z: 0, calculado: false },
     virando: false,
+    dancou: false,
+    guardaDanca: [] as (THREE.Quaternion | null)[],
     tempo: 0,
   }).current;
 
@@ -266,6 +270,7 @@ export function Jogador({ preset }: { preset: Preset }) {
     let alvoX = 0;
     let alvoZ = 0;
     let alvoV = 0;
+    if (eixo.forca > 0.5 && useJogos.getState().danca) useJogos.getState().setDanca(null);
     if (cmd.fase === 'livre') {
       const correr = corridaTeclado(entrada.teclas, jogo.teclas) || jogo.correndoToque;
       alvoV = velocidadeAlvo(eixo.forca, correr);
@@ -413,7 +418,20 @@ export function Jogador({ preset }: { preset: Preset }) {
         voltarLivre();
       }
     }
+    if (s.dancou) restaurarPose(ossosDanca, s.guardaDanca);
     mixer.update(dt);
+    // dança por cima da respiração (parado e livre)
+    const danca = useJogos.getState().danca;
+    s.dancou = !!(danca && cmd.fase === 'livre' && s.velReal < 0.1);
+    if (danca && cmd.fase === 'livre' && s.velReal < 0.1) {
+      guardarPose(ossosDanca, s.guardaDanca);
+      const r = aplicarDanca(ossosDanca, pose(danca, s.tempo / BATIDA));
+      avatar.position.set(r.passo, r.pulo, 0);
+      avatar.rotation.y = r.giro;
+    } else if (avatar.rotation.y !== 0 || avatar.position.y !== 0) {
+      avatar.position.set(0, 0, 0);
+      avatar.rotation.y = 0;
+    }
 
     // primeira pessoa: esconde a cabeça (o corpo continua visível ao olhar para baixo)
     ossos.cabeca.scale.setScalar(primeira ? 0.001 : 1);
