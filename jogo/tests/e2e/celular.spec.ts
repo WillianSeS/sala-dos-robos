@@ -63,7 +63,7 @@ test('9. controles de celular: joystick, olhar, pinça, correr, câmera e intera
   await toque(cdp, 'touchStart', [{ ...j, id: 7 }]);
   await toque(cdp, 'touchMove', [{ x: j.x, y: j.y - 60, id: 7 }]);
   await toque(cdp, 'touchStart', [{ x: j.x, y: j.y - 60, id: 7 }, { ...bc, id: 8 }]);
-  await toque(cdp, 'touchEnd', [{ x: j.x, y: j.y - 60, id: 7 }]);
+  await toque(cdp, 'touchEnd', [{ ...bc, id: 8 }]); // solta só o dedo do botão
   await passos(page, 2);
   expect((await estado(page)).ui.correndoToque).toBe(true);
   await toque(cdp, 'touchEnd', []);
